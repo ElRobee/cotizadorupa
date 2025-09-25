@@ -936,13 +936,38 @@ _"Documento válido sólo como Cotización"_
     let whatsappUrl;
     if (phoneNumber && phoneNumber.length >= 8) {
       const cleanPhone = phoneNumber.startsWith('56') ? phoneNumber : `56${phoneNumber.slice(-8)}`;
-      whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodedMessage}`;
+      // Intentar primero con el protocolo whatsapp://
+      whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodedMessage}`;
     } else {
-      whatsappUrl = `https://web.whatsapp.com/send?text=${encodedMessage}`;
+      whatsappUrl = `whatsapp://send?text=${encodedMessage}`;
     }
 
-    window.open(whatsappUrl, '_blank');
-    showNotification('Abriendo WhatsApp...', 'info');
+    // Intentar abrir la app nativa primero
+    try {
+      window.location.href = whatsappUrl;
+      
+      // Si después de un breve momento no se abrió la app, intentar con la versión web
+      setTimeout(() => {
+        if (document.hidden) {
+          // La app se abrió exitosamente
+          showNotification('WhatsApp abierto correctamente', 'success');
+        } else {
+          // Falló la apertura de la app, usar versión web
+          const webUrl = phoneNumber && phoneNumber.length >= 8
+            ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
+            : `https://web.whatsapp.com/send?text=${encodedMessage}`;
+          window.open(webUrl, '_blank');
+          showNotification('Abriendo WhatsApp Web...', 'info');
+        }
+      }, 500);
+    } catch (error) {
+      // Si hay algún error, usar la versión web como respaldo
+      const webUrl = phoneNumber && phoneNumber.length >= 8
+        ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
+        : `https://web.whatsapp.com/send?text=${encodedMessage}`;
+      window.open(webUrl, '_blank');
+      showNotification('Abriendo WhatsApp Web...', 'info');
+    }
   };
 
   const exportToPDF = async (quotation) => {
