@@ -15,7 +15,7 @@ export const generateQuotationPDF = async (quotation, company, client) => {
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
   ${company?.logo 
-    ? `<img src="${company.logo}" alt="Logo empresa" style="width: 120px; height: 80px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
+    ? `<img src="${company.logo}" alt="Logo empresa" style="width: 220px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
     : ''
   }
   <div style="text-align: left;">
@@ -38,15 +38,14 @@ export const generateQuotationPDF = async (quotation, company, client) => {
           <h3 style="color: #333;">CLIENTE</h3>
           <p><strong>${client?.empresa || quotation.client}</strong></p>
           <p>RUT: ${client?.rut || ''}</p>
+          <p>${client?.direccion || ''} - ${client?.ciudad || ''}, ${client?.region || ''}</p>
           <p>Contacto: ${client?.encargado || ''}</p>
-          <p>${client?.direccion || ''}</p>
-          <p>${client?.ciudad || ''}, ${client?.region || ''}</p>
           <p>Tel: ${client?.telefono || ''}</p>
           <p>Email: ${client?.email || ''}</p>
         </div>
       </div>
 
-      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
         <thead>
           <tr style="background-color: #f5f5f5;">
             <th style="border: 1px solid #ddd; padding: 12px; text-align: left;">Cantidad</th>
