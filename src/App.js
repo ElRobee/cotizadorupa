@@ -47,6 +47,15 @@ import QuotationModal from './components/QuotationModal';
 import ClientModal from './components/ClientModal';
 import ServiceModal from './components/ServiceModal';
 import AuthView from './components/AuthView';
+import { 
+  handleThemeChange, 
+  toggleDarkMode, 
+  handleLogoUpload, 
+  removeLogo, 
+  saveCompanySettings, 
+  loadSavedSettings, 
+  getThemeClasses 
+} from './lib/utils.js';
 
 // SIMULACIÓN DE FIREBASE AUTH
 const mockFirebaseAuth = {
@@ -209,6 +218,11 @@ const CotizacionesApp = () => {
   const [theme, setTheme] = useState('blue');
   const [darkMode, setDarkMode] = useState(false);
   const [compactView, setCompactView] = useState(false);
+
+  // CARGAR CONFIGURACIONES GUARDADAS AL INICIAR
+useEffect(() => {
+  loadSavedSettings(setTheme, setDarkMode, setData);
+}, []);
 
   // ESTADOS PARA FORMULARIOS DE AUTENTICACIÓN
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -1524,62 +1538,83 @@ _"Documento válido sólo como Cotización"_
   );
 
   // COMPONENTE CONFIGURACIÓN DE EMPRESA
-  const CompanySettingsView = () => (
-    <div className="flex-1 p-8">
+const CompanySettingsView = () => {
+  const currentTheme = getThemeClasses(theme, darkMode);
+  
+  return (
+    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Configuración de Empresa</h1>
-        <p className="text-gray-600 mt-2">Administra la información de tu empresa</p>
+        <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          Configuración de Empresa
+        </h1>
+        <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-2`}>
+          Administra la información de tu empresa y personalización
+        </p>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border p-6">
+      {/* INFORMACIÓN DE LA EMPRESA */}
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200'} p-6 mb-6`}>
+        <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
+          Información de la Empresa
+        </h2>
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Razón Social</label>
+              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                Razón Social
+              </label>
               <input
                 type="text"
                 value={data.company?.razonSocial || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">RUT</label>
+              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                RUT
+              </label>
               <input
                 type="text"
                 value={data.company?.rut || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+              Dirección
+            </label>
             <input
               type="text"
               value={data.company?.direccion || ''}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
               readOnly
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Ciudad</label>
+              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                Ciudad
+              </label>
               <input
                 type="text"
                 value={data.company?.ciudad || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Región</label>
+              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                Región
+              </label>
               <input
                 type="text"
                 value={data.company?.region || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
@@ -1587,28 +1622,162 @@ _"Documento válido sólo como Cotización"_
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                Teléfono
+              </label>
               <input
                 type="tel"
                 value={data.company?.telefono || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                Email
+              </label>
               <input
                 type="email"
                 value={data.company?.email || ''}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
           </div>
         </div>
       </div>
+
+      {/* PERSONALIZACIÓN Y BRANDING */}
+      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200'} p-6`}>
+        <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>
+          Personalización y Branding
+        </h2>
+        
+        <div className="space-y-6">
+          {/* LOGO DE LA EMPRESA */}
+          <div>
+            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-3`}>
+              Logo de la Empresa
+            </label>
+            <div className="flex items-start space-x-4">
+              {/* Preview del logo */}
+              <div className={`w-24 h-24 border-2 border-dashed rounded-lg flex items-center justify-center ${darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50'}`}>
+                {data.company?.logo || newCompanyLogo ? (
+                  <img 
+                    src={newCompanyLogo || data.company.logo} 
+                    alt="Logo empresa" 
+                    className="w-full h-full object-contain rounded-lg"
+                  />
+                ) : (
+                  <div className={`text-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                    <svg className="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-xs">Sin logo</span>
+                  </div>
+                )}
+              </div>
+              
+              {/* Controles del logo */}
+              <div className="flex-1">
+                <div className="flex space-x-3">
+                  <label className={`cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-${currentTheme.primary} hover:bg-${currentTheme.accent} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${currentTheme.primary} transition-colors`}>
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    Subir Logo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleLogoUpload(e, setNewCompanyLogo, setData)}
+                      className="hidden"
+                    />
+                  </label>
+                  
+                  {(data.company?.logo || newCompanyLogo) && (
+                    <button
+                      onClick={() => removeLogo(setNewCompanyLogo, setData)}
+                      className={`px-4 py-2 border text-sm font-medium rounded-md transition-colors ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
+                    >
+                      Remover
+                    </button>
+                  )}
+                </div>
+                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
+                  Formatos soportados: JPG, PNG, GIF, WebP. Tamaño máximo: 5MB
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* SELECTOR DE TEMA */}
+          <div>
+            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-3`}>
+              Tema de Colores
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {Object.entries(themes).map(([themeName, themeColors]) => (
+                <button
+                  key={themeName}
+                  onClick={() => handleThemeChange(themeName, setTheme, setData)}
+                  className={`w-12 h-12 rounded-lg border-2 transition-all ${
+                    theme === themeName 
+                      ? `border-${themeColors.primary} ring-2 ring-${themeColors.primary} ring-opacity-50` 
+                      : darkMode ? 'border-gray-600' : 'border-gray-300'
+                  } bg-${themeColors.primary} hover:scale-105`}
+                  title={`Tema ${themeName}`}
+                >
+                  <span className="sr-only">Tema {themeName}</span>
+                </button>
+              ))}
+            </div>
+            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
+              Tema actual: <span className="capitalize font-medium">{theme}</span>
+            </p>
+          </div>
+
+          {/* MODO OSCURO */}
+          <div className="flex items-center justify-between">
+            <div>
+              <label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Modo Oscuro
+              </label>
+              <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
+                Activa el tema oscuro para una experiencia visual más cómoda
+              </p>
+            </div>
+            <button
+              onClick={() => toggleDarkMode(darkMode, setDarkMode)}
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} focus:ring-offset-2 ${
+                darkMode ? `bg-${currentTheme.primary}` : 'bg-gray-200'
+              }`}
+            >
+              <span className="sr-only">Activar modo oscuro</span>
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  darkMode ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+
+          {/* BOTÓN GUARDAR */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={() => saveCompanySettings(data, theme, darkMode)}
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-${currentTheme.primary} hover:bg-${currentTheme.accent} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${currentTheme.primary} transition-colors`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              Guardar Configuración
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
+};
 
   // RENDER PRINCIPAL
   return (
