@@ -1537,7 +1537,7 @@ _"Documento válido sólo como Cotización"_
     </div>
   );
 
- // COMPONENTE CONFIGURACIÓN DE EMPRESA
+// COMPONENTE CONFIGURACIÓN DE EMPRESA
 const CompanySettingsView = () => {
   const currentTheme = getThemeClasses(theme, darkMode);
   
@@ -1566,7 +1566,7 @@ const CompanySettingsView = () => {
               <input
                 type="text"
                 value={data.company?.razonSocial || ''}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
@@ -1577,7 +1577,7 @@ const CompanySettingsView = () => {
               <input
                 type="text"
                 value={data.company?.rut || ''}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
@@ -1590,7 +1590,7 @@ const CompanySettingsView = () => {
             <input
               type="text"
               value={data.company?.direccion || ''}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
               readOnly
             />
           </div>
@@ -1603,7 +1603,7 @@ const CompanySettingsView = () => {
               <input
                 type="text"
                 value={data.company?.ciudad || ''}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
@@ -1614,7 +1614,7 @@ const CompanySettingsView = () => {
               <input
                 type="text"
                 value={data.company?.region || ''}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
@@ -1628,7 +1628,7 @@ const CompanySettingsView = () => {
               <input
                 type="tel"
                 value={data.company?.telefono || ''}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
@@ -1639,7 +1639,7 @@ const CompanySettingsView = () => {
               <input
                 type="email"
                 value={data.company?.email || ''}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
                 readOnly
               />
             </div>
@@ -1681,7 +1681,7 @@ const CompanySettingsView = () => {
               {/* Controles del logo */}
               <div className="flex-1">
                 <div className="flex space-x-3">
-                  <label className={`cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-${currentTheme.primary} hover:bg-${currentTheme.accent} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${currentTheme.primary} transition-colors`}>
+                  <label className={`cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${currentTheme.buttonBg} ${currentTheme.buttonHover} focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentTheme.focus} transition-colors`}>
                     <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                     </svg>
@@ -1779,8 +1779,8 @@ const CompanySettingsView = () => {
             </div>
             <button
               onClick={() => toggleDarkMode(darkMode, setDarkMode)}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary} focus:ring-offset-2 ${
-                darkMode ? `bg-${currentTheme.primary}` : 'bg-gray-200'
+              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 ${currentTheme.focus} focus:ring-offset-2 ${
+                darkMode ? currentTheme.buttonBg : 'bg-gray-200'
               }`}
             >
               <span className="sr-only">Activar modo oscuro</span>
@@ -1796,7 +1796,7 @@ const CompanySettingsView = () => {
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={() => saveCompanySettings(data, theme, darkMode)}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-${currentTheme.primary} hover:bg-${currentTheme.accent} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${currentTheme.primary} transition-colors`}
+              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${currentTheme.buttonBg} ${currentTheme.buttonHover} focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentTheme.focus} transition-colors`}
             >
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
