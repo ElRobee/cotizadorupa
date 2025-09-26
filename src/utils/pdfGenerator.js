@@ -14,7 +14,14 @@ export const generateQuotationPDF = async (quotation, company, client) => {
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-        <h1 style="color: #333; margin: 0;">${company.razonSocial}</h1>
+         {/* Logo de la empresa si existe, sino icono por defecto */}
+          ${data.company?.logo ? (
+            <img 
+              ${data.company.logo} 
+              alt="Logo empresa" 
+              className="w-8 h-8 object-contain rounded"
+            />
+            <h1 style="color: #333; margin: 0;">${company.razonSocial}</h1>
         <p style="margin: 5px 0;">${company.direccion} - ${company.ciudad}, ${company.region}</p>
         <p style="margin: 5px 0;">RUT: ${company.rut} | Tel: ${company.telefono}</p>
         <p style="margin: 5px 0;">Email: ${company.email}</p>
