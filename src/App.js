@@ -1166,127 +1166,208 @@ const Sidebar = () => {
   );
 };
 
-  // COMPONENTE DASHBOARD
-  const DashboardView = () => {
-    const stats = getStatistics();
-    
-    return (
-      <div className="flex-1 p-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-600 mt-2">Resumen general de tu negocio</p>
+// COMPONENTE DASHBOARD CON SOPORTE PARA TEMAS Y MODO OSCURO
+const DashboardView = () => {
+  const stats = getStatistics();
+  const currentTheme = getThemeClasses(theme, darkMode);
+  
+  return (
+    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      {/* HEADER DEL DASHBOARD */}
+      <div className="mb-8">
+        <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          Dashboard
+        </h1>
+        <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-2`}>
+          Resumen general de tu negocio
+        </p>
+      </div>
+
+      {/* TARJETAS DE ESTADÍSTICAS */}
+      {stats && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Cotizaciones */}
+          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl shadow-sm border`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Total Cotizaciones
+                </p>
+                <p className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  {stats.totalQuotations}
+                </p>
+              </div>
+              <FileText className={`w-12 h-12 opacity-20 ${
+                theme === 'blue' ? 'text-blue-600' :
+                theme === 'green' ? 'text-green-600' :
+                theme === 'purple' ? 'text-purple-600' :
+                theme === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
+            </div>
+          </div>
+
+          {/* Pendientes */}
+          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl shadow-sm border`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Pendientes
+                </p>
+                <p className="text-3xl font-bold text-orange-600">
+                  {stats.pendingQuotations}
+                </p>
+              </div>
+              <Clock className="w-12 h-12 text-orange-600 opacity-20" />
+            </div>
+          </div>
+
+          {/* Facturadas */}
+          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl shadow-sm border`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Facturadas
+                </p>
+                <p className="text-3xl font-bold text-green-600">
+                  {stats.invoicedQuotations}
+                </p>
+              </div>
+              <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
+            </div>
+          </div>
+
+          {/* Ingresos Totales */}
+          <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl shadow-sm border`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Ingresos Totales
+                </p>
+                <p className={`text-3xl font-bold ${
+                  theme === 'blue' ? 'text-blue-600' :
+                  theme === 'green' ? 'text-green-600' :
+                  theme === 'purple' ? 'text-purple-600' :
+                  theme === 'red' ? 'text-red-600' :
+                  'text-gray-600'
+                }`}>
+                  ${stats.totalRevenue.toLocaleString()}
+                </p>
+              </div>
+              <DollarSign className={`w-12 h-12 opacity-20 ${
+                theme === 'blue' ? 'text-blue-600' :
+                theme === 'green' ? 'text-green-600' :
+                theme === 'purple' ? 'text-purple-600' :
+                theme === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SECCIÓN INFERIOR: COTIZACIONES RECIENTES Y ACCIONES RÁPIDAS */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Cotizaciones Recientes */}
+        <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl shadow-sm border`}>
+          <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
+            Cotizaciones Recientes
+          </h3>
+          <div className="space-y-3">
+            {getFilteredQuotations().slice(0, 5).map(quotation => (
+              <div key={quotation.id} className={`flex items-center justify-between p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <div>
+                  <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {quotation.number}
+                  </p>
+                  <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                    {quotation.client}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    ${quotation.total.toLocaleString()}
+                  </p>
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                    quotation.status === 'Pendiente' ? 'bg-orange-100 text-orange-800' :
+                    quotation.status === 'Facturada' ? 'bg-green-100 text-green-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {quotation.status}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Cotizaciones</p>
-                  <p className="text-3xl font-bold text-gray-900">{stats.totalQuotations}</p>
-                </div>
-                <FileText className="w-12 h-12 text-blue-600 opacity-20" />
-              </div>
-            </div>
+        {/* Acciones Rápidas */}
+        <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} p-6 rounded-xl shadow-sm border`}>
+          <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
+            Acciones Rápidas
+          </h3>
+          <div className="space-y-3">
+            {/* Nueva Cotización */}
+            <button
+              onClick={() => {
+                setModalType('quotation');
+                setShowModal(true);
+              }}
+              className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${
+                theme === 'blue' ? 'bg-blue-50 hover:bg-blue-100' :
+                theme === 'green' ? 'bg-green-50 hover:bg-green-100' :
+                theme === 'purple' ? 'bg-purple-50 hover:bg-purple-100' :
+                theme === 'red' ? 'bg-red-50 hover:bg-red-100' :
+                'bg-gray-50 hover:bg-gray-100'
+              } ${darkMode ? 'hover:bg-opacity-10 bg-opacity-10' : ''}`}
+            >
+              <Plus className={`w-5 h-5 ${
+                theme === 'blue' ? 'text-blue-600' :
+                theme === 'green' ? 'text-green-600' :
+                theme === 'purple' ? 'text-purple-600' :
+                theme === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
+              <span className={`font-medium ${
+                theme === 'blue' ? 'text-blue-700' :
+                theme === 'green' ? 'text-green-700' :
+                theme === 'purple' ? 'text-purple-700' :
+                theme === 'red' ? 'text-red-700' :
+                'text-gray-700'
+              } ${darkMode ? 'text-opacity-90' : ''}`}>
+                Nueva Cotización
+              </span>
+            </button>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Pendientes</p>
-                  <p className="text-3xl font-bold text-orange-600">{stats.pendingQuotations}</p>
-                </div>
-                <Clock className="w-12 h-12 text-orange-600 opacity-20" />
-              </div>
-            </div>
+            {/* Nuevo Cliente */}
+            <button
+              onClick={() => {
+                setModalType('client');
+                setShowModal(true);
+              }}
+              className="w-full flex items-center space-x-3 p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+            >
+              <Plus className="w-5 h-5 text-green-600" />
+              <span className="text-green-700 font-medium">Nuevo Cliente</span>
+            </button>
 
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Facturadas</p>
-                  <p className="text-3xl font-bold text-green-600">{stats.invoicedQuotations}</p>
-                </div>
-                <CheckCircle className="w-12 h-12 text-green-600 opacity-20" />
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-xl shadow-sm border">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Ingresos Totales</p>
-                  <p className="text-3xl font-bold text-blue-600">${stats.totalRevenue.toLocaleString()}</p>
-                </div>
-                <DollarSign className="w-12 h-12 text-blue-600 opacity-20" />
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cotizaciones Recientes</h3>
-            <div className="space-y-3">
-              {getFilteredQuotations().slice(0, 5).map(quotation => (
-                <div key={quotation.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">{quotation.number}</p>
-                    <p className="text-sm text-gray-600">{quotation.client}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium text-gray-900">${quotation.total.toLocaleString()}</p>
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      quotation.status === 'Pendiente' ? 'bg-orange-100 text-orange-800' :
-                      quotation.status === 'Facturada' ? 'bg-green-100 text-green-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {quotation.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white p-6 rounded-xl shadow-sm border">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Acciones Rápidas</h3>
-            <div className="space-y-3">
-              <button
-                onClick={() => {
-                  setModalType('quotation');
-                  setShowModal(true);
-                }}
-                className="w-full flex items-center space-x-3 p-3 text-left bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
-              >
-                <Plus className="w-5 h-5 text-blue-600" />
-                <span className="text-blue-700 font-medium">Nueva Cotización</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setModalType('client');
-                  setShowModal(true);
-                }}
-                className="w-full flex items-center space-x-3 p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
-              >
-                <Plus className="w-5 h-5 text-green-600" />
-                <span className="text-green-700 font-medium">Nuevo Cliente</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setModalType('service');
-                  setShowModal(true);
-                }}
-                className="w-full flex items-center space-x-3 p-3 text-left bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
-              >
-                <Plus className="w-5 h-5 text-purple-600" />
-                <span className="text-purple-700 font-medium">Nuevo Servicio</span>
-              </button>
-            </div>
+            {/* Nuevo Servicio */}
+            <button
+              onClick={() => {
+                setModalType('service');
+                setShowModal(true);
+              }}
+              className="w-full flex items-center space-x-3 p-3 text-left bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+            >
+              <Plus className="w-5 h-5 text-purple-600" />
+              <span className="text-purple-700 font-medium">Nuevo Servicio</span>
+            </button>
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   // COMPONENTE VISTA DE COTIZACIONES
   const QuotationsView = () => (
