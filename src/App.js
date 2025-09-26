@@ -1537,7 +1537,7 @@ _"Documento válido sólo como Cotización"_
     </div>
   );
 
-  // COMPONENTE CONFIGURACIÓN DE EMPRESA
+ // COMPONENTE CONFIGURACIÓN DE EMPRESA
 const CompanySettingsView = () => {
   const currentTheme = getThemeClasses(theme, darkMode);
   
@@ -1716,20 +1716,51 @@ const CompanySettingsView = () => {
               Tema de Colores
             </label>
             <div className="flex flex-wrap gap-3">
-              {Object.entries(themes).map(([themeName, themeColors]) => (
-                <button
-                  key={themeName}
-                  onClick={() => handleThemeChange(themeName, setTheme, setData)}
-                  className={`w-12 h-12 rounded-lg border-2 transition-all ${
-                    theme === themeName 
-                      ? `border-${themeColors.primary} ring-2 ring-${themeColors.primary} ring-opacity-50` 
-                      : darkMode ? 'border-gray-600' : 'border-gray-300'
-                  } bg-${themeColors.primary} hover:scale-105`}
-                  title={`Tema ${themeName}`}
-                >
-                  <span className="sr-only">Tema {themeName}</span>
-                </button>
-              ))}
+              <button
+                onClick={() => handleThemeChange('blue', setTheme, setData)}
+                className={`w-12 h-12 rounded-lg border-2 transition-all bg-blue-600 hover:scale-105 ${
+                  theme === 'blue' 
+                    ? 'border-blue-600 ring-2 ring-blue-500 ring-opacity-50' 
+                    : darkMode ? 'border-gray-600' : 'border-gray-300'
+                }`}
+                title="Tema Azul"
+              />
+              <button
+                onClick={() => handleThemeChange('green', setTheme, setData)}
+                className={`w-12 h-12 rounded-lg border-2 transition-all bg-green-600 hover:scale-105 ${
+                  theme === 'green' 
+                    ? 'border-green-600 ring-2 ring-green-500 ring-opacity-50' 
+                    : darkMode ? 'border-gray-600' : 'border-gray-300'
+                }`}
+                title="Tema Verde"
+              />
+              <button
+                onClick={() => handleThemeChange('purple', setTheme, setData)}
+                className={`w-12 h-12 rounded-lg border-2 transition-all bg-purple-600 hover:scale-105 ${
+                  theme === 'purple' 
+                    ? 'border-purple-600 ring-2 ring-purple-500 ring-opacity-50' 
+                    : darkMode ? 'border-gray-600' : 'border-gray-300'
+                }`}
+                title="Tema Morado"
+              />
+              <button
+                onClick={() => handleThemeChange('red', setTheme, setData)}
+                className={`w-12 h-12 rounded-lg border-2 transition-all bg-red-600 hover:scale-105 ${
+                  theme === 'red' 
+                    ? 'border-red-600 ring-2 ring-red-500 ring-opacity-50' 
+                    : darkMode ? 'border-gray-600' : 'border-gray-300'
+                }`}
+                title="Tema Rojo"
+              />
+              <button
+                onClick={() => handleThemeChange('gray', setTheme, setData)}
+                className={`w-12 h-12 rounded-lg border-2 transition-all bg-gray-600 hover:scale-105 ${
+                  theme === 'gray' 
+                    ? 'border-gray-600 ring-2 ring-gray-500 ring-opacity-50' 
+                    : darkMode ? 'border-gray-600' : 'border-gray-300'
+                }`}
+                title="Tema Gris"
+              />
             </div>
             <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
               Tema actual: <span className="capitalize font-medium">{theme}</span>
