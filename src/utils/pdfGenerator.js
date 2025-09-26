@@ -13,17 +13,18 @@ export const generateQuotationPDF = async (quotation, company, client) => {
 
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-      <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+      <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
   ${company?.logo 
-    ? `<img src="${company.logo}" alt="Logo empresa" style="width: 100px; height: 100px; object-fit: contain; border-radius: 8px; margin-bottom: 10px;" />`
+    ? `<img src="${company.logo}" alt="Logo empresa" style="width: 120px; height: 80px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
     : ''
   }
-        <h1 style="color: #333; margin: 0;">${company.razonSocial}</h1>
-        <p style="margin: 5px 0;">${company.direccion} - ${company.ciudad}, ${company.region}</p>
-        <p style="margin: 5px 0;">RUT: ${company.rut} | Tel: ${company.telefono}</p>
-        <p style="margin: 5px 0;">Email: ${company.email}</p>
-      </div>
-
+  <div style="text-align: left;">
+    <h1 style="color: #333; margin: 0;">${company.razonSocial}</h1>
+    <p style="margin: 5px 0;">${company.direccion} - ${company.ciudad}, ${company.region}</p>
+    <p style="margin: 5px 0;">RUT: ${company.rut} | Tel: ${company.telefono}</p>
+    <p style="margin: 5px 0;">Email: ${company.email}</p>
+  </div>
+</div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
         <div>
           <h2 style="color: #333;">COTIZACIÓN</h2>
