@@ -899,7 +899,7 @@ const CotizacionesApp = () => {
 
     const message = `
 *COTIZACIÓN ${quotation.number}* 📋
-▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪
+▪▪▪▪▪▪▪▪▪▪▪▪▪
 📅 *Fecha:* ${quotation.date}
 ⏰ *Válida hasta:* ${quotation.validUntil}
 🏢 *Cliente:* ${quotation.client}
@@ -918,7 +918,7 @@ ${quotation.items.map(item =>
 ${totals.discountAmount > 0 ? `• Descuento: -$${totals.discountAmount.toLocaleString()}` : ''}
 • *TOTAL: $${totals.total.toLocaleString()}*
 
-▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪
+▪▪▪▪▪▪▪▪▪▪▪▪▪
 🏢 *${data.company?.razonSocial || 'Mi Empresa'}*
 📞 ${data.company?.telefono || 'Sin teléfono'}
 📧 ${data.company?.email || 'Sin email'}
