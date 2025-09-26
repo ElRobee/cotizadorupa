@@ -1046,65 +1046,102 @@ _"Documento válido sólo como Cotización"_
     setAuthMode(mode);
   }, []);
 
-  // COMPONENTE SIDEBAR
-  const Sidebar = () => (
-    <div className="w-64 bg-white shadow-lg h-screen">
-      <div className="p-6 border-b">
+// COMPONENTE SIDEBAR CON SOPORTE PARA TEMAS Y MODO OSCURO
+const Sidebar = () => {
+  const currentTheme = getThemeClasses(theme, darkMode);
+  
+  return (
+    <div className={`w-64 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg h-screen`}>
+      {/* HEADER DEL SIDEBAR */}
+      <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="flex items-center space-x-3">
-          <Building2 className="w-8 h-8 text-blue-600" />
+          {/* Logo de la empresa si existe, sino icono por defecto */}
+          {data.company?.logo ? (
+            <img 
+              src={data.company.logo} 
+              alt="Logo empresa" 
+              className="w-8 h-8 object-contain rounded"
+            />
+          ) : (
+            <Building2 className={`w-8 h-8 ${theme === 'blue' ? 'text-blue-600' : 
+                                               theme === 'green' ? 'text-green-600' :
+                                               theme === 'purple' ? 'text-purple-600' :
+                                               theme === 'red' ? 'text-red-600' :
+                                               'text-gray-600'}`} />
+          )}
           <div>
-            <h2 className="text-xl font-bold text-gray-900">CotizApp</h2>
-            <p className="text-sm text-gray-600">{currentUser?.displayName}</p>
+            <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              CotizApp
+            </h2>
+            <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              {currentUser?.displayName}
+            </p>
           </div>
         </div>
       </div>
 
+      {/* NAVEGACIÓN */}
       <nav className="mt-6">
         <div className="px-4 space-y-2">
+          {/* Dashboard */}
           <button
             onClick={() => setCurrentView('dashboard')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-              currentView === 'dashboard' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              currentView === 'dashboard' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
             }`}
           >
             <BarChart3 className="w-5 h-5" />
             <span>Dashboard</span>
           </button>
 
+          {/* Cotizaciones */}
           <button
             onClick={() => setCurrentView('quotations')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-              currentView === 'quotations' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              currentView === 'quotations' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
             }`}
           >
             <FileText className="w-5 h-5" />
             <span>Cotizaciones</span>
           </button>
 
+          {/* Clientes */}
           <button
             onClick={() => setCurrentView('clients')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-              currentView === 'clients' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              currentView === 'clients' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
             }`}
           >
             <Users className="w-5 h-5" />
             <span>Clientes</span>
           </button>
 
+          {/* Servicios */}
           <button
             onClick={() => setCurrentView('services')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-              currentView === 'services' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              currentView === 'services' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
             }`}
           >
             <Settings className="w-5 h-5" />
             <span>Servicios</span>
           </button>
 
+          {/* Empresa */}
           <button
             onClick={() => setCurrentView('company')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-              currentView === 'company' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-100'
+              currentView === 'company' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
             }`}
           >
             <Building2 className="w-5 h-5" />
@@ -1113,10 +1150,13 @@ _"Documento válido sólo como Cotización"_
         </div>
       </nav>
 
-      <div className="absolute bottom-0 w-64 p-4 border-t">
+      {/* BOTÓN CERRAR SESIÓN */}
+      <div className={`absolute bottom-0 w-64 p-4 border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center space-x-3 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+          className={`w-full flex items-center space-x-3 px-3 py-2 text-red-600 rounded-lg transition-colors ${
+            darkMode ? 'hover:bg-red-900 hover:bg-opacity-20' : 'hover:bg-red-50'
+          }`}
         >
           <LogOut className="w-5 h-5" />
           <span>Cerrar Sesión</span>
@@ -1124,6 +1164,7 @@ _"Documento válido sólo como Cotización"_
       </div>
     </div>
   );
+};
 
   // COMPONENTE DASHBOARD
   const DashboardView = () => {
