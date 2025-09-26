@@ -142,39 +142,64 @@ export const loadSavedSettings = (setTheme, setDarkMode, setData) => {
 export const getThemeClasses = (theme, darkMode = false) => {
   const themes = {
     blue: { 
-      primary: darkMode ? 'blue-500' : 'blue-600', 
-      secondary: darkMode ? 'blue-900' : 'blue-100', 
-      accent: darkMode ? 'blue-300' : 'blue-400',
-      bg: darkMode ? 'bg-blue-900' : 'bg-blue-50',
-      text: darkMode ? 'text-blue-200' : 'text-blue-900'
+      primary: 'bg-blue-600',
+      primaryHover: 'hover:bg-blue-700', 
+      secondary: darkMode ? 'bg-blue-900' : 'bg-blue-100', 
+      accent: 'bg-blue-400',
+      ring: 'ring-blue-500',
+      border: 'border-blue-600',
+      text: darkMode ? 'text-blue-200' : 'text-blue-900',
+      buttonBg: 'bg-blue-600',
+      buttonHover: 'hover:bg-blue-700',
+      focus: 'focus:ring-blue-500'
     },
     green: { 
-      primary: darkMode ? 'green-500' : 'green-600', 
-      secondary: darkMode ? 'green-900' : 'green-100', 
-      accent: darkMode ? 'green-300' : 'green-400',
-      bg: darkMode ? 'bg-green-900' : 'bg-green-50',
-      text: darkMode ? 'text-green-200' : 'text-green-900'
+      primary: 'bg-green-600',
+      primaryHover: 'hover:bg-green-700', 
+      secondary: darkMode ? 'bg-green-900' : 'bg-green-100', 
+      accent: 'bg-green-400',
+      ring: 'ring-green-500',
+      border: 'border-green-600',
+      text: darkMode ? 'text-green-200' : 'text-green-900',
+      buttonBg: 'bg-green-600',
+      buttonHover: 'hover:bg-green-700',
+      focus: 'focus:ring-green-500'
     },
     purple: { 
-      primary: darkMode ? 'purple-500' : 'purple-600', 
-      secondary: darkMode ? 'purple-900' : 'purple-100', 
-      accent: darkMode ? 'purple-300' : 'purple-400',
-      bg: darkMode ? 'bg-purple-900' : 'bg-purple-50',
-      text: darkMode ? 'text-purple-200' : 'text-purple-900'
+      primary: 'bg-purple-600',
+      primaryHover: 'hover:bg-purple-700', 
+      secondary: darkMode ? 'bg-purple-900' : 'bg-purple-100', 
+      accent: 'bg-purple-400',
+      ring: 'ring-purple-500',
+      border: 'border-purple-600',
+      text: darkMode ? 'text-purple-200' : 'text-purple-900',
+      buttonBg: 'bg-purple-600',
+      buttonHover: 'hover:bg-purple-700',
+      focus: 'focus:ring-purple-500'
     },
     red: { 
-      primary: darkMode ? 'red-500' : 'red-600', 
-      secondary: darkMode ? 'red-900' : 'red-100', 
-      accent: darkMode ? 'red-300' : 'red-400',
-      bg: darkMode ? 'bg-red-900' : 'bg-red-50',
-      text: darkMode ? 'text-red-200' : 'text-red-900'
+      primary: 'bg-red-600',
+      primaryHover: 'hover:bg-red-700', 
+      secondary: darkMode ? 'bg-red-900' : 'bg-red-100', 
+      accent: 'bg-red-400',
+      ring: 'ring-red-500',
+      border: 'border-red-600',
+      text: darkMode ? 'text-red-200' : 'text-red-900',
+      buttonBg: 'bg-red-600',
+      buttonHover: 'hover:bg-red-700',
+      focus: 'focus:ring-red-500'
     },
     gray: { 
-      primary: darkMode ? 'gray-400' : 'gray-600', 
-      secondary: darkMode ? 'gray-800' : 'gray-100', 
-      accent: darkMode ? 'gray-300' : 'gray-400',
-      bg: darkMode ? 'bg-gray-800' : 'bg-gray-50',
-      text: darkMode ? 'text-gray-200' : 'text-gray-900'
+      primary: 'bg-gray-600',
+      primaryHover: 'hover:bg-gray-700', 
+      secondary: darkMode ? 'bg-gray-800' : 'bg-gray-100', 
+      accent: 'bg-gray-400',
+      ring: 'ring-gray-500',
+      border: 'border-gray-600',
+      text: darkMode ? 'text-gray-200' : 'text-gray-900',
+      buttonBg: 'bg-gray-600',
+      buttonHover: 'hover:bg-gray-700',
+      focus: 'focus:ring-gray-500'
     }
   };
   
