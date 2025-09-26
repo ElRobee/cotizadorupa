@@ -131,7 +131,7 @@ const mockFirebaseData = {
       direccion: 'Santiago',
       ciudad: 'Santiago',
       region: 'Metropolitana de Santiago',
-      telefono: '+56971345589',
+      telefono: '56971345589',
       email: 'rgomez@eimontajes.cl',
       createdAt: '2025-01-02'
     },
@@ -143,7 +143,7 @@ const mockFirebaseData = {
       direccion: 'Viña',
       ciudad: 'Viña del mar',
       region: 'Valparaíso',
-      telefono: '+56934683151',
+      telefono: '56934683151',
       email: 'marco.perez@ia-im.com',
       createdAt: '2025-01-03'
     }
