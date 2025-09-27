@@ -1308,7 +1308,7 @@ const DashboardView = () => {
             Acciones Rápidas
           </h3>
           <div className="space-y-3">
-            {/* Nueva Cotización */}
+                       {/* Nueva Cotización */}
             <button
               onClick={() => {
                 setModalType('quotation');
@@ -1346,10 +1346,30 @@ const DashboardView = () => {
                 setModalType('client');
                 setShowModal(true);
               }}
-              className="w-full flex items-center space-x-3 p-3 text-left bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+               className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${
+                theme === 'blue' ? 'bg-blue-50 hover:bg-blue-100' :
+                theme === 'green' ? 'bg-green-50 hover:bg-green-100' :
+                theme === 'purple' ? 'bg-purple-50 hover:bg-purple-100' :
+                theme === 'red' ? 'bg-red-50 hover:bg-red-100' :
+                'bg-gray-50 hover:bg-gray-100'
+              } ${darkMode ? 'hover:bg-opacity-10 bg-opacity-10' : ''}`}
             >
-              <Plus className="w-5 h-5 text-green-600" />
-              <span className="text-green-700 font-medium">Nuevo Cliente</span>
+              <Plus className={`w-5 h-5 ${
+                theme === 'blue' ? 'text-blue-600' :
+                theme === 'green' ? 'text-green-600' :
+                theme === 'purple' ? 'text-purple-600' :
+                theme === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
+              <span className={`font-medium ${
+                theme === 'blue' ? 'text-blue-700' :
+                theme === 'green' ? 'text-green-700' :
+                theme === 'purple' ? 'text-purple-700' :
+                theme === 'red' ? 'text-red-700' :
+                'text-gray-700'
+              } ${darkMode ? 'text-opacity-90' : ''}`}>
+                Nuevo Cliente
+              </span>
             </button>
 
             {/* Nuevo Servicio */}
@@ -1358,10 +1378,30 @@ const DashboardView = () => {
                 setModalType('service');
                 setShowModal(true);
               }}
-              className="w-full flex items-center space-x-3 p-3 text-left bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+               className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${
+                theme === 'blue' ? 'bg-blue-50 hover:bg-blue-100' :
+                theme === 'green' ? 'bg-green-50 hover:bg-green-100' :
+                theme === 'purple' ? 'bg-purple-50 hover:bg-purple-100' :
+                theme === 'red' ? 'bg-red-50 hover:bg-red-100' :
+                'bg-gray-50 hover:bg-gray-100'
+              } ${darkMode ? 'hover:bg-opacity-10 bg-opacity-10' : ''}`}
             >
-              <Plus className="w-5 h-5 text-purple-600" />
-              <span className="text-purple-700 font-medium">Nuevo Servicio</span>
+              <Plus className={`w-5 h-5 ${
+                theme === 'blue' ? 'text-blue-600' :
+                theme === 'green' ? 'text-green-600' :
+                theme === 'purple' ? 'text-purple-600' :
+                theme === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
+              <span className={`font-medium ${
+                theme === 'blue' ? 'text-blue-700' :
+                theme === 'green' ? 'text-green-700' :
+                theme === 'purple' ? 'text-purple-700' :
+                theme === 'red' ? 'text-red-700' :
+                'text-gray-700'
+              } ${darkMode ? 'text-opacity-90' : ''}`}>
+                Nuevo Servicio
+              </span>
             </button>
           </div>
         </div>
