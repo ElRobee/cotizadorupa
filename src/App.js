@@ -18,6 +18,7 @@ import {
   FileSpreadsheet,
   CheckCircle,
   AlertCircle,
+  AlertTriangle,
   Info,
   X,
   Send,
@@ -343,14 +344,14 @@ useEffect(() => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const showNotification = (message, type = 'success') => {
-    const id = Date.now();
-    const notification = { id, message, type };
-    setNotifications(prev => [...prev, notification]);
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 4000);
-  };
+const showNotification = (message, type = 'success') => {
+  const id = Date.now();
+  const notification = { id, message, type, theme: theme }; // Agrega el tema actual
+  setNotifications(prev => [...prev, notification]);
+  setTimeout(() => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  }, 4000);
+};
 
   const calculateQuotationTotals = (items, discount = 0) => {
     const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
@@ -1002,29 +1003,37 @@ _"Documento válido sólo como Cotización"_
     }
   };
 
-  // COMPONENTE DE NOTIFICACIONES
-  const NotificationContainer = () => (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
-      {notifications.map(notification => (
-        <div
-          key={notification.id}
-          className={`px-4 py-3 rounded-lg shadow-lg transition-all duration-500 transform ${
-            notification.type === 'success' ? 'bg-green-500 text-white' :
-            notification.type === 'error' ? 'bg-red-500 text-white' :
-            notification.type === 'info' ? 'bg-blue-500 text-white' :
-            'bg-gray-500 text-white'
-          }`}
-        >
-          <div className="flex items-center space-x-2">
-            {notification.type === 'success' && <CheckCircle className="w-5 h-5" />}
-            {notification.type === 'error' && <AlertCircle className="w-5 h-5" />}
-            {notification.type === 'info' && <Info className="w-5 h-5" />}
-            <span className="text-sm font-medium">{notification.message}</span>
-          </div>
+// COMPONENTE DE NOTIFICACIONES
+const NotificationContainer = () => (
+  <div className="fixed top-4 right-4 z-50 space-y-2">
+    {notifications.map(notification => (
+      <div
+        key={notification.id}
+        className={`px-4 py-3 rounded-lg shadow-lg transition-all duration-500 transform ${
+          notification.type === 'success' ? (
+            notification.theme === 'blue' ? 'bg-blue-500 text-white' :
+            notification.theme === 'green' ? 'bg-green-500 text-white' :
+            notification.theme === 'purple' ? 'bg-purple-500 text-white' :
+            notification.theme === 'red' ? 'bg-red-500 text-white' :
+            notification.theme === 'gray' ? 'bg-gray-500 text-white' :
+            'bg-green-500 text-white' // fallback
+          ) : notification.type === 'error' ? 'bg-red-500 text-white' :
+          notification.type === 'info' ? 'bg-blue-500 text-white' :
+          notification.type === 'warning' ? 'bg-orange-500 text-white' :
+          'bg-gray-500 text-white'
+        } ${darkMode ? 'shadow-2xl' : 'shadow-lg'}`}
+      >
+        <div className="flex items-center space-x-2">
+          {notification.type === 'success' && <CheckCircle className="w-5 h-5" />}
+          {notification.type === 'error' && <AlertCircle className="w-5 h-5" />}
+          {notification.type === 'info' && <Info className="w-5 h-5" />}
+          {notification.type === 'warning' && <AlertTriangle className="w-5 h-5" />}
+          <span className="text-sm font-medium">{notification.message}</span>
         </div>
-      ))}
-    </div>
-  );
+      </div>
+    ))}
+  </div>
+);
 
   // FUNCIONES DE MANEJO DE FORMULARIOS CON USECALLBACK
   const handleEmailChange = useCallback((e) => {
