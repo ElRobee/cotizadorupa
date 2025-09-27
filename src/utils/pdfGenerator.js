@@ -15,7 +15,7 @@ export const generateQuotationPDF = async (quotation, company, client) => {
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
   ${company?.logo 
-    ? `<img src="${company.logo}" alt="Logo empresa" style="width: 220px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
+    ? `<img src="${company.logo}" alt="Logo empresa" style="width: 300px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
     : ''
   }
   <div style="text-align: left;">
