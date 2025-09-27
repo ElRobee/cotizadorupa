@@ -1055,15 +1055,7 @@ const Sidebar = () => {
       {/* HEADER DEL SIDEBAR */}
       <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="flex items-center space-x-3">
-          {/* Logo de la empresa si existe, sino icono por defecto */}
-          {data.company?.logo ? (
-            <img 
-              src={data.company.logo} 
-              alt="Logo empresa" 
-              className="w-8 h-8 object-contain rounded"
-            />
-          ) : (
-            <Building2 className={`w-8 h-8 ${theme === 'blue' ? 'text-blue-600' : 
+              <Building2 className={`w-8 h-8 ${theme === 'blue' ? 'text-blue-600' : 
                                                theme === 'green' ? 'text-green-600' :
                                                theme === 'purple' ? 'text-purple-600' :
                                                theme === 'red' ? 'text-red-600' :
