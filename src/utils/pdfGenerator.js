@@ -67,7 +67,7 @@ export const generateQuotationPDF = async (quotation, company, client) => {
       </table>
 
       ${quotation.notes ? `
-        <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #007bff;">
+        <div style="margin-bottom: 20px; padding: 15px; background-color: #f9f9f9; border-left: 4px solid #333;">
           <h4 style="margin: 0 0 10px 0; color: #333;">Notas:</h4>
           <p style="margin: 0; color: #666;">${quotation.notes}</p>
         </div>
