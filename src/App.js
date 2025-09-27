@@ -2336,17 +2336,19 @@ const CompanySettingsView = () => {
     <div className="min-h-screen bg-gray-50">
       {!currentUser ? (
         <AuthView
-          authMode={authMode}
-          loginForm={loginForm}
-          onEmailChange={handleEmailChange}
-          onPasswordChange={handlePasswordChange}
-          onLogin={handleLogin}
-          registerForm={registerForm}
-          onRegisterFieldChange={handleRegisterFieldChange}
-          forgotForm={forgotForm}
-          onForgotEmailChange={handleForgotEmailChange}
-          onSwitchMode={handleSwitchAuthMode}
-        />
+  authMode={authMode}
+  loginForm={loginForm}
+  onEmailChange={handleEmailChange}
+  onPasswordChange={handlePasswordChange}
+  onLogin={handleLogin}
+  registerForm={registerForm}
+  onRegisterFieldChange={handleRegisterFieldChange}
+  forgotForm={forgotForm}
+  onForgotEmailChange={handleForgotEmailChange}
+  onSwitchMode={handleSwitchAuthMode}
+  theme={theme}
+  darkMode={darkMode}
+/>
       ) : (
         <div className="flex">
           <Sidebar />
