@@ -1060,7 +1060,6 @@ const Sidebar = () => {
                                                theme === 'purple' ? 'text-purple-600' :
                                                theme === 'red' ? 'text-red-600' :
                                                'text-gray-600'}`} />
-          )}
           <div>
             <h2 className={`text-xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
               CotizApp
