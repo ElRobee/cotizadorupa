@@ -79,7 +79,7 @@ export const generateQuotationPDF = async (quotation, company, client) => {
             <span>Subtotal:</span>
             <span>$${totals.subtotal.toLocaleString()}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: red;">
             <span>IVA (19%):</span>
             <span>$${totals.iva.toLocaleString()}</span>
           </div>
