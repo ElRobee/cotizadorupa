@@ -10,6 +10,7 @@ import {
   Save,
   LogOut,
   Building2,
+  Copy,
   Calculator,
   Search,
   Eye,
