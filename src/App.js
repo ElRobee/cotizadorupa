@@ -2333,7 +2333,7 @@ const CompanySettingsView = () => {
 
   // RENDER PRINCIPAL
   return (
-    <div className="min-h-screen bg-gray-50">
+   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {!currentUser ? (
         <AuthView
   authMode={authMode}
