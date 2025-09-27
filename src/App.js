@@ -2375,6 +2375,8 @@ const CompanySettingsView = () => {
           onRemoveItem={removeQuotationItem}
           onFieldChange={handleQuotationFieldChange}
           calculateQuotationTotals={calculateQuotationTotals}
+          theme={theme}
+          darkMode={darkMode}
         />
       )}
       {showModal && modalType === 'client' && (
@@ -2387,6 +2389,8 @@ const CompanySettingsView = () => {
           formatRut={formatRut}
           validateRut={validateRut}
           validateEmail={validateEmail}
+          theme={theme}
+          darkMode={darkMode}
         />
       )}
       {showModal && modalType === 'service' && (
@@ -2396,6 +2400,8 @@ const CompanySettingsView = () => {
           onCancel={cancelEdit}
           onSave={saveService}
           onFieldChange={handleServiceFieldChange}
+          theme={theme}
+          darkMode={darkMode}
         />
       )}
 
