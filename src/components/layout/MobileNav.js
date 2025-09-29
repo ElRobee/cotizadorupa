@@ -1,6 +1,6 @@
 import React from 'react';
 import { BarChart3, FileText, Users, Settings, Building2 } from 'lucide-react';
-import { getThemeClasses } from '../lib/utils.js';
+import { getThemeClasses } from '../../lib/utils.js';
 
 const MobileNav = ({ currentView, setCurrentView, theme, darkMode }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
