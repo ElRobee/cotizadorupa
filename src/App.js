@@ -49,6 +49,7 @@ import QuotationModal from './components/QuotationModal';
 import ClientModal from './components/ClientModal';
 import ServiceModal from './components/ServiceModal';
 import AuthView from './components/AuthView';
+import MobileNav from './components/layout/MobileNav';
 import { 
   handleThemeChange, 
   toggleDarkMode, 
@@ -1061,7 +1062,7 @@ const Sidebar = () => {
   const currentTheme = getThemeClasses(theme, darkMode);
   
   return (
-    <div className={`w-64 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg h-screen`}>
+    <div className={`hidden md:flex w-64 ${darkMode ? 'bg-gray-800' : 'bg-white'} shadow-lg h-screen flex-col`}>
       {/* HEADER DEL SIDEBAR */}
       <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <div className="flex items-center space-x-3">
@@ -2380,26 +2381,27 @@ const CompanySettingsView = () => {
   );
 };
 
-  // RENDER PRINCIPAL
-  return (
-   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {!currentUser ? (
-        <AuthView
-  authMode={authMode}
-  loginForm={loginForm}
-  onEmailChange={handleEmailChange}
-  onPasswordChange={handlePasswordChange}
-  onLogin={handleLogin}
-  registerForm={registerForm}
-  onRegisterFieldChange={handleRegisterFieldChange}
-  forgotForm={forgotForm}
-  onForgotEmailChange={handleForgotEmailChange}
-  onSwitchMode={handleSwitchAuthMode}
-  theme={theme}
-  darkMode={darkMode}
-/>
-      ) : (
-        <div className="flex">
+// RENDER PRINCIPAL
+return (
+  <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    {!currentUser ? (
+      <AuthView
+        authMode={authMode}
+        loginForm={loginForm}
+        onEmailChange={handleEmailChange}
+        onPasswordChange={handlePasswordChange}
+        onLogin={handleLogin}
+        registerForm={registerForm}
+        onRegisterFieldChange={handleRegisterFieldChange}
+        forgotForm={forgotForm}
+        onForgotEmailChange={handleForgotEmailChange}
+        onSwitchMode={handleSwitchAuthMode}
+        theme={theme}
+        darkMode={darkMode}
+      />
+    ) : (
+      <>
+        <div className="flex pb-16 md:pb-0">
           <Sidebar />
           <div className="flex-1">
             {currentView === 'dashboard' && <DashboardView />}
@@ -2409,7 +2411,14 @@ const CompanySettingsView = () => {
             {currentView === 'company' && <CompanySettingsView />}
           </div>
         </div>
-      )}
+        <MobileNav 
+          currentView={currentView}
+          setCurrentView={setCurrentView}
+          theme={theme}
+          darkMode={darkMode}
+        />
+      </>
+    )}
 
       {/* MODALES */}
       {showModal && modalType === 'quotation' && (
