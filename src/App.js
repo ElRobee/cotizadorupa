@@ -2435,8 +2435,7 @@ const CompanySettingsView = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+      );
 };
 
 // RENDER PRINCIPAL
