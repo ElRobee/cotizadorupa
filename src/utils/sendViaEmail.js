@@ -8,16 +8,20 @@ export const sendViaEmail = (quotation, data, currentUser) => {
     return;
   }
 
-  // asunto (sin acentos ni caracteres especiales)
+  // asunto (sin acentos para evitar problemas de encoding)
   const subjectRaw = `Cotizacion No. ${quotation.number} - ${data.company.razonSocial}`;
 
-  // cuerpo del correo (sin acentos, reemplazados por caracteres simples)
+  // cuerpo del correo profesional y servicial
   const bodyRaw = `
 Estimado/a ${client.encargado},
 
-Junto con saludar, me permito adjuntar la cotizacion No. ${quotation.number}, correspondiente a su empresa ${client.empresa}.
+Espero que se encuentre muy bien. 
+Por medio del presente, adjunto la cotizacion No. ${quotation.number} correspondiente a su empresa ${client.empresa}.
 
-Por favor, no dude en contactarnos si requiere mas informacion o ajustes respecto a la propuesta.
+Quedamos atentos a cualquier consulta, comentario o ajuste que estime necesario respecto a esta propuesta. 
+Nuestro objetivo es brindarle el mejor servicio posible y apoyar en lo que requiera.
+
+Agradecemos su tiempo y la oportunidad de trabajar junto a ustedes.
 
 Atentamente,  
 ${currentUser?.displayName || "Usuario"}  
@@ -27,7 +31,7 @@ Email: ${data.company.email || "Sin email"}
 Direccion: ${data.company.direccion || "Sin direccion"}  
 
 --  
-Este correo ha sido generado desde CotizApp a product by MisterRobot (https://www.misterrobot.cl)
+Este correo ha sido generado desde CotizApp a product by MisterRobot: https://www.misterrobot.cl
   `.trim();
 
   // codificar para URL
