@@ -45,6 +45,7 @@ import {
   XCircle
 } from 'lucide-react';
 import { generateQuotationPDF } from './utils/pdfGenerator';
+import { sendViaEmail } from './utils/sendViaEmail';
 import QuotationModal from './components/QuotationModal';
 import ClientModal from './components/ClientModal';
 import ServiceModal from './components/ServiceModal';
@@ -1598,6 +1599,15 @@ const QuotationsView = () => {
                         title="Enviar por WhatsApp"
                       >
                         <MessageCircle className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => sendViaEmail(quotation, data, currentUser)}
+                        className={`p-1 text-blue-600 hover:text-blue-800 rounded transition-colors ${
+                          darkMode ? 'hover:bg-blue-100 hover:bg-opacity-20' : 'hover:bg-blue-100'
+                        }`}
+                        title="Enviar por Email"
+                      >
+                        <Mail className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => exportToPDF(quotation)}
