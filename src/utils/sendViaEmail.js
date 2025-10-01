@@ -10,7 +10,8 @@ export const sendViaEmail = (quotation, data, currentUser) => {
 
   const subject = `Cotización ${quotation.number} - ${data.company.razonSocial}`;
 
-  const body = `
+  // Texto del correo en UTF-8
+  const bodyText = `
 Estimado/a ${client.encargado},
 
 Junto con saludar, me permito adjuntar la cotización Nº ${quotation.number}, correspondiente a su empresa ${client.empresa}.
@@ -28,9 +29,8 @@ Dirección: ${data.company.direccion || "Sin dirección"}
 Este correo ha sido generado desde CotizApp a product by MisterRobot, www.misterrobot.cl
   `.trim();
 
-  // Generar mailto con subject + body
-  const mailtoUrl = `mailto:${client.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  // encodeURIComponent para evitar problemas con acentos
+  const mailtoUrl = `mailto:${client.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(bodyText)}`;
 
-  // Abrir en cliente de correo por defecto
   window.location.href = mailtoUrl;
 };
