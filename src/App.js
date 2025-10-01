@@ -2130,24 +2130,43 @@ const CompanySettingsView = () => {
     if (data.company && !editingCompany) {
       setEditingCompany({ ...data.company });
     }
-  }, [data.company]);
+  }, [data.company, editingCompany]);
 
-  // Función para manejar cambios en los inputs
-  const handleCompanyChange = (field, value) => {
-    setEditingCompany({ ...editingCompany, [field]: value });
-  };
+// Función para manejar cambios en los inputs con validación
+const handleCompanyChange = (field, value) => {
+  let processedValue = value;
+  
+  // Formatear RUT automáticamente
+  if (field === 'rut') {
+    processedValue = formatRut(value);
+  }
+  
+  setEditingCompany({ ...editingCompany, [field]: processedValue });
+};
 
   // Función para guardar - actualiza el estado y luego usa la función de utils
-  const handleSaveCompany = () => {
-    if (editingCompany) {
-      // Primero actualizar el estado local
-      setData({ ...data, company: editingCompany });
-      
-      // Luego guardar usando la función de utils (que maneja localStorage)
-      const dataToSave = { ...data, company: editingCompany };
-      saveCompanySettings(dataToSave, theme, darkMode);
-    }
-  };
+const handleSaveCompany = () => {
+  if (!editingCompany) return;
+  
+  // Validar RUT si existe
+  if (editingCompany.rut && !validateRut(editingCompany.rut)) {
+    showNotification('RUT inválido', 'error');
+    return;
+  }
+  
+  // Validar Email si existe
+  if (editingCompany.email && !validateEmail(editingCompany.email)) {
+    showNotification('Email inválido', 'error');
+    return;
+  }
+  
+  // Actualizar el estado local
+  setData({ ...data, company: editingCompany });
+  
+  // Guardar usando la función de utils (que maneja localStorage)
+  const dataToSave = { ...data, company: editingCompany };
+  saveCompanySettings(dataToSave, theme, darkMode);
+};
   
   return (
     <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
