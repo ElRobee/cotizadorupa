@@ -27,7 +27,7 @@ Email: ${data.company.email || "Sin email"}
 Direccion: ${data.company.direccion || "Sin direccion"}  
 
 --  
-Este correo ha sido generado desde CotizApp a product by MisterRobot, www.misterrobot.cl
+Este correo ha sido generado desde CotizApp a product by MisterRobot (https://www.misterrobot.cl)
   `.trim();
 
   // codificar para URL
