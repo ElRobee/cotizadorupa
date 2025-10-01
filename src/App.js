@@ -2121,9 +2121,32 @@ const ServicesView = () => {
   );
 };
 
-// COMPONENTE CONFIGURACIÓN DE EMPRESA
 const CompanySettingsView = () => {
   const currentTheme = getThemeClasses(theme, darkMode);
+  
+  // Inicializar editingCompany con los datos de la empresa
+  useEffect(() => {
+    if (data.company && !editingCompany) {
+      setEditingCompany({ ...data.company });
+    }
+  }, [data.company]);
+
+  // Función para manejar cambios en los inputs
+  const handleCompanyChange = (field, value) => {
+    setEditingCompany({ ...editingCompany, [field]: value });
+  };
+
+  // Función para guardar - actualiza el estado y luego usa la función de utils
+  const handleSaveCompany = () => {
+    if (editingCompany) {
+      // Primero actualizar el estado local
+      setData({ ...data, company: editingCompany });
+      
+      // Luego guardar usando la función de utils (que maneja localStorage)
+      const dataToSave = { ...data, company: editingCompany };
+      saveCompanySettings(dataToSave, theme, darkMode);
+    }
+  };
   
   return (
     <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
@@ -2149,9 +2172,10 @@ const CompanySettingsView = () => {
               </label>
               <input
                 type="text"
-                value={data.company?.razonSocial || ''}
+                value={editingCompany?.razonSocial || ''}
+                onChange={(e) => handleCompanyChange('razonSocial', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                readOnly
+                placeholder="Ingrese razón social"
               />
             </div>
             <div>
@@ -2160,9 +2184,10 @@ const CompanySettingsView = () => {
               </label>
               <input
                 type="text"
-                value={data.company?.rut || ''}
+                value={editingCompany?.rut || ''}
+                onChange={(e) => handleCompanyChange('rut', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                readOnly
+                placeholder="12.345.678-9"
               />
             </div>
           </div>
@@ -2173,9 +2198,10 @@ const CompanySettingsView = () => {
             </label>
             <input
               type="text"
-              value={data.company?.direccion || ''}
+              value={editingCompany?.direccion || ''}
+              onChange={(e) => handleCompanyChange('direccion', e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-              readOnly
+              placeholder="Ingrese dirección"
             />
           </div>
 
@@ -2186,9 +2212,10 @@ const CompanySettingsView = () => {
               </label>
               <input
                 type="text"
-                value={data.company?.ciudad || ''}
+                value={editingCompany?.ciudad || ''}
+                onChange={(e) => handleCompanyChange('ciudad', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                readOnly
+                placeholder="Ingrese ciudad"
               />
             </div>
             <div>
@@ -2197,9 +2224,10 @@ const CompanySettingsView = () => {
               </label>
               <input
                 type="text"
-                value={data.company?.region || ''}
+                value={editingCompany?.region || ''}
+                onChange={(e) => handleCompanyChange('region', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                readOnly
+                placeholder="Ingrese región"
               />
             </div>
           </div>
@@ -2211,9 +2239,10 @@ const CompanySettingsView = () => {
               </label>
               <input
                 type="tel"
-                value={data.company?.telefono || ''}
+                value={editingCompany?.telefono || ''}
+                onChange={(e) => handleCompanyChange('telefono', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                readOnly
+                placeholder="+56 9 1234 5678"
               />
             </div>
             <div>
@@ -2222,15 +2251,31 @@ const CompanySettingsView = () => {
               </label>
               <input
                 type="email"
-                value={data.company?.email || ''}
+                value={editingCompany?.email || ''}
+                onChange={(e) => handleCompanyChange('email', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                readOnly
+                placeholder="contacto@empresa.cl"
               />
             </div>
           </div>
+
+          {/* BOTÓN GUARDAR */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={handleSaveCompany}
+              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${currentTheme.buttonBg} ${currentTheme.buttonHover} focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentTheme.focus} transition-colors`}
+            >
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              </svg>
+              Guardar Configuración
+            </button>
+          </div>
         </div>
       </div>
-
+    </div>
+  );
+}
       {/* PERSONALIZACIÓN Y BRANDING */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200'} p-6`}>
         <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>
