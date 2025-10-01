@@ -207,7 +207,7 @@ const ClientModal = memo(({
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
                 }`}
-                placeholder="+56 9 1234 5678"
+                placeholder="56 9 1234 5678"
               />
               <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Para WhatsApp
