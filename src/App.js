@@ -2432,9 +2432,10 @@ const CompanySettingsView = () => {
               Guardar Configuración
             </button>
           </div>
-        </div>
+          </div>
       </div>
-      );
+    </div>
+  );
 };
 
 // RENDER PRINCIPAL
