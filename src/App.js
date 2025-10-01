@@ -2274,8 +2274,7 @@ const CompanySettingsView = () => {
           </div>
         </div>
       </div>
-    </div>
-);
+    
       {/* PERSONALIZACIÓN Y BRANDING */}
       <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200'} p-6`}>
         <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>
