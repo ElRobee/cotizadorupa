@@ -1,3 +1,4 @@
+// utils/sendViaEmail.js
 export const sendViaEmail = (quotation, data, currentUser) => {
   if (!quotation || !data?.clients || !data?.company) return;
 
@@ -7,32 +8,35 @@ export const sendViaEmail = (quotation, data, currentUser) => {
     return;
   }
 
-  // asunto
-  const subjectRaw = `Cotización Nº ${quotation.number} - ${data.company.razonSocial}`;
+  // asunto (sin acentos ni caracteres especiales)
+  const subjectRaw = `Cotizacion No. ${quotation.number} - ${data.company.razonSocial}`;
 
-  // cuerpo
+  // cuerpo del correo (sin acentos, reemplazados por caracteres simples)
   const bodyRaw = `
 Estimado/a ${client.encargado},
 
-Junto con saludar, me permito adjuntar la cotización Nº ${quotation.number}, correspondiente a su empresa ${client.empresa}.
+Junto con saludar, me permito adjuntar la cotizacion No. ${quotation.number}, correspondiente a su empresa ${client.empresa}.
 
-Por favor, no dude en contactarnos si requiere más información o ajustes respecto a la propuesta.
+Por favor, no dude en contactarnos si requiere mas informacion o ajustes respecto a la propuesta.
 
 Atentamente,  
 ${currentUser?.displayName || "Usuario"}  
 ${data.company.razonSocial}  
-Tel: ${data.company.telefono || "Sin teléfono"}  
+Tel: ${data.company.telefono || "Sin telefono"}  
 Email: ${data.company.email || "Sin email"}  
-Dirección: ${data.company.direccion || "Sin dirección"}  
+Direccion: ${data.company.direccion || "Sin direccion"}  
 
 --  
 Este correo ha sido generado desde CotizApp a product by MisterRobot, www.misterrobot.cl
   `.trim();
 
-  // codificar en URL-safe UTF-8
+  // codificar para URL
   const subject = encodeURIComponent(subjectRaw);
   const body = encodeURIComponent(bodyRaw);
 
+  // armar el mailto
   const mailtoUrl = `mailto:${client.email}?subject=${subject}&body=${body}`;
+
+  // abrir cliente de correo
   window.location.href = mailtoUrl;
 };
