@@ -325,21 +325,34 @@ useEffect(() => {
     return `${formattedBody}-${dv}`;
   };
 
-  const validateRut = (rut) => {
-    const cleanRut = rut.replace(/[^\dkK]/g, '');
-    if (cleanRut.length < 8 || cleanRut.length > 9) return false;
-    const body = cleanRut.slice(0, -1);
-    const dv = cleanRut.slice(-1).toLowerCase();
-    let sum = 0;
-    let multiplier = 2;
-    for (let i = body.length - 1; i >= 0; i--) {
-      sum += parseInt(body[i]) * multiplier;
-      multiplier = multiplier === 7 ? 2 : multiplier + 1;
-    }
-    const remainder = sum % 11;
-    const calculatedDv = remainder < 2 ? remainder.toString() : remainder === 10 ? 'k' : (11 - remainder).toString();
-    return calculatedDv === dv;
-  };
+const validateRut = (rut) => {
+  const cleanRut = rut.replace(/[^\dkK]/g, '');
+  if (cleanRut.length < 8 || cleanRut.length > 9) return false;
+
+  const body = cleanRut.slice(0, -1);
+  const dv = cleanRut.slice(-1).toLowerCase();
+
+  let sum = 0;
+  let multiplier = 2;
+
+  for (let i = body.length - 1; i >= 0; i--) {
+    sum += parseInt(body[i], 10) * multiplier;
+    multiplier = multiplier === 7 ? 2 : multiplier + 1;
+  }
+
+  const remainder = 11 - (sum % 11);
+  let calculatedDv;
+
+  if (remainder === 11) {
+    calculatedDv = '0';
+  } else if (remainder === 10) {
+    calculatedDv = 'k';
+  } else {
+    calculatedDv = remainder.toString();
+  }
+
+  return calculatedDv === dv;
+};
 
   const validateEmail = (email) => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
