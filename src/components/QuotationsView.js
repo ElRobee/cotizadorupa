@@ -12,7 +12,6 @@ import {
 import { getThemeClasses } from '../lib/utils';
 import Filters from "../components/Filters";
 
-
 const QuotationsView = ({
   data,
   searchTerm,
@@ -223,19 +222,19 @@ const QuotationsView = ({
           </table>
         </div>
       </div>
+
+      {/* PANEL DE FILTROS AVANZADOS */}
+      <Filters
+        filters={filters}
+        setFilters={setFilters}
+        showFilters={showFilters}
+        setShowFilters={setShowFilters}
+        clearFilters={clearFilters}
+        theme={theme}
+        darkMode={darkMode}
+      />
     </div>
-  
-{/* PANEL DE FILTROS AVANZADOS */}
-  <Filters
-    filters={filters}
-    setFilters={setFilters}
-    showFilters={showFilters}
-    setShowFilters={setShowFilters}
-    clearFilters={clearFilters}
-    theme={theme}
-    darkMode={darkMode}
-  />
-);
+  );
 };
 
 export default QuotationsView;
