@@ -20,6 +20,7 @@ const QuotationsView = ({
   setFilters,
   showFilters,
   setShowFilters,
+  clearFilters,
   getFilteredQuotations,
   formatDate,
   handleStatusClick,
