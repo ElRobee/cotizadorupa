@@ -5,7 +5,9 @@ import {
   Edit2, 
   Trash2, 
   Copy,
-  Settings
+  Settings,
+  DollarSign,
+  Tag
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 
@@ -26,14 +28,14 @@ const ServicesView = ({
   const currentTheme = getThemeClasses(theme, darkMode);
   
   return (
-    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* HEADER DE LA VISTA */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 space-y-4 md:space-y-0">
         <div>
-          <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             Servicios
           </h1>
-          <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-2`}>
+          <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-2 text-sm md:text-base`}>
             Gestiona tu catálogo de servicios
           </p>
         </div>
@@ -42,17 +44,17 @@ const ServicesView = ({
             setModalType('service');
             setShowModal(true);
           }}
-          className={`flex items-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+          className={`flex items-center justify-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} w-full md:w-auto`}
         >
           <Plus className="w-4 h-4" />
           <span>Nuevo Servicio</span>
         </button>
       </div>
 
-      {/* TABLA DE SERVICIOS */}
+      {/* CONTENEDOR DE TABLA/CARDS */}
       <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border overflow-hidden`}>
         {/* BARRA DE BÚSQUEDA */}
-        <div className={`p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+        <div className={`p-4 md:p-6 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
           <div className="relative">
             <Search className={`w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`} />
             <input
@@ -69,8 +71,8 @@ const ServicesView = ({
           </div>
         </div>
 
-        {/* TABLA */}
-        <div className="overflow-x-auto">
+        {/* TABLA - SOLO DESKTOP */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
               <tr>
@@ -101,7 +103,6 @@ const ServicesView = ({
                       : 'border-gray-200 hover:bg-gray-50'
                   }`}
                 >
-                  {/* Nombre del Servicio */}
                   <td className={`py-4 px-6 font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     {service.name}
                     {service.description && (
@@ -113,8 +114,6 @@ const ServicesView = ({
                       </p>
                     )}
                   </td>
-                  
-                  {/* Categoría */}
                   <td className="py-4 px-6">
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                       theme === 'blue' ? 'bg-blue-100 text-blue-800' :
@@ -126,8 +125,6 @@ const ServicesView = ({
                       {service.category}
                     </span>
                   </td>
-                  
-                  {/* Precio */}
                   <td className={`py-4 px-6 font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                     <span className={`${
                       theme === 'blue' ? 'text-blue-600' :
@@ -144,8 +141,6 @@ const ServicesView = ({
                       </span>
                     )}
                   </td>
-                  
-                  {/* Estado (Clickeable) */}
                   <td className="py-4 px-6">
                     <button
                       onClick={() => toggleServiceStatus(service.id, service.active)}
@@ -159,11 +154,8 @@ const ServicesView = ({
                       {service.active ? 'Activo' : 'Inactivo'}
                     </button>
                   </td>
-                  
-                  {/* Acciones */}
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-2">
-                      {/* Botón Editar */}
                       <button
                         onClick={() => startEdit('service', service)}
                         className={`p-1 rounded transition-colors ${
@@ -177,8 +169,6 @@ const ServicesView = ({
                       >
                         <Edit2 className="w-4 h-4" />
                       </button>
-                      
-                      {/* Botón Duplicar */}
                       <button
                         onClick={() => duplicateService(service)}
                         className={`p-1 rounded transition-colors ${
@@ -192,8 +182,6 @@ const ServicesView = ({
                       >
                         <Copy className="w-4 h-4" />
                       </button>
-                      
-                      {/* Botón Eliminar */}
                       <button
                         onClick={() => deleteItem('services', service.id)}
                         className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
@@ -209,10 +197,109 @@ const ServicesView = ({
               ))}
             </tbody>
           </table>
+        </div>
+
+        {/* CARDS - SOLO MÓVIL */}
+        <div className="md:hidden">
+          {getFilteredServices().map(service => (
+            <div 
+              key={service.id}
+              className={`p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}
+            >
+              {/* Header del Card */}
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1 pr-2">
+                  <h3 className={`font-semibold text-base ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {service.name}
+                  </h3>
+                  {service.description && (
+                    <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      {service.description.length > 80 
+                        ? `${service.description.substring(0, 80)}...` 
+                        : service.description
+                      }
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => toggleServiceStatus(service.id, service.active)}
+                  className={`inline-flex px-2 py-1 text-xs font-medium rounded-full transition-all hover:scale-105 cursor-pointer ${
+                    service.active 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}
+                >
+                  {service.active ? 'Activo' : 'Inactivo'}
+                </button>
+              </div>
+
+              {/* Información del Servicio */}
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center space-x-2">
+                  <Tag className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                    theme === 'blue' ? 'bg-blue-100 text-blue-800' :
+                    theme === 'green' ? 'bg-green-100 text-green-800' :
+                    theme === 'purple' ? 'bg-purple-100 text-purple-800' :
+                    theme === 'red' ? 'bg-red-100 text-red-800' :
+                    'bg-gray-100 text-gray-800'
+                  } ${darkMode ? 'bg-opacity-20' : ''}`}>
+                    {service.category}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <DollarSign className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                  <span className={`text-lg font-bold ${
+                    theme === 'blue' ? 'text-blue-600' :
+                    theme === 'green' ? 'text-green-600' :
+                    theme === 'purple' ? 'text-purple-600' :
+                    theme === 'red' ? 'text-red-600' :
+                    'text-gray-600'
+                  }`}>
+                    ${service.price.toLocaleString()}
+                  </span>
+                  {service.unit && (
+                    <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                      /{service.unit}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Botones de Acción */}
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => startEdit('service', service)}
+                  className={`flex items-center justify-center space-x-1 py-2 rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} text-white`}
+                >
+                  <Edit2 className="w-4 h-4" />
+                  <span className="text-sm font-medium">Editar</span>
+                </button>
+                <button
+                  onClick={() => duplicateService(service)}
+                  className={`flex items-center justify-center space-x-1 py-2 rounded-lg transition-colors ${
+                    darkMode ? 'bg-gray-600 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                >
+                  <Copy className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
+                    Duplicar
+                  </span>
+                </button>
+                <button
+                  onClick={() => deleteItem('services', service.id)}
+                  className="flex items-center justify-center space-x-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span className="text-sm font-medium">Eliminar</span>
+                </button>
+              </div>
+            </div>
+          ))}
 
           {/* MENSAJE CUANDO NO HAY SERVICIOS */}
           {getFilteredServices().length === 0 && (
-            <div className={`text-center py-12 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            <div className={`text-center py-12 px-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               <Settings className="w-12 h-12 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium mb-2">No hay servicios registrados</p>
               <p className="text-sm">
@@ -235,10 +322,10 @@ const ServicesView = ({
         </div>
 
         {/* RESUMEN DE ESTADÍSTICAS */}
-        <div className={`px-6 py-4 border-t ${darkMode ? 'border-gray-700 bg-gray-750' : 'border-gray-200 bg-gray-50'}`}>
-          <div className="flex items-center justify-between text-sm">
+        <div className={`px-4 md:px-6 py-4 border-t ${darkMode ? 'border-gray-700 bg-gray-750' : 'border-gray-200 bg-gray-50'}`}>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between text-sm space-y-2 md:space-y-0">
             <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-              Total de servicios: {getFilteredServices().length}
+              Total de servicios: <span className="font-medium">{getFilteredServices().length}</span>
             </span>
             <div className="flex space-x-4">
               <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
