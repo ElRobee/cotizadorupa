@@ -227,4 +227,14 @@ const QuotationsView = ({
   );
 };
 
+<Filters
+  filters={filters}
+  setFilters={setFilters}
+  showFilters={showFilters}
+  setShowFilters={setShowFilters}
+  clearFilters={clearFilters}
+  theme={theme}
+  darkMode={darkMode}
+/>
+
 export default QuotationsView;
