@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils.js';
+import ServicesData from '../utils/ServicesData'; // 👈 importamos datos base
 
 const ServiceModal = memo(({
   isEditing,
@@ -8,7 +9,6 @@ const ServiceModal = memo(({
   onCancel,
   onSave,
   onFieldChange,
-  // Nuevas props para tema
   theme = 'blue',
   darkMode = false
 }) => {
@@ -24,7 +24,33 @@ const ServiceModal = memo(({
   };
 
   const handleInputChange = (field, value) => {
+    if (field === 'name') {
+      // buscar en ServicesData un servicio con ese nombre
+      const foundService = ServicesData.services.find(s => 
+        s.name.toLowerCase() === value.toLowerCase()
+      );
+      if (foundService) {
+        onFieldChange('name', foundService.name);
+        onFieldChange('price', foundService.price);
+        onFieldChange('category', foundService.category);
+        onFieldChange('active', foundService.active);
+        onFieldChange('specs', foundService.specs); // 👈 specs añadidas
+        return;
+      }
+    }
     onFieldChange(field, value);
+  };
+
+  const handleSelectService = (serviceId) => {
+    if (!serviceId) return;
+    const selected = ServicesData.services.find(s => s.id === Number(serviceId));
+    if (selected) {
+      onFieldChange('name', selected.name);
+      onFieldChange('price', selected.price);
+      onFieldChange('category', selected.category);
+      onFieldChange('active', selected.active);
+      onFieldChange('specs', selected.specs);
+    }
   };
 
   return (
@@ -53,6 +79,32 @@ const ServiceModal = memo(({
 
         {/* CONTENIDO DEL MODAL */}
         <div className="p-6 space-y-6">
+          {/* SELECCIONAR SERVICIO PREDEFINIDO */}
+          {!isEditing && (
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Seleccionar servicio existente
+              </label>
+              <select
+                defaultValue=""
+                onChange={(e) => handleSelectService(e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                <option value="">-- Selecciona un servicio --</option>
+                {ServicesData.services.map(s => (
+                  <option key={s.id} value={s.id}>{s.name}</option>
+                ))}
+              </select>
+              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                Puedes elegir uno de los servicios predefinidos para autocompletar datos.
+              </p>
+            </div>
+          )}
+
           {/* NOMBRE DEL SERVICIO */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
