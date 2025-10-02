@@ -9,7 +9,22 @@ import {
 } from '../lib/utils';
 
 // COMPONENTE CONFIGURACIÓN DE EMPRESA
-const CompanySettingsView = () => {
+const CompanySettingsView = ({ 
+  data, 
+  setData, 
+  editingCompany, 
+  setEditingCompany,
+  newCompanyLogo,
+  setNewCompanyLogo,
+  theme, 
+  setTheme,
+  darkMode, 
+  setDarkMode,
+  formatRut,
+  validateRut,
+  validateEmail,
+  showNotification
+}) => {
   const currentTheme = getThemeClasses(theme, darkMode);
   
   // Inicializar editingCompany con los datos de la empresa
