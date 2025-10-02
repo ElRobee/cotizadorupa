@@ -22,9 +22,10 @@ const ClientsView = ({
   darkMode
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
-
+  
   return (
-const ClientsView = ({
+    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      {/* HEADER DE LA VISTA */}
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
@@ -66,7 +67,9 @@ const ClientsView = ({
           </div>
         </div>
 
-const ClientsView = ({
+        {/* TABLA */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
             <thead className={darkMode ? 'bg-gray-700' : 'bg-gray-50'}>
               <tr>
                 <th className={`text-left py-4 px-6 text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -202,7 +205,9 @@ const ClientsView = ({
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-const ClientsView = ({
+                    </div>
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
