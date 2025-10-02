@@ -54,7 +54,6 @@ import ServicesView from './components/ServicesView';
 import ServiceModal from './components/ServiceModal';
 import AuthView from './components/AuthView';
 import MobileNav from './components/layout/MobileNav';
-import Filters from "./components/Filters";
 import CompanySettingsView from './components/CompanySettingsView';
 import { 
   handleThemeChange, 
@@ -1477,6 +1476,7 @@ return (
     searchTerm={searchTerm}
     onSearchChange={handleSearchChange}
     filters={filters}
+    setFilters={setFilters}   // 👈 AGREGA ESTO
     showFilters={showFilters}
     setShowFilters={setShowFilters}
     getFilteredQuotations={getFilteredQuotations}
@@ -1621,16 +1621,6 @@ return (
       {/* SISTEMA DE NOTIFICACIONES */}
       <NotificationContainer />
 
-     {/* PANEL DE FILTROS AVANZADOS */}
-<Filters
-  filters={filters}
-  setFilters={setFilters}
-  showFilters={showFilters}
-  setShowFilters={setShowFilters}
-  clearFilters={clearFilters}
-  theme={theme}
-  darkMode={darkMode}
-/>
       
       {/* PANEL DE NOTIFICACIONES DEL SISTEMA */}
       {showNotificationPanel && (
