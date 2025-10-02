@@ -10,6 +10,8 @@ import {
   Download 
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
+import Filters from "./components/Filters";
+
 
 const QuotationsView = ({
   data,
