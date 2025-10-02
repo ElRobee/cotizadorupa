@@ -10,7 +10,8 @@ import {
   Download 
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
-import Filters from "./Filters";
+import Filters from "./components/Filters";
+
 
 const QuotationsView = ({
   data,
@@ -20,7 +21,6 @@ const QuotationsView = ({
   setFilters,
   showFilters,
   setShowFilters,
-  clearFilters,
   getFilteredQuotations,
   formatDate,
   handleStatusClick,
@@ -35,7 +35,17 @@ const QuotationsView = ({
   darkMode
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
- 
+  
+  const clearFilters = () => {
+    setFilters({
+      dateFrom: '',
+      dateTo: '',
+      status: '',
+      priority: '',
+    });
+    onSearchChange({ target: { value: '' } });
+  };
+
   return (
     <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* HEADER DE LA VISTA */}
@@ -225,7 +235,7 @@ const QuotationsView = ({
         </div>
       </div>
 
-      {/* PANEL DE FILTROS AVANZADOS */}
+      {/* FILTROS AVANZADOS MODAL */}
       <Filters
         filters={filters}
         setFilters={setFilters}
