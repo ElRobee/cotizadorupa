@@ -224,17 +224,18 @@ const QuotationsView = ({
         </div>
       </div>
     </div>
-  );
+  
+{/* PANEL DE FILTROS AVANZADOS */}
+  <Filters
+    filters={filters}
+    setFilters={setFilters}
+    showFilters={showFilters}
+    setShowFilters={setShowFilters}
+    clearFilters={clearFilters}
+    theme={theme}
+    darkMode={darkMode}
+  />
+);
 };
-
-<Filters
-  filters={filters}
-  setFilters={setFilters}
-  showFilters={showFilters}
-  setShowFilters={setShowFilters}
-  clearFilters={clearFilters}
-  theme={theme}
-  darkMode={darkMode}
-/>
 
 export default QuotationsView;
