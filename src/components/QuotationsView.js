@@ -17,6 +17,7 @@ const QuotationsView = ({
   searchTerm,
   onSearchChange,
   filters,
+  setFilters,
   showFilters,
   setShowFilters,
   getFilteredQuotations,
