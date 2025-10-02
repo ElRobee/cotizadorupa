@@ -159,6 +159,7 @@ const mockFirebaseData = {
     { id: 4, name: 'ELEVADOR ELECTRICO 10 MT', price: 70000, category: 'Elevadores', active: true },
     { id: 5, name: 'CAMIONES TRANSPORTE', price: 600000, category: 'Transporte', active: true },
     { id: 6, name: 'OPERADOR', price: 45000, category: 'Personal', active: true }
+    { id: 7, name: 'DIESEL', price: 2000, category: 'Otros', active: true }
   ],
   quotations: [
     {
