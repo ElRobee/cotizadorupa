@@ -156,15 +156,7 @@ const mockFirebaseData = {
       createdAt: '2025-01-03'
     }
   ],
-  services: [
-    { id: 1, name: 'PLATAFORMAS ELEVADORAS TIJERA', price: 100000, category: 'Elevadores', active: true },
-    { id: 2, name: 'BRAZO ARTICULADO 16 MT', price: 100000, category: 'Elevadores', active: true },
-    { id: 3, name: 'ELEVADOR ELECTRICO 8 MT', price: 50000, category: 'Elevadores', active: true },
-    { id: 4, name: 'ELEVADOR ELECTRICO 10 MT', price: 70000, category: 'Elevadores', active: true },
-    { id: 5, name: 'CAMIONES TRANSPORTE', price: 600000, category: 'Transporte', active: true },
-    { id: 6, name: 'OPERADOR', price: 45000, category: 'Personal', active: true },
-    { id: 7, name: 'DIESEL', price: 2000, category: 'Otros', active: true }
-  ],
+
   quotations: [
     {
       id: 1,
