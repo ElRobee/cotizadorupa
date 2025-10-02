@@ -6,12 +6,16 @@ import {
   Edit2, 
   Trash2, 
   MessageCircle, 
-  Mail,
-  NotepadText,
-  Download 
+  Mail, 
+  Download,
+  NotepadText
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import Filters from "./Filtrosdebusqueda";
+
+// 1. IMPORTA LOS DATOS Y LA FUNCIÓN DEL PDF
+import { services as allServices } from '../utils/servicesData';
+import { generateTechnicalReportPDF } from '../utils/InformePDF';
 
 
 const QuotationsView = ({
@@ -45,6 +49,12 @@ const QuotationsView = ({
       priority: '',
     });
     onSearchChange({ target: { value: '' } });
+  };
+
+  // 2. CREA LA FUNCIÓN PARA MANEJAR LA DESCARGA DEL INFORME TÉCNICO
+  const handleDownloadTechnicalReport = (quotation) => {
+    // La función que creamos en el archivo utils
+    generateTechnicalReportPDF(quotation, allServices);
   };
 
   return (
@@ -217,15 +227,24 @@ const QuotationsView = ({
                         title="Exportar a PDF"
                       >
                         <Download className="w-4 h-4" />
-                      </button>
-                      <button
+                       </button>
+                       <button
                         onClick={() => handleDownloadTechnicalReport(quotation)}
                         className={`p-1 text-gray-600 hover:text-gray-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-gray-100 hover:bg-opacity-20' : 'hover:bg-gray-100'
                         }`}
                         title="Descargar Informe Técnico"
                       >
-                      <NotepadText className="w-4 h-4" />
+                        <NotepadText className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => exportToPDF(quotation)}
+                        className={`p-1 text-purple-600 hover:text-purple-800 rounded transition-colors ${
+                          darkMode ? 'hover:bg-purple-100 hover:bg-opacity-20' : 'hover:bg-purple-100'
+                        }`}
+                        title="Exportar a PDF"
+                      >
+                        <Download className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => deleteItem('quotations', quotation.id)}
@@ -244,7 +263,7 @@ const QuotationsView = ({
           </table>
         </div>
       </div>
-
+      
       {/* FILTROS AVANZADOS MODAL */}
       <Filters
         filters={filters}
