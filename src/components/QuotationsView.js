@@ -10,7 +10,7 @@ import {
   Download 
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
-import Filters from "./components/Filtrosdebusqueda";
+import Filters from "./Filtrosdebusqueda";
 
 
 const QuotationsView = ({
