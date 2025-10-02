@@ -1,67 +1,125 @@
-export const services = [
-  {
-    id: 1,
-    name: 'PLATAFORMAS ELEVADORAS TIJERA',
-    price: 100000,
-    category: 'Elevadores',
-    active: true,
-    technicalInfo: {
-      brand: 'Marca Ejemplo',
-      maxHeight: '12 metros',
-      verticalReach: '10 metros',
-      loadCapacity: '300 kg',
-      engineType: 'Eléctrico',
-      dimensions: '1.2m x 2.4m x 1.8m',
-      functionality: 'Elevación vertical estable para trabajos de construcción y mantenimiento.'
+const ServicesData = {
+  services: [
+    {
+      id: 1,
+      name: 'PLATAFORMAS ELEVADORAS TIJERA',
+      price: 100000,
+      category: 'Elevadores',
+      active: true,
+      specs: {
+        type: 'scissor lift / plataforma tijera',
+        maxPlatformHeight_m: 12,        // altura de plataforma
+        workingHeight_m: 14,            // altura de trabajo aproximada
+        capacity_kg: 500,                // capacidad de carga
+        power: 'eléctrica / hidráulica',
+        weight_kg: 2000,                 // peso del equipo
+        dimensions_m: {
+          length: 2.5,
+          width: 1.2,
+          stowedHeight: 2.0
+        },
+        driveType: 'todoterreno / ruedas sólidas',
+      }
+    },
+    {
+      id: 2,
+      name: 'BRAZO ARTICULADO 16 MT',
+      price: 100000,
+      category: 'Elevadores',
+      active: true,
+      specs: {
+        type: 'elevador tipo brazo articulado (knuckle boom)',
+        maxOutreach_m: 12,               // alcance horizontal máximo
+        maxHeight_m: 16,                 // altura máxima
+        capacity_kg: 230,                 // capacidad típica
+        power: 'diésel / hidráulica',
+        weight_kg: 8000,                  // peso estimado
+        platformSize_m: {
+          length: 1.8,
+          width: 0.8
+        },
+        rotationDegrees: 360,             // rotación de torre
+      }
+    },
+    {
+      id: 3,
+      name: 'ELEVADOR ELECTRICO 8 MT',
+      price: 50000,
+      category: 'Elevadores',
+      active: true,
+      specs: {
+        type: 'mast lift / elevador eléctrico vertical',
+        maxHeight_m: 8,
+        capacity_kg: 200,
+        power: 'eléctrica (baterías)',
+        weight_kg: 900,
+        dimensions_m: { length: 1.2, width: 0.9, stowedHeight: 2.0 },
+        driveType: 'ruedas eléctricas',
+      }
+    },
+    {
+      id: 4,
+      name: 'ELEVADOR ELECTRICO 10 MT',
+      price: 70000,
+      category: 'Elevadores',
+      active: true,
+      specs: {
+        type: 'mast / scissor eléctrico para interiores / exteriores',
+        maxHeight_m: 10,
+        capacity_kg: 250,
+        power: 'eléctrica',
+        weight_kg: 1200,
+        dimensions_m: { length: 1.4, width: 1.0, stowedHeight: 2.2 },
+        driveType: 'ruedas eléctricas',
+      }
+    },
+    {
+      id: 5,
+      name: 'CAMIONES TRANSPORTE',
+      price: 600000,
+      category: 'Transporte',
+      active: true,
+      specs: {
+        type: 'camión de transporte carga / plataforma',
+        maxLoad_kg: 10000,              // carga máxima del camión
+        volume_m3: 35,                   // volumen de caja
+        engine: 'diésel 6 cilindros',
+        power_hp: 240,                   // potencia estimada
+        dimensions_m: {
+          length: 8.0,
+          width: 2.5,
+          height: 3.0
+        },
+        axleConfiguration: '4x2 / 6x4'
+      }
+    },
+    {
+      id: 6,
+      name: 'OPERADOR',
+      price: 45000,
+      category: 'Personal',
+      active: true,
+      specs: {
+        role: 'operador de maquinaria',
+        qualification: 'certificación IPAF / licencia de manejo',
+        hoursRate_clp: 45000,
+        maxHoursPerDay: 8
+      }
+    },
+    {
+      id: 7,
+      name: 'DIESEL',
+      price: 2000,
+      category: 'Otros',
+      active: true,
+      specs: {
+        type: 'combustible diésel',
+        unit: 'litro',
+        energyDensity_MJ_per_l: 36,     // densidad energética aproximada
+        costPerL: 2000
+      }
     }
-  },
-  {
-    id: 2,
-    name: 'BRAZO ARTICULADO 16 MT',
-    price: 100000,
-    category: 'Elevadores',
-    active: true,
-    technicalInfo: {
-      brand: 'JLG',
-      maxHeight: '16 metros',
-      verticalReach: '14 metros',
-      loadCapacity: '220 kg',
-      engineType: 'Diésel',
-      dimensions: '2.0m x 7.5m x 2.5m',
-      functionality: 'Brazo articulado para alcanzar zonas de difícil acceso, ideal para terrenos irregulares.'
-    }
-  },
-  {
-    id: 3,
-    name: 'ELEVADOR ELECTRICO 8 MT',
-    price: 50000,
-    category: 'Elevadores',
-    active: true,
-    technicalInfo: {
-      brand: 'Haulotte',
-      maxHeight: '8 metros',
-      verticalReach: '6 metros',
-      loadCapacity: '200 kg',
-      engineType: 'Eléctrico',
-      dimensions: '0.8m x 1.8m x 1.5m',
-      functionality: 'Compacto y silencioso, perfecto para trabajos en interiores donde se requiere baja contaminación acústica.'
-    }
-  },
-  {
-    id: 4,
-    name: 'ELEVADOR ELECTRICO 10 MT',
-    price: 70000,
-    category: 'Elevadores',
-    active: true,
-    technicalInfo: {
-      brand: 'Genie',
-      maxHeight: '10 metros',
-      verticalReach: '8 metros',
-      loadCapacity: '250 kg',
-      engineType: 'Eléctrico',
-      dimensions: '1.0m x 2.0m x 1.6m',
-      functionality: 'Versátil y de fácil manejo para una variedad de tareas de mantenimiento y montaje.'
-    }
-  },
-  // Agrega aquí los datos de los demás servicios
-];
+  ]
+};
+
+export default ServicesData;
