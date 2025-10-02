@@ -6,7 +6,8 @@ import {
   Edit2, 
   Trash2, 
   MessageCircle, 
-  Mail, 
+  Mail,
+  NotepadText,
   Download 
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
@@ -216,6 +217,15 @@ const QuotationsView = ({
                         title="Exportar a PDF"
                       >
                         <Download className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDownloadTechnicalReport(quotation)}
+                        className={`p-1 text-gray-600 hover:text-gray-800 rounded transition-colors ${
+                          darkMode ? 'hover:bg-gray-100 hover:bg-opacity-20' : 'hover:bg-gray-100'
+                        }`}
+                        title="Descargar Informe Técnico"
+                      >
+                      <NotepadText className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => deleteItem('quotations', quotation.id)}
