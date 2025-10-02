@@ -2133,26 +2133,6 @@ const ServicesView = () => {
   );
 };
 
-// COMPONENTE CONFIGURACIÓN DE EMPRESA
-{currentView === 'company' && (
-  <CompanySettingsView 
-    data={data}
-    setData={setData}
-    editingCompany={editingCompany}
-    setEditingCompany={setEditingCompany}
-    newCompanyLogo={newCompanyLogo}
-    setNewCompanyLogo={setNewCompanyLogo}
-    theme={theme}
-    setTheme={setTheme}
-    darkMode={darkMode}
-    setDarkMode={setDarkMode}
-    formatRut={formatRut}
-    validateRut={validateRut}
-    validateEmail={validateEmail}
-    showNotification={showNotification}
-  />
-)}
-
 // RENDER PRINCIPAL
 return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
@@ -2180,7 +2160,24 @@ return (
             {currentView === 'quotations' && <QuotationsView />}
             {currentView === 'clients' && <ClientsView />}
             {currentView === 'services' && <ServicesView />}
-            {currentView === 'company' && <CompanySettingsView />}
+            {currentView === 'company' && (
+              <CompanySettingsView 
+                data={data}
+                setData={setData}
+                editingCompany={editingCompany}
+                setEditingCompany={setEditingCompany}
+                newCompanyLogo={newCompanyLogo}
+                setNewCompanyLogo={setNewCompanyLogo}
+                theme={theme}
+                setTheme={setTheme}
+                darkMode={darkMode}
+                setDarkMode={setDarkMode}
+                formatRut={formatRut}
+                validateRut={validateRut}
+                validateEmail={validateEmail}
+                showNotification={showNotification}
+              />
+            )}
           </div>
         </div>
         <MobileNav 
