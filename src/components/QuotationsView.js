@@ -12,11 +12,8 @@ import {
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import Filters from "./Filtrosdebusqueda";
-
-// 1. IMPORTA LOS DATOS Y LA FUNCIÓN DEL PDF
 import { services as allServices } from '../utils/ServicesData';
 import { generateTechnicalReportPDF } from '../utils/InformePDF';
-
 
 const QuotationsView = ({
   data,
@@ -52,8 +49,8 @@ const QuotationsView = ({
   };
 
   // 2. CREA LA FUNCIÓN PARA MANEJAR LA DESCARGA DEL INFORME TÉCNICO
-  const handleDownloadTechnicalReport = (quotation) => {
-    // La función que creamos en el archivo utils
+const handleDownloadTechnicalReport = (quotation) => {
+    // Ahora pasamos la cotización, todos los servicios y los datos de la empresa
     generateTechnicalReportPDF(quotation, allServices);
   };
 
