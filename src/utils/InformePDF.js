@@ -1,63 +1,101 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
-// Esta función se encargará de generar el informe técnico en PDF
-export const generateTechnicalReportPDF = (quotation, allServices) => {
-  const doc = new jsPDF();
-  
+export const generateTechnicalReportPDF = async (quotation, allServices, company) => {
   const servicesInQuotation = quotation.items.map(item => {
-    // Busca la información técnica completa del servicio
+    // Asumiendo que el item en la cotización tiene un serviceId
     const serviceDetails = allServices.find(s => s.id === item.serviceId);
     return serviceDetails;
-  }).filter(Boolean); // Filtra los servicios no encontrados
-  
+  }).filter(Boolean); // Filtra los servicios que no se encuentren
+
   if (servicesInQuotation.length === 0) {
-    alert('Esta cotización no contiene servicios para generar un informe técnico.');
-    return;
+    alert('Esta cotización no contiene servicios válidos para generar un informe técnico.');
+    return false;
   }
 
-  // Encabezado del documento
-  doc.setFontSize(18);
-  doc.text(`Informe Técnico - Cotización #${quotation.number}`, 14, 20);
-  doc.setFontSize(12);
-  doc.text(`Cliente: ${quotation.client}`, 14, 30);
-  doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 37);
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+      <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+        ${company?.logo 
+          ? `<img src="${company.logo}" alt="Logo empresa" style="width: 300px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
+          : ''
+        }
+        <div style="text-align: left;">
+          <h1 style="color: #333; margin: 0;">${company.razonSocial}</h1>
+          <p style="margin: 5px 0;">${company.direccion} - ${company.ciudad}, ${company.region}</p>
+          <p style="margin: 5px 0;">RUT: ${company.rut} | Tel: ${company.telefono}</p>
+          <p style="margin: 5px 0;">Email: ${company.email}</p>
+        </div>
+      </div>
 
-  let yOffset = 50;
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #333;">INFORME TÉCNICO DE SERVICIOS</h2>
+        <p><strong>Cotización N°:</strong> ${quotation.number} | <strong>Cliente:</strong> ${quotation.client}</p>
+      </div>
 
-  servicesInQuotation.forEach((service, index) => {
-    if (yOffset > 250) { // Si se acerca al final de la página, agrega una nueva página
-      doc.addPage();
-      yOffset = 20;
-    }
+      ${servicesInQuotation.map(service => `
+        <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+          <h3 style="color: #0056b3; border-bottom: 1px solid #0056b3; padding-bottom: 10px; margin-top: 0;">${service.name}</h3>
+          
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+            <div><strong>Marca:</strong> ${service.technicalInfo.brand}</div>
+            <div><strong>Altura Máxima:</strong> ${service.technicalInfo.maxHeight}</div>
+            <div><strong>Alcance Vertical:</strong> ${service.technicalInfo.verticalReach}</div>
+            <div><strong>Capacidad de Carga:</strong> ${service.technicalInfo.loadCapacity}</div>
+            <div><strong>Tipo de Motor:</strong> ${service.technicalInfo.engineType}</div>
+            <div><strong>Dimensiones:</strong> ${service.technicalInfo.dimensions}</div>
+          </div>
+          
+          <div style="border-top: 1px solid #eee; padding-top: 15px;">
+            <p style="margin: 0; font-weight: bold; color: #333;">Funcionalidad:</p>
+            <p style="margin: 5px 0 0 0; color: #555;">${service.technicalInfo.functionality}</p>
+          </div>
+        </div>
+      `).join('')}
 
-    doc.setFontSize(16);
-    doc.text(`${index + 1}. ${service.name}`, 14, yOffset);
-    yOffset += 10;
-    
-    doc.setFontSize(10);
-    doc.text(`Marca: ${service.technicalInfo.brand}`, 20, yOffset);
-    yOffset += 7;
-    doc.text(`Altura Máxima: ${service.technicalInfo.maxHeight}`, 20, yOffset);
-    yOffset += 7;
-    doc.text(`Alcance Vertical: ${service.technicalInfo.verticalReach}`, 20, yOffset);
-    yOffset += 7;
-    doc.text(`Capacidad de Carga: ${service.technicalInfo.loadCapacity}`, 20, yOffset);
-    yOffset += 7;
-    doc.text(`Tipo de Motor: ${service.technicalInfo.engineType}`, 20, yOffset);
-    yOffset += 7;
-    doc.text(`Dimensiones: ${service.technicalInfo.dimensions}`, 20, yOffset);
-    yOffset += 7;
-    
-    doc.setFontSize(12);
-    doc.text('Funcionalidad:', 20, yOffset);
-    yOffset += 7;
-    doc.setFontSize(10);
-    // Para descripciones largas, se puede usar `doc.splitTextToSize`
-    const descriptionLines = doc.splitTextToSize(service.technicalInfo.functionality, 170);
-    doc.text(descriptionLines, 25, yOffset);
-    yOffset += (descriptionLines.length * 7) + 10;
-  });
+      <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
+        <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
+          "Este documento es un informe técnico y no constituye una cotización ni un documento de venta."
+        </p>
+      </div>
+    </div>
+  `;
 
-  doc.save(`Informe_Tecnico_Cotizacion_${quotation.number}.pdf`);
+  // Mismo código para abrir la ventana e imprimir que ya utilizas
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Informe Técnico Cotización ${quotation.number}</title>
+          <meta charset="UTF-8">
+          <style>
+            @media print {
+              body { margin: 0; }
+              @page {
+                margin: 1cm;
+                size: A4;
+              }
+            }
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.4;
+              color: #333;
+            }
+          </style>
+        </head>
+        <body>
+          ${htmlContent}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+
+    setTimeout(() => {
+      if (window.confirm('¿Deseas imprimir o descargar como PDF el informe técnico?')) {
+        printWindow.print();
+      }
+    }, 500);
+
+    return true;
+  } else {
+    throw new Error('Error al abrir ventana de impresión');
+  }
 };
