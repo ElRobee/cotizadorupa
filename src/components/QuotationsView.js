@@ -235,15 +235,6 @@ const handleDownloadTechnicalReport = (quotation) => {
                         <NotepadText className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => exportToPDF(quotation)}
-                        className={`p-1 text-purple-600 hover:text-purple-800 rounded transition-colors ${
-                          darkMode ? 'hover:bg-purple-100 hover:bg-opacity-20' : 'hover:bg-purple-100'
-                        }`}
-                        title="Exportar a PDF"
-                      >
-                        <Download className="w-4 h-4" />
-                      </button>
-                      <button
                         onClick={() => deleteItem('quotations', quotation.id)}
                         className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
