@@ -1,6 +1,6 @@
 import React from "react";
 import { X } from "lucide-react";
-import { getThemeClasses } from "../utils/themeUtils"; // asegúrate de que existe
+import { getThemeClasses } from '../lib/utils';
 
 const Filters = ({ filters, setFilters, showFilters, setShowFilters, clearFilters, theme, darkMode }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
