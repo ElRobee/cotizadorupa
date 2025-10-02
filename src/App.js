@@ -2141,22 +2141,24 @@ const CompanySettingsView = () => {
     if (data.company && !editingCompany) {
       setEditingCompany({ ...data.company });
     }
-  }, [data.company, editingCompany]);
+  }, []);
 
 // Función para manejar cambios en los inputs con validación
-const handleCompanyChange = (field, value) => {
-  let processedValue = value;
-  
-  // Formatear RUT automáticamente
-  if (field === 'rut') {
-    processedValue = formatRut(value);
-  }
-  
-  setEditingCompany({ ...editingCompany, [field]: processedValue });
-};
+const handleCompanyChange = useCallback((field, value) => {
+  setEditingCompany(prev => {
+    let processedValue = value;
+    
+    // Formatear RUT automáticamente
+    if (field === 'rut') {
+      processedValue = formatRut(value);
+    }
+    
+    return { ...prev, [field]: processedValue };
+  });
+}, []);
 
   // Función para guardar - actualiza el estado y luego usa la función de utils
-const handleSaveCompany = () => {
+const handleSaveCompany = useCallback(() => {
   if (!editingCompany) return;
   
   // Validar RUT si existe
@@ -2172,12 +2174,11 @@ const handleSaveCompany = () => {
   }
   
   // Actualizar el estado local
-  setData({ ...data, company: editingCompany });
+  setData(prev => ({ ...prev, company: editingCompany }));
   
-  // Guardar usando la función de utils (que maneja localStorage)
-  const dataToSave = { ...data, company: editingCompany };
-  saveCompanySettings(dataToSave, theme, darkMode);
-};
+  // Guardar usando la función de utils
+  saveCompanySettings({ ...data, company: editingCompany }, theme, darkMode);
+}, [editingCompany, data, theme, darkMode]);
   
   return (
     <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
