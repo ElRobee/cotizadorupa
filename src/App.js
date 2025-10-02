@@ -54,6 +54,7 @@ import ServicesView from './components/ServicesView';
 import ServiceModal from './components/ServiceModal';
 import AuthView from './components/AuthView';
 import MobileNav from './components/layout/MobileNav';
+import Filters from "./components/Filters";
 import CompanySettingsView from './components/CompanySettingsView';
 import { 
   handleThemeChange, 
@@ -1620,82 +1621,17 @@ return (
       {/* SISTEMA DE NOTIFICACIONES */}
       <NotificationContainer />
 
-      {/* PANEL DE FILTROS AVANZADOS */}
-      {showFilters && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">Filtros Avanzados</h3>
-              <button
-                onClick={() => setShowFilters(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Desde</label>
-                <input
-                  type="date"
-                  value={filters.dateFrom}
-                  onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha Hasta</label>
-                <input
-                  type="date"
-                  value={filters.dateTo}
-                  onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Monto Mínimo</label>
-                <input
-                  type="number"
-                  value={filters.minAmount}
-                  onChange={(e) => setFilters(prev => ({ ...prev, minAmount: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="0"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Monto Máximo</label>
-                <input
-                  type="number"
-                  value={filters.maxAmount}
-                  onChange={(e) => setFilters(prev => ({ ...prev, maxAmount: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="999999"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end space-x-3 mt-6">
-              <button
-                onClick={clearFilters}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-              >
-                Limpiar Todo
-              </button>
-              <button
-                onClick={() => setShowFilters(false)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-              >
-                Aplicar Filtros
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
+     {/* PANEL DE FILTROS AVANZADOS */}
+<Filters
+  filters={filters}
+  setFilters={setFilters}
+  showFilters={showFilters}
+  setShowFilters={setShowFilters}
+  clearFilters={clearFilters}
+  theme={theme}
+  darkMode={darkMode}
+/>
+      
       {/* PANEL DE NOTIFICACIONES DEL SISTEMA */}
       {showNotificationPanel && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 p-4">
