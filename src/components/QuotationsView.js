@@ -35,6 +35,20 @@ const QuotationsView = ({
   darkMode
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
+    const clearFilters = () => {
+    setFilters({
+      dateFrom: '',
+      dateTo: '',
+      status: '',
+      priority: '',
+      minAmount: '',
+      maxAmount: '',
+      client: '',
+      createdBy: ''
+    });
+    setSearchTerm('');
+    showNotification('Filtros limpiados', 'info');
+  };
   
   return (
     <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
