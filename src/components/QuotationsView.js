@@ -14,7 +14,7 @@ import { getThemeClasses } from '../lib/utils';
 import Filters from "./Filtrosdebusqueda";
 
 // 1. IMPORTA LOS DATOS Y LA FUNCIÓN DEL PDF
-import { services as allServices } from '../utils/servicesData';
+import { services as allServices } from '../utils/ServicesData';
 import { generateTechnicalReportPDF } from '../utils/InformePDF';
 
 
