@@ -23,22 +23,6 @@ const ClientsView = ({
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
 
-
-  const clearFilters = () => {
-    setFilters({
-      dateFrom: '',
-      dateTo: '',
-      status: '',
-      priority: '',
-      minAmount: '',
-      maxAmount: '',
-      client: '',
-      createdBy: ''
-    });
-    setSearchTerm('');
-    showNotification('Filtros limpiados', 'info');
-  };
-
   return (
 const ClientsView = ({
       <div className="flex justify-between items-center mb-8">
