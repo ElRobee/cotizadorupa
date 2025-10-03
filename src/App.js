@@ -460,161 +460,8 @@ const showNotification = (message, type = 'success') => {
     showNotification('Filtros limpiados', 'info');
   };
 
-  // FUNCIONES CRUD
-  const deleteItem = (type, id) => {
-    const confirmMessages = {
-      quotations: '¿Estás seguro de que deseas eliminar esta cotización?',
-      clients: '¿Estás seguro de que deseas eliminar este cliente?',
-      services: '¿Estás seguro de que deseas eliminar este servicio?'
-    };
-
-    const successMessages = {
-      quotations: 'Cotización eliminada exitosamente',
-      clients: 'Cliente eliminado exitosamente',
-      services: 'Servicio eliminado exitosamente'
-    };
-
-    if (window.confirm(confirmMessages[type] || '¿Estás seguro de que deseas eliminar este elemento?')) {
-      setData(prev => ({
-        ...prev,
-        [type]: prev[type].filter(item => item.id !== id)
-      }));
-
-      const message = successMessages[type] || 'Elemento eliminado exitosamente';
-      showNotification(message, 'success');
-    }
-  };
-
-  const saveQuotation = () => {
-    const quotationData = editingQuotation || newQuotation;
-    const errors = validateQuotationForm(quotationData);
-    if (errors.length > 0) {
-      showNotification(errors[0], 'error');
-      return;
-    }
-
-    const totals = calculateQuotationTotals(quotationData.items, quotationData.discount);
-
-    if (editingQuotation) {
-      setData(prev => ({
-        ...prev,
-        quotations: prev.quotations.map(q =>
-          q.id === editingQuotation.id
-            ? {
-                ...quotationData,
-                total: totals.total,
-                lastModified: new Date().toISOString()
-              }
-            : q
-        )
-      }));
-      showNotification('Cotización actualizada exitosamente', 'success');
-    } else {
-      const newId = Math.max(...(data?.quotations?.map(q => q.id) || [0]), 0) + 1;
-      const quotationNumber = `COT-${new Date().getFullYear()}-${String(newId).padStart(3, '0')}`;
-
-      setData(prev => ({
-        ...prev,
-        quotations: [...prev.quotations, {
-          ...quotationData,
-          id: newId,
-          number: quotationNumber,
-          status: 'Pendiente',
-          total: totals.total,
-          createdBy: currentUser?.email || 'Sistema',
-          lastModified: new Date().toISOString()
-        }]
-      }));
-      showNotification('Cotización creada exitosamente', 'success');
-    }
-
-    cancelEdit();
-  };
-
-  const saveClient = () => {
-    const clientData = editingClient || newClient;
-    const errors = validateClientForm(clientData, !!editingClient, data?.clients || []);
-    if (errors.length > 0) {
-      showNotification(errors[0], 'error');
-      return;
-    }
-
-    if (editingClient) {
-      setData(prev => ({
-        ...prev,
-        clients: prev.clients.map(c =>
-          c.id === editingClient.id ? { ...clientData, id: editingClient.id } : c
-        )
-      }));
-      showNotification('Cliente actualizado exitosamente', 'success');
-    } else {
-      const newId = Math.max(...(data?.clients?.map(c => c.id) || [0]), 0) + 1;
-      setData(prev => ({
-        ...prev,
-        clients: [...prev.clients, {
-          ...clientData,
-          id: newId,
-          createdAt: new Date().toISOString().split('T')[0]
-        }]
-      }));
-      showNotification('Cliente creado exitosamente', 'success');
-    }
-
-    cancelEdit();
-  };
-
-  const saveService = () => {
-    const serviceData = editingService || newService;
-    const errors = validateServiceForm(serviceData, !!editingService, data?.services || []);
-    if (errors.length > 0) {
-      showNotification(errors[0], 'error');
-      return;
-    }
-
-    if (editingService) {
-      setData(prev => ({
-        ...prev,
-        services: prev.services.map(s =>
-          s.id === editingService.id ? {
-            ...serviceData,
-            id: editingService.id,
-            price: Number(serviceData.price)
-          } : s
-        )
-      }));
-      showNotification('Servicio actualizado exitosamente', 'success');
-    } else {
-      const newId = Math.max(...(data?.services?.map(s => s.id) || [0]), 0) + 1;
-      setData(prev => ({
-        ...prev,
-        services: [...prev.services, {
-          ...serviceData,
-          id: newId,
-          price: Number(serviceData.price)
-        }]
-      }));
-      showNotification('Servicio creado exitosamente', 'success');
-    }
-
-    cancelEdit();
-  };
+  // FUNCIONES DE GESTIÓN DE ESTADOS (Las funciones CRUD ahora están en los hooks de Firebase)
   
-  const duplicateService = (service) => {
-  const newId = Math.max(...(data?.services?.map(s => s.id) || [0]), 0) + 1;
-  const duplicatedService = {
-    ...service,
-    id: newId,
-    name: `${service.name} (Copia)`,
-    createdAt: new Date().toISOString(),
-    lastModified: new Date().toISOString()
-  };
-  setData(prev => ({
-    ...prev,
-    services: [...prev.services, duplicatedService]
-  }));
-  showNotification('Servicio duplicado exitosamente', 'success');
-};
-
   // FUNCIONES DE GESTIÓN DE ITEMS DE COTIZACIÓN
   const addQuotationItem = () => {
     const newItem = {
@@ -727,54 +574,7 @@ const showNotification = (message, type = 'success') => {
     }
   };
 
-  // FUNCIONES DE UTILIDAD ADICIONALES
-  const changeQuotationStatus = (quotationId, newStatus) => {
-    setData(prev => ({
-      ...prev,
-      quotations: prev.quotations.map(q =>
-        q.id === quotationId ? {
-          ...q,
-          status: newStatus,
-          lastModified: new Date().toISOString()
-        } : q
-      )
-    }));
-
-    const statusMessages = {
-      'Pendiente': 'Cotización marcada como Pendiente',
-      'Facturada': 'Cotización facturada exitosamente',
-      'Rechazada': 'Cotización marcada como Rechazada',
-      'Cancelada': 'Cotización cancelada'
-    };
-
-    const message = statusMessages[newStatus] || `Estado cambiado a ${newStatus}`;
-    showNotification(message, 'success');
-  };
-
-  const duplicateQuotation = (quotation) => {
-    const newId = Math.max(...(data?.quotations?.map(q => q.id) || [0]), 0) + 1;
-    const quotationNumber = `COT-${new Date().getFullYear()}-${String(newId).padStart(3, '0')}`;
-
-    const duplicatedQuotation = {
-      ...quotation,
-      id: newId,
-      number: quotationNumber,
-      date: new Date().toISOString().split('T')[0],
-      validUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-      status: 'Pendiente',
-      createdBy: currentUser?.email || 'Sistema',
-      lastModified: new Date().toISOString(),
-      items: quotation.items.map(item => ({ ...item, id: Date.now() + Math.random() }))
-    };
-
-    setData(prev => ({
-      ...prev,
-      quotations: [...prev.quotations, duplicatedQuotation]
-    }));
-
-    showNotification('Cotización duplicada exitosamente', 'success');
-  };
-
+  // FUNCIONES DE ESTADÍSTICAS Y UTILIDADES
   const getStatistics = () => {
     if (!quotations || quotations.length === 0) return null;
 
@@ -830,10 +630,104 @@ ${totals.discountAmount > 0 ? `• Descuento: -$${totals.discountAmount.toLocale
 • *TOTAL: $${totals.total.toLocaleString()}*
 
 ▪▪▪▪▪▪▪▪▪▪▪▪▪
-🏢 *${data.company?.razonSocial || 'Mi Empresa'}*
-📞 ${data.company?.telefono || 'Sin teléfono'}
-📧 ${data.company?.email || 'Sin email'}
-📍 ${data.company?.direccion || 'Sin dirección'}
+🏢 *${company?.razonSocial || 'Mi Empresa'}*
+📞 ${company?.telefono || 'Sin teléfono'}
+📧 ${company?.email || 'Sin email'}
+📍 ${company?.direccion || 'Sin dirección'}
+
+💬 _Contáctanos para más información_
+⚡ _Respuesta rápida garantizada_
+
+_"Documento válido sólo como Cotización"_
+    `.trim();
+
+    const phoneNumber = client?.telefono?.replace(/[^\d]/g, '') || '';
+    const encodedMessage = encodeURIComponent(message);
+
+    let whatsappUrl;
+    if (phoneNumber && phoneNumber.length >= 8) {
+      const cleanPhone = phoneNumber.startsWith('56') ? phoneNumber : `56${phoneNumber.slice(-8)}`;
+      whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodedMessage}`;
+    } else {
+      whatsappUrl = `whatsapp://send?text=${encodedMessage}`;
+    }
+
+    try {
+      window.location.href = whatsappUrl;
+      
+      setTimeout(() => {
+        if (document.hidden) {
+          showNotification('WhatsApp abierto correctamente', 'success');
+        } else {
+          const webUrl = phoneNumber && phoneNumber.length >= 8
+            ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
+            : `https://web.whatsapp.com/send?text=${encodedMessage}`;
+          window.open(webUrl, '_blank');
+          showNotification('Abriendo WhatsApp Web...', 'info');
+        }
+      }, 500);
+    } catch (error) {
+      const webUrl = phoneNumber && phoneNumber.length >= 8
+        ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
+        : `https://web.whatsapp.com/send?text=${encodedMessage}`;
+      window.open(webUrl, '_blank');
+      showNotification('Abriendo WhatsApp Web...', 'info');
+    }
+  };
+
+  const exportToPDF = async (quotation) => {
+    if (!quotation || !clients || !company) {
+      showNotification('Error al preparar la cotización para PDF', 'error');
+      return;
+    }
+
+    const client = clients.find(c => c.empresa === quotation.client);
+
+    try {
+      await generateQuotationPDF(quotation, company, client);
+      showNotification('PDF generado exitosamente', 'success');
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+      showNotification('Error al generar PDF', 'error');
+    }
+  };
+
+  // FUNCIONES DE AUTENTICACIÓN
+  const handleLogin = async () => {
+    if (!quotation || !clients) {
+      showNotification('Error al preparar la cotización para WhatsApp', 'error');
+      return;
+    }
+
+    const client = clients.find(c => c.empresa === quotation.client);
+    const totals = calculateQuotationTotals(quotation.items, quotation.discount);
+
+    const message = `
+*COTIZACIÓN ${quotation.number}* 📋
+▪▪▪▪▪▪▪▪▪▪▪▪▪
+📅 *Fecha:* ${quotation.date}
+⏰ *Válida hasta:* ${quotation.validUntil}
+🏢 *Cliente:* ${quotation.client}
+💰 *Total:* $${totals.total.toLocaleString()}
+📊 *Estado:* ${quotation.status}
+🎯 *Prioridad:* ${quotation.priority}
+
+*🛠️ SERVICIOS:*
+${quotation.items.map(item =>
+  `• ${item.quantity}x ${item.service}\n  💵 $${item.total.toLocaleString()}`
+).join('\n')}
+
+*💳 RESUMEN FINANCIERO:*
+• Subtotal: $${totals.subtotal.toLocaleString()}
+• IVA (19%): $${totals.iva.toLocaleString()}
+${totals.discountAmount > 0 ? `• Descuento: -$${totals.discountAmount.toLocaleString()}` : ''}
+• *TOTAL: $${totals.total.toLocaleString()}*
+
+▪▪▪▪▪▪▪▪▪▪▪▪▪
+🏢 *${company?.razonSocial || 'Mi Empresa'}*
+📞 ${company?.telefono || 'Sin teléfono'}
+📧 ${company?.email || 'Sin email'}
+📍 ${company?.direccion || 'Sin dirección'}
 
 💬 _Contáctanos para más información_
 ⚡ _Respuesta rápida garantizada_
@@ -1170,7 +1064,7 @@ const DashboardView = () => {
             Cotizaciones Recientes
           </h3>
           <div className="space-y-3">
-            {getFilteredQuotations().slice(0, 5).map(quotation => (
+            {quotations && quotations.slice(0, 5).map(quotation => (
               <div key={quotation.id} className={`flex items-center justify-between p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                 <div>
                   <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
