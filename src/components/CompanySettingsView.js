@@ -5,24 +5,70 @@ import { uploadCompanyLogo, removeCompanyLogo } from "../lib/logoService";
 
 import { Save, Upload, Trash2, Palette, Moon, Sun } from "lucide-react";
 
-const CompanySettingsView = () => {
+const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode }) => {
   const { company, updateCompany, loading } = useCompany();
 
   const [editingCompany, setEditingCompany] = useState(null);
-  const [theme, setTheme] = useState("blue");
-  const [darkMode, setDarkMode] = useState(false);
   const themeClasses = getThemeClasses(theme, darkMode);
 
   // Cargar datos iniciales cuando vienen de Firestore
   useEffect(() => {
     if (company) {
       setEditingCompany({ ...company });
-      setTheme(company.theme || "blue");
+      // Sincronizar theme desde la empresa si existe
+      if (company.theme && setTheme) {
+        setTheme(company.theme);
+      }
+      if (company.darkMode !== undefined && setDarkMode) {
+        setDarkMode(company.darkMode);
+      }
+    } else if (!loading) {
+      // Si no hay datos de empresa, inicializar con valores por defecto
+      setEditingCompany({
+        name: '',
+        address: '',
+        phone: '',
+        email: '',
+        website: '',
+        logo: '',
+        theme: theme,
+        darkMode: darkMode
+      });
     }
-  }, [company]);
+  }, [company, setTheme, setDarkMode, loading, theme, darkMode]);
 
-  if (loading) return <p className="text-center">Cargando configuración...</p>;
-  if (!editingCompany) return <p className="text-center">No hay datos de empresa.</p>;
+  if (loading) return (
+    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <p className={`text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        Cargando configuración...
+      </p>
+    </div>
+  );
+  
+  if (!editingCompany) return (
+    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <p className={`text-center ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        Inicializando configuración de empresa...
+      </p>
+    </div>
+  );
+
+  // Manejar cambio de tema
+  const handleThemeChangeLocal = (newTheme) => {
+    if (setTheme) {
+      setTheme(newTheme);
+    }
+    setEditingCompany(prev => ({ ...prev, theme: newTheme }));
+  };
+
+  // Manejar cambio de modo oscuro
+  const handleDarkModeToggle = () => {
+    const newDarkMode = !darkMode;
+    if (setDarkMode) {
+      setDarkMode(newDarkMode);
+    }
+    setEditingCompany(prev => ({ ...prev, darkMode: newDarkMode }));
+  };
 
   // Guardar cambios en Firestore
   const handleSave = async () => {
@@ -59,70 +105,83 @@ const CompanySettingsView = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Configuración de Empresa</h2>
+    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      <div className={`p-6 space-y-6 max-w-3xl mx-auto ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border`}>
+        <h2 className={`text-2xl font-bold mb-4 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          Configuración de Empresa
+        </h2>
 
       {/* Razon Social */}
       <div>
-        <label className="block mb-1 font-medium">Razón Social</label>
+        <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          Razón Social
+        </label>
         <input
           type="text"
           value={editingCompany.razonSocial || ""}
           onChange={(e) =>
             setEditingCompany({ ...editingCompany, razonSocial: e.target.value })
           }
-          className="w-full border rounded p-2"
+          className={`w-full border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
         />
       </div>
 
       {/* RUT */}
       <div>
-        <label className="block mb-1 font-medium">RUT</label>
+        <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          RUT
+        </label>
         <input
           type="text"
           value={editingCompany.rut || ""}
           onChange={(e) =>
             setEditingCompany({ ...editingCompany, rut: e.target.value })
           }
-          className="w-full border rounded p-2"
+          className={`w-full border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
         />
       </div>
 
       {/* Dirección */}
       <div>
-        <label className="block mb-1 font-medium">Dirección</label>
+        <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          Dirección
+        </label>
         <input
           type="text"
           value={editingCompany.direccion || ""}
           onChange={(e) =>
             setEditingCompany({ ...editingCompany, direccion: e.target.value })
           }
-          className="w-full border rounded p-2"
+          className={`w-full border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
         />
       </div>
 
       {/* Ciudad y Región */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 font-medium">Ciudad</label>
+          <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Ciudad
+          </label>
           <input
             type="text"
             value={editingCompany.ciudad || ""}
             onChange={(e) =>
               setEditingCompany({ ...editingCompany, ciudad: e.target.value })
             }
-            className="w-full border rounded p-2"
+            className={`w-full border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
           />
         </div>
         <div>
-          <label className="block mb-1 font-medium">Región</label>
+          <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Región
+          </label>
           <input
             type="text"
             value={editingCompany.region || ""}
             onChange={(e) =>
               setEditingCompany({ ...editingCompany, region: e.target.value })
             }
-            className="w-full border rounded p-2"
+            className={`w-full border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
           />
         </div>
       </div>
@@ -130,32 +189,38 @@ const CompanySettingsView = () => {
       {/* Teléfono y Email */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block mb-1 font-medium">Teléfono</label>
+          <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Teléfono
+          </label>
           <input
             type="text"
             value={editingCompany.telefono || ""}
             onChange={(e) =>
               setEditingCompany({ ...editingCompany, telefono: e.target.value })
             }
-            className="w-full border rounded p-2"
+            className={`w-full border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
           />
         </div>
         <div>
-          <label className="block mb-1 font-medium">Email</label>
+          <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Email
+          </label>
           <input
             type="email"
             value={editingCompany.email || ""}
             onChange={(e) =>
               setEditingCompany({ ...editingCompany, email: e.target.value })
             }
-            className="w-full border rounded p-2"
+            className={`w-full border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
           />
         </div>
       </div>
 
       {/* Logo */}
       <div>
-        <label className="block mb-1 font-medium">Logo de la empresa</label>
+        <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          Logo de la empresa
+        </label>
         <div className="flex items-center space-x-4">
           {editingCompany.logo ? (
             <img
@@ -181,13 +246,13 @@ const CompanySettingsView = () => {
       {/* Tema y Dark Mode */}
       <div className="flex items-center justify-between">
         <div>
-          <label className="block mb-1 font-medium">Tema</label>
+          <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Tema
+          </label>
           <select
             value={theme}
-            onChange={(e) =>
-              handleThemeChange(e.target.value, setTheme, setEditingCompany)
-            }
-            className="border rounded p-2"
+            onChange={(e) => handleThemeChangeLocal(e.target.value)}
+            className={`border rounded p-2 ${darkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white border-gray-300'}`}
           >
             <option value="blue">Azul</option>
             <option value="green">Verde</option>
@@ -197,10 +262,12 @@ const CompanySettingsView = () => {
           </select>
         </div>
         <div>
-          <label className="block mb-1 font-medium">Modo oscuro</label>
+          <label className={`block mb-1 font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            Modo oscuro
+          </label>
           <button
-            onClick={() => toggleDarkMode(darkMode, setDarkMode)}
-            className="flex items-center px-3 py-2 bg-gray-200 rounded"
+            onClick={handleDarkModeToggle}
+            className={`flex items-center px-3 py-2 rounded ${darkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'}`}
           >
             {darkMode ? <Moon size={18} /> : <Sun size={18} />}
           </button>
@@ -216,6 +283,7 @@ const CompanySettingsView = () => {
           <Save size={18} className="mr-2" /> Guardar cambios
         </button>
       </div>
+    </div>
     </div>
   );
 };

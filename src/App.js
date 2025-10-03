@@ -775,16 +775,16 @@ const showNotification = (message, type = 'success') => {
   };
 
   const getStatistics = () => {
-    if (!data?.quotations) return null;
+    if (!quotations || quotations.length === 0) return null;
 
-    const totalQuotations = data.quotations.length;
-    const pendingQuotations = data.quotations.filter(q => q.status === 'Pendiente').length;
-    const invoicedQuotations = data.quotations.filter(q => q.status === 'Facturada').length;
-    const totalRevenue = data.quotations
+    const totalQuotations = quotations.length;
+    const pendingQuotations = quotations.filter(q => q.status === 'Pendiente').length;
+    const invoicedQuotations = quotations.filter(q => q.status === 'Facturada').length;
+    const totalRevenue = quotations
       .filter(q => q.status === 'Facturada')
       .reduce((sum, q) => sum + (q.total || 0), 0);
     const averageQuotationValue = totalQuotations > 0
-      ? data.quotations.reduce((sum, q) => sum + (q.total || 0), 0) / totalQuotations
+      ? quotations.reduce((sum, q) => sum + (q.total || 0), 0) / totalQuotations
       : 0;
 
     return {
@@ -793,8 +793,8 @@ const showNotification = (message, type = 'success') => {
       invoicedQuotations,
       totalRevenue,
       averageQuotationValue,
-      totalClients: data?.clients?.length || 0,
-      activeServices: data?.services?.filter(s => s.active)?.length || 0
+      totalClients: clients?.length || 0,
+      activeServices: services?.filter(s => s.active)?.length || 0
     };
   };
 
@@ -1359,7 +1359,12 @@ return (
               />
             )}
             {currentView === 'company' && (
-              <CompanySettingsView />
+              <CompanySettingsView 
+                theme={theme}
+                darkMode={darkMode}
+                setTheme={setTheme}
+                setDarkMode={setDarkMode}
+              />
             )}
           </div>
         </div>
