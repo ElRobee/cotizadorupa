@@ -44,6 +44,8 @@ import {
   Check,
   XCircle
 } from 'lucide-react';
+import { signInAnonymously, signOut } from 'firebase/auth';
+import { auth } from './lib/firebase';
 import { generateQuotationPDF } from './utils/pdfGenerator';
 import { sendViaEmail } from './utils/sendViaEmail';
 import QuotationsView from './components/QuotationsView';
@@ -551,10 +553,15 @@ const showNotification = (message, type = 'success') => {
   // FUNCIONES DE AUTENTICACIÓN
   const handleLogin = async () => {
     try {
+      // Primero validar con el sistema mock
       const result = await mockFirebaseAuth.signInWithEmailAndPassword(
         loginForm.email, 
         loginForm.password
       );
+      
+      // Si la validación mock es exitosa, hacer login anónimo en Firebase
+      await signInAnonymously(auth);
+      
       setCurrentUser(result.user);
       setCurrentView('dashboard');
       showNotification('Inicio de sesión exitoso', 'success');
@@ -566,6 +573,8 @@ const showNotification = (message, type = 'success') => {
   const handleLogout = async () => {
     try {
       await mockFirebaseAuth.signOut();
+      // También hacer logout de Firebase Auth
+      await signOut(auth);
       setCurrentUser(null);
       setCurrentView('login');
       showNotification('Sesión cerrada exitosamente', 'success');

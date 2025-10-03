@@ -44,12 +44,12 @@ const QuotationModal = memo(({
 
   // Calcular totales
   const calculateQuotationTotals = (items = [], discount = 0) => {
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const discountAmount = (subtotal * discount) / 100;
-    const iva = (subtotal - discountAmount) * 0.19;
-    const total = subtotal - discountAmount + iva;
-    
-    return { subtotal, discountAmount, iva, total };
+    const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
+    const iva = subtotal * 0.19;
+    const totalBruto = subtotal + iva;
+    const discountAmount = totalBruto * (discount / 100);
+    const total = totalBruto - discountAmount;
+    return { subtotal, iva, totalBruto, discountAmount, total };
   };
 
   const totals = calculateQuotationTotals(formData?.items || [], formData?.discount || 0);
