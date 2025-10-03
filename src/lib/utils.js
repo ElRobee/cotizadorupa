@@ -1,4 +1,11 @@
 // FUNCIONES PARA MANEJO DE TEMAS Y MODO OSCURO
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+// Función para combinar clases CSS (utilizada por componentes UI)
+export function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
 
 // Función para cambiar el tema de la aplicación
 export const handleThemeChange = (newTheme, setTheme, setData) => {
@@ -90,4 +97,68 @@ export const getThemeClasses = (theme, darkMode = false) => {
   };
   
   return themes[theme] || themes.blue;
+};
+
+// FUNCIONES SIMPLIFICADAS PARA COMPATIBILIDAD CON APP.JS
+
+// Función para cargar configuraciones guardadas (simplificada)
+export const loadSavedSettings = (setTheme, setDarkMode, setData) => {
+  // Esta función se simplifica ya que ahora usamos Firebase para la configuración
+  // Solo cargamos configuraciones básicas del localStorage si están disponibles
+  try {
+    const savedTheme = localStorage.getItem('app-theme') || 'blue';
+    const savedDarkMode = localStorage.getItem('app-dark-mode') === 'true';
+    
+    setTheme(savedTheme);
+    setDarkMode(savedDarkMode);
+    
+    // Aplicar dark mode al DOM
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  } catch (error) {
+    console.warn('Error loading saved settings:', error);
+  }
+};
+
+// Función para guardar configuraciones de empresa (simplificada)
+export const saveCompanySettings = (companyData, setData) => {
+  // Esta función se simplifica ya que CompanySettingsView maneja su propio guardado con Firebase
+  try {
+    localStorage.setItem('app-theme', companyData.theme || 'blue');
+    setData(prevData => ({
+      ...prevData,
+      company: companyData
+    }));
+  } catch (error) {
+    console.warn('Error saving company settings:', error);
+  }
+};
+
+// Función para manejar upload de logo (simplificada)
+export const handleLogoUpload = async (file, setNewCompanyLogo) => {
+  // Esta función se simplifica ya que logoService.js maneja el upload
+  if (setNewCompanyLogo) {
+    setNewCompanyLogo(file);
+  }
+  return file;
+};
+
+// Función para remover logo (simplificada)
+export const removeLogo = (setNewCompanyLogo, setData) => {
+  // Esta función se simplifica ya que logoService.js maneja la remoción
+  if (setNewCompanyLogo) {
+    setNewCompanyLogo(null);
+  }
+  if (setData) {
+    setData(prevData => ({
+      ...prevData,
+      company: {
+        ...prevData.company,
+        logo: null
+      }
+    }));
+  }
 };
