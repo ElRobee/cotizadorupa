@@ -65,6 +65,12 @@ import {
   getThemeClasses 
 } from './lib/utils.js';
 
+// Firebase Hooks
+import { useQuotations } from './hooks/useQuotations';
+import { useClients } from './hooks/useClients';
+import { useServices } from './hooks/useServices';
+import { useCompany } from './hooks/useCompany';
+
 // SIMULACIÓN DE FIREBASE AUTH
 const mockFirebaseAuth = {
   currentUser: null,
@@ -115,6 +121,12 @@ const CotizacionesApp = () => {
   const [currentView, setCurrentView] = useState('login');
   const [data, setData] = useState(mockFirebaseData);
   const [authMode, setAuthMode] = useState('login');
+
+  // FIREBASE HOOKS
+  const { quotations } = useQuotations();
+  const { clients } = useClients();
+  const { services } = useServices();
+  const { company } = useCompany();
 
   // ESTADOS DE TEMA Y CONFIGURACIÓN
   const [theme, setTheme] = useState('blue');
