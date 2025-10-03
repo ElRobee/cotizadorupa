@@ -1,361 +1,223 @@
-import React, { useEffect, useCallback } from 'react';
-import { 
-  handleThemeChange, 
-  toggleDarkMode, 
-  handleLogoUpload, 
-  removeLogo,
-  getThemeClasses 
-} from '../lib/utils';
-import { useCompany } from '../hooks/useCompany';
+import React, { useState, useEffect } from "react";
+import { useCompany } from "../hooks/useCompany";
+import { handleThemeChange, toggleDarkMode, getThemeClasses } from "../lib/utils";
+import { uploadCompanyLogo, removeCompanyLogo } from "../lib/logoService";
 
-const CompanySettingsView = ({ 
-  data, 
-  setData, 
-  editingCompany, 
-  setEditingCompany,
-  newCompanyLogo,
-  setNewCompanyLogo,
-  theme, 
-  setTheme,
-  darkMode, 
-  setDarkMode,
-  formatRut,
-  validateRut,
-  validateEmail,
-  showNotification
-}) => {
-  const currentTheme = getThemeClasses(theme, darkMode);
-  const { company, addCompany, updateCompany } = useCompany();
+import { Save, Upload, Trash2, Palette, Moon, Sun } from "lucide-react";
 
-  // Inicializar edición con datos de Firestore
+const CompanySettingsView = () => {
+  const { company, updateCompany, loading } = useCompany();
+
+  const [editingCompany, setEditingCompany] = useState(null);
+  const [theme, setTheme] = useState("blue");
+  const [darkMode, setDarkMode] = useState(false);
+  const themeClasses = getThemeClasses(theme, darkMode);
+
+  // Cargar datos iniciales cuando vienen de Firestore
   useEffect(() => {
-    if (company && !editingCompany) {
+    if (company) {
       setEditingCompany({ ...company });
+      setTheme(company.theme || "blue");
     }
   }, [company]);
 
-  // Manejar cambios en inputs
-  const handleCompanyChange = useCallback((field, value) => {
-    setEditingCompany(prev => {
-      let processedValue = value;
-      if (field === 'rut') processedValue = formatRut(value);
-      return { ...prev, [field]: processedValue };
-    });
-  }, []);
+  if (loading) return <p className="text-center">Cargando configuración...</p>;
+  if (!editingCompany) return <p className="text-center">No hay datos de empresa.</p>;
 
-  // Guardar en Firestore
-  const handleSaveCompany = useCallback(async () => {
-    if (!editingCompany) return;
-
-    // Validaciones
-    if (editingCompany.rut && !validateRut(editingCompany.rut)) {
-      showNotification('RUT inválido', 'error');
-      return;
-    }
-    if (editingCompany.email && !validateEmail(editingCompany.email)) {
-      showNotification('Email inválido', 'error');
-      return;
-    }
-
+  // Guardar cambios en Firestore
+  const handleSave = async () => {
     try {
-      if (company?.id) {
-        await updateCompany(company.id, editingCompany);
-        showNotification('Empresa actualizada con éxito', 'success');
-      } else {
-        await addCompany(editingCompany);
-        showNotification('Empresa registrada con éxito', 'success');
-      }
-      setData(prev => ({ ...prev, company: editingCompany }));
+      await updateCompany(editingCompany);
+      alert("Configuración guardada correctamente ✅");
     } catch (error) {
-      console.error('Error al guardar empresa:', error);
-      showNotification('Hubo un error al guardar los datos de la empresa', 'error');
+      console.error("Error al guardar:", error);
+      alert("Error al guardar configuración ❌");
     }
-  }, [editingCompany, company, theme, darkMode]);
+  };
+
+  // Subir logo
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const url = await uploadCompanyLogo(file, "main");
+      setEditingCompany((prev) => ({ ...prev, logo: url }));
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  // Eliminar logo
+  const handleRemoveLogo = async () => {
+    try {
+      await removeCompanyLogo("main");
+      setEditingCompany((prev) => ({ ...prev, logo: null }));
+    } catch (error) {
+      console.error("Error eliminando logo:", error);
+      alert("No se pudo eliminar el logo");
+    }
+  };
 
   return (
-    <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      <div className="mb-8">
-        <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Configuración de Empresa
-        </h1>
-        <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-2`}>
-          Administra la información de tu empresa y personalización
-        </p>
+    <div className="p-6 space-y-6 max-w-3xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4">Configuración de Empresa</h2>
+
+      {/* Razon Social */}
+      <div>
+        <label className="block mb-1 font-medium">Razón Social</label>
+        <input
+          type="text"
+          value={editingCompany.razonSocial || ""}
+          onChange={(e) =>
+            setEditingCompany({ ...editingCompany, razonSocial: e.target.value })
+          }
+          className="w-full border rounded p-2"
+        />
       </div>
 
-      {/* INFORMACIÓN DE LA EMPRESA */}
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200'} p-6 mb-6`}>
-        <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-4`}>
-          Información de la Empresa
-        </h2>
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                Razón Social
-              </label>
-              <input
-                type="text"
-                value={editingCompany?.razonSocial || ''}
-                onChange={(e) => handleCompanyChange('razonSocial', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                placeholder="Ingrese razón social"
-              />
-            </div>
-            <div>
-              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                RUT
-              </label>
-              <input
-                type="text"
-                value={editingCompany?.rut || ''}
-                onChange={(e) => handleCompanyChange('rut', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                placeholder="12.345.678-9"
-              />
-            </div>
-            <div>
-            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-              Dirección
-            </label>
-            <input
-              type="text"
-              value={editingCompany?.direccion || ''}
-              onChange={(e) => handleCompanyChange('direccion', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-              placeholder="Ingrese dirección"
-            />
-          </div>
+      {/* RUT */}
+      <div>
+        <label className="block mb-1 font-medium">RUT</label>
+        <input
+          type="text"
+          value={editingCompany.rut || ""}
+          onChange={(e) =>
+            setEditingCompany({ ...editingCompany, rut: e.target.value })
+          }
+          className="w-full border rounded p-2"
+        />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                Ciudad
-              </label>
-              <input
-                type="text"
-                value={editingCompany?.ciudad || ''}
-                onChange={(e) => handleCompanyChange('ciudad', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                placeholder="Ingrese ciudad"
-              />
-            </div>
-            <div>
-              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                Región
-              </label>
-              <input
-                type="text"
-                value={editingCompany?.region || ''}
-                onChange={(e) => handleCompanyChange('region', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                placeholder="Ingrese región"
-              />
-            </div>
-          </div>
+      {/* Dirección */}
+      <div>
+        <label className="block mb-1 font-medium">Dirección</label>
+        <input
+          type="text"
+          value={editingCompany.direccion || ""}
+          onChange={(e) =>
+            setEditingCompany({ ...editingCompany, direccion: e.target.value })
+          }
+          className="w-full border rounded p-2"
+        />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                Teléfono
-              </label>
-              <input
-                type="tel"
-                value={editingCompany?.telefono || ''}
-                onChange={(e) => handleCompanyChange('telefono', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                placeholder="+56 9 1234 5678"
-              />
-            </div>
-            <div>
-              <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
-                Email
-              </label>
-              <input
-                type="email"
-                value={editingCompany?.email || ''}
-                onChange={(e) => handleCompanyChange('email', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'}`}
-                placeholder="contacto@empresa.cl"
-              />
-            </div>
-          </div>
-
-           {/* BOTÓN GUARDAR */}
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={handleSaveCompany}
-              className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${currentTheme.buttonBg} ${currentTheme.buttonHover} focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentTheme.focus} transition-colors`}
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
-              Guardar Configuración
-            </button>
-          </div>
+      {/* Ciudad y Región */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block mb-1 font-medium">Ciudad</label>
+          <input
+            type="text"
+            value={editingCompany.ciudad || ""}
+            onChange={(e) =>
+              setEditingCompany({ ...editingCompany, ciudad: e.target.value })
+            }
+            className="w-full border rounded p-2"
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Región</label>
+          <input
+            type="text"
+            value={editingCompany.region || ""}
+            onChange={(e) =>
+              setEditingCompany({ ...editingCompany, region: e.target.value })
+            }
+            className="w-full border rounded p-2"
+          />
         </div>
       </div>
-    
-      {/* PERSONALIZACIÓN Y BRANDING */}
-      <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-sm border ${darkMode ? 'border-gray-700' : 'border-gray-200'} p-6`}>
-        <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'} mb-6`}>
-          Personalización y Branding
-        </h2>
-        
-        <div className="space-y-6">
-          {/* LOGO DE LA EMPRESA */}
-          <div>
-            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-3`}>
-              Logo de la Empresa
-            </label>
-            <div className="flex items-start space-x-4">
-              {/* Preview del logo */}
-              <div className={`w-24 h-24 border-2 border-dashed rounded-lg flex items-center justify-center ${darkMode ? 'border-gray-600 bg-gray-700' : 'border-gray-300 bg-gray-50'}`}>
-                {data.company?.logo || newCompanyLogo ? (
-                  <img 
-                    src={newCompanyLogo || data.company.logo} 
-                    alt="Logo empresa" 
-                    className="w-full h-full object-contain rounded-lg"
-                  />
-                ) : (
-                  <div className={`text-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    <svg className="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                    <span className="text-xs">Sin logo</span>
-                  </div>
-                )}
-              </div>
-              
-              {/* Controles del logo */}
-              <div className="flex-1">
-                <div className="flex space-x-3">
-                  <label className={`cursor-pointer inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white ${currentTheme.buttonBg} ${currentTheme.buttonHover} focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentTheme.focus} transition-colors`}>
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                    </svg>
-                    Subir Logo
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleLogoUpload(e, setNewCompanyLogo, setData)}
-                      className="hidden"
-                    />
-                  </label>
-                  
-                  {(data.company?.logo || newCompanyLogo) && (
-                    <button
-                      onClick={() => removeLogo(setNewCompanyLogo, setData)}
-                      className={`px-4 py-2 border text-sm font-medium rounded-md transition-colors ${darkMode ? 'border-gray-600 text-gray-300 hover:bg-gray-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
-                    >
-                      Remover
-                    </button>
-                  )}
-                </div>
-                <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
-                  Formatos soportados: JPG, PNG, GIF, WebP. Tamaño máximo: 5MB
-                </p>
-              </div>
-            </div>
-          </div>
 
-          {/* SELECTOR DE TEMA */}
-          <div>
-            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-3`}>
-              Tema de Colores
-            </label>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => handleThemeChange('blue', setTheme, setData)}
-                className={`w-12 h-12 rounded-lg border-2 transition-all bg-blue-600 hover:scale-105 ${
-                  theme === 'blue' 
-                    ? 'border-blue-600 ring-2 ring-blue-500 ring-opacity-50' 
-                    : darkMode ? 'border-gray-600' : 'border-gray-300'
-                }`}
-                title="Tema Azul"
-              />
-              <button
-                onClick={() => handleThemeChange('green', setTheme, setData)}
-                className={`w-12 h-12 rounded-lg border-2 transition-all bg-green-600 hover:scale-105 ${
-                  theme === 'green' 
-                    ? 'border-green-600 ring-2 ring-green-500 ring-opacity-50' 
-                    : darkMode ? 'border-gray-600' : 'border-gray-300'
-                }`}
-                title="Tema Verde"
-              />
-              <button
-                onClick={() => handleThemeChange('purple', setTheme, setData)}
-                className={`w-12 h-12 rounded-lg border-2 transition-all bg-purple-600 hover:scale-105 ${
-                  theme === 'purple' 
-                    ? 'border-purple-600 ring-2 ring-purple-500 ring-opacity-50' 
-                    : darkMode ? 'border-gray-600' : 'border-gray-300'
-                }`}
-                title="Tema Morado"
-              />
-              <button
-                onClick={() => handleThemeChange('red', setTheme, setData)}
-                className={`w-12 h-12 rounded-lg border-2 transition-all bg-red-600 hover:scale-105 ${
-                  theme === 'red' 
-                    ? 'border-red-600 ring-2 ring-red-500 ring-opacity-50' 
-                    : darkMode ? 'border-gray-600' : 'border-gray-300'
-                }`}
-                title="Tema Rojo"
-              />
-              <button
-                onClick={() => handleThemeChange('gray', setTheme, setData)}
-                className={`w-12 h-12 rounded-lg border-2 transition-all bg-gray-600 hover:scale-105 ${
-                  theme === 'gray' 
-                    ? 'border-gray-600 ring-2 ring-gray-500 ring-opacity-50' 
-                    : darkMode ? 'border-gray-600' : 'border-gray-300'
-                }`}
-                title="Tema Gris"
-              />
-            </div>
-            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-2`}>
-              Tema actual: <span className="capitalize font-medium">{theme}</span>
-            </p>
-          </div>
+      {/* Teléfono y Email */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block mb-1 font-medium">Teléfono</label>
+          <input
+            type="text"
+            value={editingCompany.telefono || ""}
+            onChange={(e) =>
+              setEditingCompany({ ...editingCompany, telefono: e.target.value })
+            }
+            className="w-full border rounded p-2"
+          />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Email</label>
+          <input
+            type="email"
+            value={editingCompany.email || ""}
+            onChange={(e) =>
+              setEditingCompany({ ...editingCompany, email: e.target.value })
+            }
+            className="w-full border rounded p-2"
+          />
+        </div>
+      </div>
 
-          {/* MODO OSCURO */}
-          <div className="flex items-center justify-between">
-            <div>
-              <label className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Modo Oscuro
-              </label>
-              <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'} mt-1`}>
-                Activa el tema oscuro para una experiencia visual más cómoda
-              </p>
-            </div>
+      {/* Logo */}
+      <div>
+        <label className="block mb-1 font-medium">Logo de la empresa</label>
+        <div className="flex items-center space-x-4">
+          {editingCompany.logo ? (
+            <img
+              src={editingCompany.logo}
+              alt="Logo"
+              className="w-24 h-24 object-contain border rounded"
+            />
+          ) : (
+            <span className="text-gray-500">Sin logo</span>
+          )}
+          <input type="file" accept="image/*" onChange={handleLogoUpload} />
+          {editingCompany.logo && (
             <button
-              onClick={() => toggleDarkMode(darkMode, setDarkMode)}
-              className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 ${currentTheme.focus} focus:ring-offset-2 ${
-                darkMode ? currentTheme.buttonBg : 'bg-gray-200'
-              }`}
+              onClick={handleRemoveLogo}
+              className="flex items-center px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700"
             >
-              <span className="sr-only">Activar modo oscuro</span>
-              <span
-                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                  darkMode ? 'translate-x-5' : 'translate-x-0'
-                }`}
-              />
+              <Trash2 size={16} className="mr-1" /> Eliminar
             </button>
-          </div>
+          )}
+        </div>
+      </div>
 
-          {/* BOTÓN GUARDAR */}
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-            <button
-              onClick={() => saveCompanySettings(data, theme, darkMode)}
-              className={`w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${currentTheme.buttonBg} ${currentTheme.buttonHover} focus:outline-none focus:ring-2 focus:ring-offset-2 ${currentTheme.focus} transition-colors`}
-            >
-              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              </svg>
-              Guardar Configuración
-            </button>
-          </div>
-          </div>
+      {/* Tema y Dark Mode */}
+      <div className="flex items-center justify-between">
+        <div>
+          <label className="block mb-1 font-medium">Tema</label>
+          <select
+            value={theme}
+            onChange={(e) =>
+              handleThemeChange(e.target.value, setTheme, setEditingCompany)
+            }
+            className="border rounded p-2"
+          >
+            <option value="blue">Azul</option>
+            <option value="green">Verde</option>
+            <option value="purple">Morado</option>
+            <option value="red">Rojo</option>
+            <option value="gray">Gris</option>
+          </select>
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Modo oscuro</label>
+          <button
+            onClick={() => toggleDarkMode(darkMode, setDarkMode)}
+            className="flex items-center px-3 py-2 bg-gray-200 rounded"
+          >
+            {darkMode ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Guardar */}
+      <div>
+        <button
+          onClick={handleSave}
+          className={`${themeClasses.buttonBg} ${themeClasses.buttonHover} text-white px-4 py-2 rounded flex items-center`}
+        >
+          <Save size={18} className="mr-2" /> Guardar cambios
+        </button>
       </div>
     </div>
   );
 };
+
 export default CompanySettingsView;
