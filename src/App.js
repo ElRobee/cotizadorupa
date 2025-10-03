@@ -106,19 +106,7 @@ const mockFirebaseData = {
     { id: 2, email: 'usuario@empresa.com', name: 'Usuario Regular', role: 'user', avatar: null },
     { id: 3, email: 'vendedor@empresa.com', name: 'Vendedor', role: 'seller', avatar: null }
   ],
-  company: {
-    razonSocial: 'Mi Empresa de Arriendo',
-    rut: '12.345.678-9',
-    direccion: 'Av. Principal 123',
-    ciudad: 'Viña del Mar',
-    region: 'Valparaíso',
-    telefono: '+56 32 123 4567',
-    email: 'contacto@miempresa.cl',
-    logo: null,
-    theme: 'blue',
-    currency: 'CLP'
-  },
-
+  
 const CotizacionesApp = () => {
   // ESTADOS PRINCIPALES
   const [currentUser, setCurrentUser] = useState(null);
