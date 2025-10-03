@@ -105,21 +105,10 @@ const mockFirebaseAuth = {
   }
 };
 
-// DATOS SIMULADOS PARA USUARIOS (AUTH)
-const mockFirebaseData = {
-  users: [
-    { id: 1, email: 'admin@empresa.com', name: 'Administrador', role: 'admin', avatar: null },
-    { id: 2, email: 'usuario@empresa.com', name: 'Usuario Regular', role: 'user', avatar: null },
-    { id: 3, email: 'vendedor@empresa.com', name: 'Vendedor', role: 'seller', avatar: null }
-  ],
-  notifications: []
-};
-  
 const CotizacionesApp = () => {
   // ESTADOS PRINCIPALES
   const [currentUser, setCurrentUser] = useState(null);
   const [currentView, setCurrentView] = useState('login');
-  const [data, setData] = useState(mockFirebaseData);
   const [authMode, setAuthMode] = useState('login');
 
   // FIREBASE HOOKS
@@ -135,7 +124,7 @@ const CotizacionesApp = () => {
 
   // CARGAR CONFIGURACIONES GUARDADAS AL INICIAR
 useEffect(() => {
-  loadSavedSettings(setTheme, setDarkMode, setData);
+  loadSavedSettings(setTheme, setDarkMode);
 }, []);
 
   // ESTADOS PARA FORMULARIOS DE AUTENTICACIÓN
@@ -196,7 +185,7 @@ useEffect(() => {
 
   // ESTADOS PARA NOTIFICACIONES
   const [notifications, setNotifications] = useState([]);
-  const [systemNotifications, setSystemNotifications] = useState(mockFirebaseData.notifications);
+  const [systemNotifications, setSystemNotifications] = useState([]);
   const [showNotificationPanel, setShowNotificationPanel] = useState(false);
 
   // ESTADOS PARA FILTROS
@@ -656,8 +645,8 @@ const showNotification = (message, type = 'success') => {
 
       items[index] = { ...items[index], [field]: value };
 
-      if (field === 'service' && data?.services) {
-        const service = data.services.find(s => s.name === value);
+      if (field === 'service' && services) {
+        const service = services.find(s => s.name === value);
         items[index].unitPrice = service ? service.price : 0;
       }
 
@@ -811,12 +800,12 @@ const showNotification = (message, type = 'success') => {
   };
 
   const sendViaWhatsApp = (quotation) => {
-    if (!quotation || !data?.clients) {
+    if (!quotation || !clients) {
       showNotification('Error al preparar la cotización para WhatsApp', 'error');
       return;
     }
 
-    const client = data.clients.find(c => c.empresa === quotation.client);
+    const client = clients.find(c => c.empresa === quotation.client);
     const totals = calculateQuotationTotals(quotation.items, quotation.discount);
 
     const message = `
@@ -893,15 +882,15 @@ _"Documento válido sólo como Cotización"_
   };
 
   const exportToPDF = async (quotation) => {
-    if (!quotation || !data?.clients || !data?.company) {
+    if (!quotation || !clients || !company) {
       showNotification('Error al preparar la cotización para PDF', 'error');
       return;
     }
 
-    const client = data.clients.find(c => c.empresa === quotation.client);
+    const client = clients.find(c => c.empresa === quotation.client);
 
     try {
-      await generateQuotationPDF(quotation, data.company, client);
+      await generateQuotationPDF(quotation, company, client);
       showNotification('PDF generado exitosamente', 'success');
     } catch (error) {
       console.error('Error al generar PDF:', error);

@@ -8,15 +8,10 @@ export function cn(...inputs) {
 }
 
 // Función para cambiar el tema de la aplicación
-export const handleThemeChange = (newTheme, setTheme, setData) => {
+export const handleThemeChange = (newTheme, setTheme) => {
   setTheme(newTheme);
-  setData(prevData => ({
-    ...prevData,
-    company: {
-      ...prevData.company,
-      theme: newTheme
-    }
-  }));
+  // Guardar en localStorage
+  localStorage.setItem('app-theme', newTheme);
 };
 
 // Función para toggle del modo oscuro
@@ -24,11 +19,15 @@ export const toggleDarkMode = (darkMode, setDarkMode) => {
   const newDarkMode = !darkMode;
   setDarkMode(newDarkMode);
   
+  // Aplicar al DOM
   if (newDarkMode) {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
   }
+  
+  // Guardar en localStorage
+  localStorage.setItem('app-dark-mode', newDarkMode.toString());
 };
 
 // Función para obtener clases CSS basadas en el tema actual
@@ -102,7 +101,7 @@ export const getThemeClasses = (theme, darkMode = false) => {
 // FUNCIONES SIMPLIFICADAS PARA COMPATIBILIDAD CON APP.JS
 
 // Función para cargar configuraciones guardadas (simplificada)
-export const loadSavedSettings = (setTheme, setDarkMode, setData) => {
+export const loadSavedSettings = (setTheme, setDarkMode) => {
   // Esta función se simplifica ya que ahora usamos Firebase para la configuración
   // Solo cargamos configuraciones básicas del localStorage si están disponibles
   try {
