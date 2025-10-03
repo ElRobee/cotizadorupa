@@ -1,4 +1,4 @@
-// FUNCIONES PARA MANEJO DE TEMAS, MODO OSCURO Y LOGO DE EMPRESA
+// FUNCIONES PARA MANEJO DE TEMAS Y MODO OSCURO
 
 // Función para cambiar el tema de la aplicación
 export const handleThemeChange = (newTheme, setTheme, setData) => {
@@ -10,9 +10,6 @@ export const handleThemeChange = (newTheme, setTheme, setData) => {
       theme: newTheme
     }
   }));
-  
-  // Guardar en localStorage para persistencia
-  localStorage.setItem('appTheme', newTheme);
 };
 
 // Función para toggle del modo oscuro
@@ -20,121 +17,10 @@ export const toggleDarkMode = (darkMode, setDarkMode) => {
   const newDarkMode = !darkMode;
   setDarkMode(newDarkMode);
   
-  // Aplicar/remover clase dark del documento
   if (newDarkMode) {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
-  }
-  
-  // Guardar en localStorage para persistencia
-  localStorage.setItem('darkMode', newDarkMode.toString());
-};
-
-// Función para manejar la subida del logo
-export const handleLogoUpload = (event, setNewCompanyLogo, setData) => {
-  const file = event.target.files[0];
-  
-  if (!file) return;
-  
-  // Validar tipo de archivo
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-  if (!allowedTypes.includes(file.type)) {
-    alert('Por favor, selecciona un archivo de imagen válido (JPEG, PNG, GIF, WebP)');
-    return;
-  }
-  
-  // Validar tamaño de archivo (máximo 5MB)
-  const maxSize = 5 * 1024 * 1024; // 5MB en bytes
-  if (file.size > maxSize) {
-    alert('El archivo es demasiado grande. El tamaño máximo permitido es 5MB');
-    return;
-  }
-  
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const logoDataUrl = e.target.result;
-    
-    // Actualizar estado temporal del logo
-    setNewCompanyLogo(logoDataUrl);
-    
-    // Actualizar datos de la empresa
-    setData(prevData => ({
-      ...prevData,
-      company: {
-        ...prevData.company,
-        logo: logoDataUrl
-      }
-    }));
-  };
-  
-  reader.readAsDataURL(file);
-};
-
-// Función para remover el logo
-export const removeLogo = (setNewCompanyLogo, setData) => {
-  setNewCompanyLogo(null);
-  setData(prevData => ({
-    ...prevData,
-    company: {
-      ...prevData.company,
-      logo: null
-    }
-  }));
-};
-
-// Función para guardar configuraciones de la empresa
-export const saveCompanySettings = (data, theme, darkMode) => {
-  try {
-    // Guardar en localStorage
-    localStorage.setItem('companyData', JSON.stringify(data.company));
-    localStorage.setItem('appTheme', theme);
-    localStorage.setItem('darkMode', darkMode.toString());
-    
-    // Aquí podrías agregar llamada a API si tienes backend
-    // await api.updateCompanySettings(data.company);
-    
-    alert('Configuraciones guardadas correctamente');
-    return true;
-  } catch (error) {
-    console.error('Error al guardar configuraciones:', error);
-    alert('Error al guardar configuraciones');
-    return false;
-  }
-};
-
-// Función para cargar configuraciones al iniciar la app
-export const loadSavedSettings = (setTheme, setDarkMode, setData) => {
-  try {
-    // Cargar tema guardado
-    const savedTheme = localStorage.getItem('appTheme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-    }
-    
-    // Cargar modo oscuro guardado
-    const savedDarkMode = localStorage.getItem('darkMode');
-    if (savedDarkMode) {
-      const isDark = savedDarkMode === 'true';
-      setDarkMode(isDark);
-      
-      // Aplicar clase dark al documento
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      }
-    }
-    
-    // Cargar datos de empresa guardados
-    const savedCompanyData = localStorage.getItem('companyData');
-    if (savedCompanyData) {
-      const companyData = JSON.parse(savedCompanyData);
-      setData(prevData => ({
-        ...prevData,
-        company: { ...prevData.company, ...companyData }
-      }));
-    }
-  } catch (error) {
-    console.error('Error al cargar configuraciones guardadas:', error);
   }
 };
 
