@@ -692,23 +692,6 @@ _"Documento válido sólo como Cotización"_
     }
   };
 
-  const exportToPDF = async (quotation) => {
-    if (!quotation || !clients || !company) {
-      showNotification('Error al preparar la cotización para PDF', 'error');
-      return;
-    }
-
-    const client = clients.find(c => c.empresa === quotation.client);
-
-    try {
-      await generateQuotationPDF(quotation, company, client);
-      showNotification('PDF generado exitosamente', 'success');
-    } catch (error) {
-      console.error('Error al generar PDF:', error);
-      showNotification('Error al generar PDF', 'error');
-    }
-  };
-
 // COMPONENTE DE NOTIFICACIONES
 const NotificationContainer = () => (
   <div className="fixed top-4 right-4 z-50 space-y-2">
