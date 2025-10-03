@@ -44,7 +44,7 @@ import {
   Check,
   XCircle
 } from 'lucide-react';
-import { signInAnonymously, signOut } from 'firebase/auth';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from './lib/firebase';
 import { generateQuotationPDF } from './utils/pdfGenerator';
 import { sendViaEmail } from './utils/sendViaEmail';
@@ -73,40 +73,6 @@ import { useClients } from './hooks/useClients';
 import { useServices } from './hooks/useServices';
 import { useCompany } from './hooks/useCompany';
 
-// SIMULACIÓN DE FIREBASE AUTH
-const mockFirebaseAuth = {
-  currentUser: null,
-  signInWithEmailAndPassword: async (email, password) => {
-    const validUsers = [
-      { uid: '1', email: 'admin@empresa.com', displayName: 'Administrador', role: 'admin' },
-      { uid: '2', email: 'usuario@empresa.com', displayName: 'Usuario Regular', role: 'user' },
-      { uid: '3', email: 'vendedor@empresa.com', displayName: 'Vendedor', role: 'seller' }
-    ];
-
-    const user = validUsers.find(u => u.email === email);
-    if (user && password === '123456') {
-      return { user };
-    }
-    throw new Error('Credenciales incorrectas');
-  },
-  createUserWithEmailAndPassword: async (email, password) => {
-    return {
-      user: {
-        uid: Date.now().toString(),
-        email,
-        displayName: 'Usuario Nuevo',
-        role: 'user'
-      }
-    };
-  },
-  signOut: async () => {
-    return Promise.resolve();
-  },
-  sendPasswordResetEmail: async (email) => {
-    return Promise.resolve();
-  }
-};
-
 const CotizacionesApp = () => {
   // ESTADOS PRINCIPALES
   const [currentUser, setCurrentUser] = useState(null);
@@ -118,6 +84,25 @@ const CotizacionesApp = () => {
   const { clients } = useClients();
   const { services } = useServices();
   const { company } = useCompany();
+
+  // LISTENER DE AUTENTICACIÓN DE FIREBASE
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser({
+          uid: user.uid,
+          email: user.email,
+          displayName: user.displayName || user.email
+        });
+        setCurrentView('dashboard');
+      } else {
+        setCurrentUser(null);
+        setCurrentView('login');
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   // ESTADOS DE TEMA Y CONFIGURACIÓN
   const [theme, setTheme] = useState('blue');
@@ -553,33 +538,139 @@ const showNotification = (message, type = 'success') => {
   // FUNCIONES DE AUTENTICACIÓN
   const handleLogin = async () => {
     try {
-      // Primero validar con el sistema mock
-      const result = await mockFirebaseAuth.signInWithEmailAndPassword(
-        loginForm.email, 
-        loginForm.password
-      );
+      // Usar Firebase Auth real con email y password
+      const result = await signInWithEmailAndPassword(auth, loginForm.email, loginForm.password);
       
-      // Si la validación mock es exitosa, hacer login anónimo en Firebase
-      await signInAnonymously(auth);
-      
-      setCurrentUser(result.user);
+      setCurrentUser({
+        uid: result.user.uid,
+        email: result.user.email,
+        displayName: result.user.displayName || result.user.email
+      });
       setCurrentView('dashboard');
       showNotification('Inicio de sesión exitoso', 'success');
     } catch (error) {
-      showNotification(error.message, 'error');
+      let errorMessage = 'Error al iniciar sesión';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'Usuario no encontrado';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Contraseña incorrecta';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/too-many-requests':
+          errorMessage = 'Demasiados intentos. Intenta más tarde';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Error de conexión';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      
+      showNotification(errorMessage, 'error');
     }
   };
 
   const handleLogout = async () => {
     try {
-      await mockFirebaseAuth.signOut();
-      // También hacer logout de Firebase Auth
       await signOut(auth);
       setCurrentUser(null);
       setCurrentView('login');
       showNotification('Sesión cerrada exitosamente', 'success');
     } catch (error) {
       showNotification('Error al cerrar sesión', 'error');
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      if (registerForm.password !== registerForm.confirmPassword) {
+        showNotification('Las contraseñas no coinciden', 'error');
+        return;
+      }
+      
+      if (registerForm.password.length < 6) {
+        showNotification('La contraseña debe tener al menos 6 caracteres', 'error');
+        return;
+      }
+
+      const result = await createUserWithEmailAndPassword(auth, registerForm.email, registerForm.password);
+      
+      setCurrentUser({
+        uid: result.user.uid,
+        email: result.user.email,
+        displayName: registerForm.name || result.user.email
+      });
+      
+      setCurrentView('dashboard');
+      showNotification('Cuenta creada exitosamente', 'success');
+      
+      // Limpiar formulario
+      setRegisterForm({
+        email: '',
+        password: '',
+        confirmPassword: '',
+        name: ''
+      });
+    } catch (error) {
+      let errorMessage = 'Error al crear la cuenta';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          errorMessage = 'Este email ya está registrado';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/weak-password':
+          errorMessage = 'La contraseña es muy débil';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Error de conexión';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      
+      showNotification(errorMessage, 'error');
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    try {
+      if (!forgotForm.email) {
+        showNotification('Por favor ingresa tu email', 'error');
+        return;
+      }
+
+      await sendPasswordResetEmail(auth, forgotForm.email);
+      showNotification('Email de recuperación enviado. Revisa tu bandeja de entrada.', 'success');
+      
+      // Limpiar formulario y volver al login
+      setForgotForm({ email: '' });
+      setAuthMode('login');
+    } catch (error) {
+      let errorMessage = 'Error al enviar email de recuperación';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'No existe una cuenta con este email';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Email inválido';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Error de conexión';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -1120,8 +1211,10 @@ return (
         onLogin={handleLogin}
         registerForm={registerForm}
         onRegisterFieldChange={handleRegisterFieldChange}
+        onRegister={handleRegister}
         forgotForm={forgotForm}
         onForgotEmailChange={handleForgotEmailChange}
+        onForgotPassword={handleForgotPassword}
         onSwitchMode={handleSwitchAuthMode}
         theme={theme}
         darkMode={darkMode}

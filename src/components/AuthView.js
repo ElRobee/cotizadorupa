@@ -96,11 +96,6 @@ const AuthView = memo(({
             >
               Iniciar Sesión
             </button>
-            <div className={`text-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-              <p>Usuarios de prueba:</p>
-              <p>admin@empresa.com / 123456</p>
-              <p>usuario@empresa.com / 123456</p>
-            </div>
             
             {/* Enlaces de navegación */}
             <div className="text-center space-y-2">
