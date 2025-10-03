@@ -118,8 +118,95 @@ const ClientModal = memo(({
             </div>
           </div>
 
-          {/* Otros campos */}
-          {/* ... (mantenemos todos los demás inputs como en tu versión, pero usando formData en vez de clientData) */}
+          {/* Encargado y Email */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                Encargado
+              </label>
+              <input
+                type="text"
+                value={formData.encargado || ""}
+                onChange={(e) => handleInputChange("encargado", e.target.value)}
+                placeholder="Nombre del encargado"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                Email
+              </label>
+              <input
+                type="email"
+                value={formData.email || ""}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                placeholder="correo@empresa.com"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Teléfono y Ciudad */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                Teléfono
+              </label>
+              <input
+                type="tel"
+                value={formData.telefono || ""}
+                onChange={(e) => handleInputChange("telefono", e.target.value)}
+                placeholder="+56 9 1234 5678"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                }`}
+              />
+            </div>
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                Ciudad
+              </label>
+              <input
+                type="text"
+                value={formData.ciudad || ""}
+                onChange={(e) => handleInputChange("ciudad", e.target.value)}
+                placeholder="Ciudad"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode
+                    ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Dirección */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              Dirección
+            </label>
+            <textarea
+              value={formData.direccion || ""}
+              onChange={(e) => handleInputChange("direccion", e.target.value)}
+              rows={2}
+              placeholder="Dirección completa"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                darkMode
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+              }`}
+            />
+          </div>
 
           {/* Vista previa */}
           {(formData?.empresa || formData?.rut) && (

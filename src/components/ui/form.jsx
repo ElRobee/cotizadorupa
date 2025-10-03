@@ -3,7 +3,7 @@ import { Slot } from "@radix-ui/react-slot"
 import { Controller, FormProvider, useFormContext } from "react-hook-form";
 
 import { cn } from "../../lib/utils"
-import { Label } from "@/components/ui/label"
+import { Label } from "./label"
 
 const Form = FormProvider
 
@@ -113,7 +113,7 @@ const FormMessage = React.forwardRef(({ className, children, ...props }, ref) =>
     <p
       ref={ref}
       id={formMessageId}
-      className={cn("text-[0.8rem] font-medium text-destructive", className)}
+      className={cn("text-sm font-medium text-destructive", className)}
       {...props}>
       {body}
     </p>

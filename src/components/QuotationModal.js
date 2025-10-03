@@ -1,27 +1,124 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils.js';
+import { useQuotations } from '../hooks/useQuotations';
+import { useServices } from '../hooks/useServices';
+import { useClients } from '../hooks/useClients';
 
 const QuotationModal = memo(({
   isEditing,
   quotationData,
-  data,
   onCancel,
-  onSave,
-  onAddItem,
-  onUpdateItem,
-  onRemoveItem,
-  onFieldChange,
-  calculateQuotationTotals,
   // Nuevas props para tema
   theme = 'blue',
   darkMode = false
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
-  const totals = calculateQuotationTotals(quotationData?.items || [], quotationData?.discount || 0);
+  const { addQuotation, updateQuotation } = useQuotations();
+  const { services } = useServices();
+  const { clients } = useClients();
+
+  // Estado local para el formulario
+  const [formData, setFormData] = useState(quotationData || {
+    clientName: '',
+    projectName: '',
+    date: new Date().toISOString().split('T')[0],
+    status: 'Pendiente',
+    priority: 'Media',
+    items: [],
+    discount: 0
+  });
+
+  // Si cambian los datos (ej: editar), los cargamos al estado
+  useEffect(() => {
+    setFormData(quotationData || {
+      clientName: '',
+      projectName: '',
+      date: new Date().toISOString().split('T')[0],
+      status: 'Pendiente',
+      priority: 'Media',
+      items: [],
+      discount: 0
+    });
+  }, [quotationData]);
+
+  // Calcular totales
+  const calculateQuotationTotals = (items = [], discount = 0) => {
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const discountAmount = (subtotal * discount) / 100;
+    const iva = (subtotal - discountAmount) * 0.19;
+    const total = subtotal - discountAmount + iva;
+    
+    return { subtotal, discountAmount, iva, total };
+  };
+
+  const totals = calculateQuotationTotals(formData?.items || [], formData?.discount || 0);
 
   const handleInputChange = (field, value) => {
-    onFieldChange(field, value);
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Agregar item
+  const handleAddItem = () => {
+    const newItem = {
+      id: Date.now(),
+      name: '',
+      quantity: 1,
+      price: 0
+    };
+    setFormData(prev => ({
+      ...prev,
+      items: [...(prev.items || []), newItem]
+    }));
+  };
+
+  // Actualizar item
+  const handleUpdateItem = (itemId, field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      items: (prev.items || []).map(item => {
+        if (item.id === itemId) {
+          let updatedItem = { ...item, [field]: value };
+          
+          // Si se cambia el servicio, actualizar el precio automáticamente
+          if (field === 'service' && value) {
+            const selectedService = services?.find(s => s.id === value);
+            if (selectedService) {
+              updatedItem.name = selectedService.name;
+              updatedItem.price = selectedService.price;
+            }
+          }
+          
+          return updatedItem;
+        }
+        return item;
+      })
+    }));
+  };
+
+  // Remover item
+  const handleRemoveItem = (itemId) => {
+    setFormData(prev => ({
+      ...prev,
+      items: (prev.items || []).filter(item => item.id !== itemId)
+    }));
+  };
+
+  // Guardar cotización en Firebase
+  const handleSave = async () => {
+    try {
+      if (!formData.clientName || !formData.projectName) return;
+
+      if (isEditing && formData.id) {
+        await updateQuotation(formData.id, formData);
+      } else {
+        await addQuotation(formData);
+      }
+      onCancel(); // cerrar modal al terminar
+    } catch (error) {
+      console.error("Error al guardar cotización:", error);
+      alert("Hubo un error al guardar la cotización. Inténtalo nuevamente.");
+    }
   };
 
   return (
@@ -50,15 +147,15 @@ const QuotationModal = memo(({
 
         {/* CONTENIDO DEL MODAL */}
         <div className="p-6 space-y-6">
-          {/* CLIENTE Y FECHA */}
+          {/* CLIENTE Y PROYECTO */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Cliente *
               </label>
               <select
-                value={quotationData?.client || ''}
-                onChange={(e) => handleInputChange('client', e.target.value)}
+                value={formData?.clientName || ''}
+                onChange={(e) => handleInputChange('clientName', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white' 
@@ -66,7 +163,7 @@ const QuotationModal = memo(({
                 }`}
               >
                 <option value="">Seleccionar cliente</option>
-                {data?.clients?.map(client => (
+                {clients?.map(client => (
                   <option key={client.id} value={client.empresa}>
                     {client.empresa}
                   </option>
@@ -76,11 +173,31 @@ const QuotationModal = memo(({
 
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Nombre del Proyecto *
+              </label>
+              <input
+                type="text"
+                value={formData?.projectName || ''}
+                onChange={(e) => handleInputChange('projectName', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+                placeholder="Nombre del proyecto"
+              />
+            </div>
+          </div>
+
+          {/* FECHA Y ESTADO */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Fecha
               </label>
               <input
                 type="date"
-                value={quotationData?.date || ''}
+                value={formData?.date || ''}
                 onChange={(e) => handleInputChange('date', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
@@ -88,6 +205,26 @@ const QuotationModal = memo(({
                     : 'bg-white border-gray-300 text-gray-900'
                 }`}
               />
+            </div>
+
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Estado
+              </label>
+              <select
+                value={formData?.status || 'Pendiente'}
+                onChange={(e) => handleInputChange('status', e.target.value)}
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
+              >
+                <option value="Pendiente">Pendiente</option>
+                <option value="Aprobada">Aprobada</option>
+                <option value="Rechazada">Rechazada</option>
+                <option value="En Proceso">En Proceso</option>
+              </select>
             </div>
           </div>
 
@@ -98,7 +235,7 @@ const QuotationModal = memo(({
                 Prioridad
               </label>
               <select
-                value={quotationData?.priority || 'Media'}
+                value={formData?.priority || 'Media'}
                 onChange={(e) => handleInputChange('priority', e.target.value)}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
@@ -117,7 +254,7 @@ const QuotationModal = memo(({
                 Descuento (%)
               </label>
               <select
-                value={quotationData?.discount || 0}
+                value={formData?.discount || 0}
                 onChange={(e) => handleInputChange('discount', Number(e.target.value))}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
@@ -142,7 +279,7 @@ const QuotationModal = memo(({
               Notas
             </label>
             <textarea
-              value={quotationData?.notes || ''}
+              value={formData?.notes || ''}
               onChange={(e) => handleInputChange('notes', e.target.value)}
               rows={3}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
@@ -161,7 +298,7 @@ const QuotationModal = memo(({
                 Servicios
               </h3>
               <button
-                onClick={onAddItem}
+                onClick={handleAddItem}
                 className="flex items-center space-x-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
               >
                 <Plus className="w-4 h-4" />
@@ -192,13 +329,13 @@ const QuotationModal = memo(({
                     </tr>
                   </thead>
                   <tbody>
-                    {(quotationData?.items || []).map((item, index) => (
+                    {(formData?.items || []).map((item, index) => (
                       <tr key={item.id || index} className={`border-t ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
                         <td className="py-3 px-4">
                           <input
                             type="number"
                             value={item.quantity || 1}
-                            onChange={(e) => onUpdateItem(index, 'quantity', Number(e.target.value))}
+                            onChange={(e) => handleUpdateItem(item.id, 'quantity', Number(e.target.value))}
                             className={`w-20 px-2 py-1 border rounded focus:outline-none focus:ring-1 ${currentTheme.focus} ${
                               darkMode 
                                 ? 'bg-gray-800 border-gray-500 text-white' 
@@ -210,7 +347,7 @@ const QuotationModal = memo(({
                         <td className="py-3 px-4">
                           <select
                             value={item.service || ''}
-                            onChange={(e) => onUpdateItem(index, 'service', e.target.value)}
+                            onChange={(e) => handleUpdateItem(item.id, 'service', e.target.value)}
                             className={`w-full px-2 py-1 border rounded focus:outline-none focus:ring-1 ${currentTheme.focus} ${
                               darkMode 
                                 ? 'bg-gray-800 border-gray-500 text-white' 
@@ -218,7 +355,7 @@ const QuotationModal = memo(({
                             }`}
                           >
                             <option value="">Seleccionar servicio</option>
-                            {(data?.services || []).filter(s => s.active).map(service => (
+                            {(services || []).filter(s => s.active).map(service => (
                               <option key={service.id} value={service.name}>
                                 {service.name}
                               </option>
@@ -233,7 +370,7 @@ const QuotationModal = memo(({
                         </td>
                         <td className="py-3 px-4">
                           <button
-                            onClick={() => onRemoveItem(index)}
+                            onClick={() => handleRemoveItem(item.id)}
                             className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
                               darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
                             }`}
@@ -286,7 +423,7 @@ const QuotationModal = memo(({
                 </div>
                 {totals.discountAmount > 0 && (
                   <div className="flex justify-between text-red-600 dark:text-red-400">
-                    <span>Descuento ({quotationData?.discount || 0}%):</span>
+                    <span>Descuento ({formData?.discount || 0}%):</span>
                     <span className="font-semibold">-${totals.discountAmount.toLocaleString()}</span>
                   </div>
                 )}
@@ -322,8 +459,13 @@ const QuotationModal = memo(({
             Cancelar
           </button>
           <button
-            onClick={onSave}
-            className={`px-6 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+            onClick={handleSave}
+            disabled={!formData?.clientName || !formData?.projectName}
+            className={`px-6 py-2 text-white rounded-lg transition-colors ${
+              !formData?.clientName || !formData?.projectName
+                ? 'bg-gray-400 cursor-not-allowed'
+                : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
+            }`}
           >
             {isEditing ? 'Actualizar' : 'Guardar'} Cotización
           </button>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Search, 
   Filter, 
@@ -15,31 +15,86 @@ import {
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import Filters from "./Filtrosdebusqueda";
-import { services as allServices } from '../utils/ServicesData';
+import { useQuotations } from '../hooks/useQuotations';
+import { useServices } from '../hooks/useServices';
+import { useClients } from '../hooks/useClients';
+import { useCompany } from '../hooks/useCompany';
 import { generateTechnicalReportPDF } from '../utils/InformePDF';
 
 const QuotationsView = ({
-  data,
-  searchTerm,
-  onSearchChange,
-  filters,
-  setFilters,
-  showFilters,
-  setShowFilters,
-  getFilteredQuotations,
-  formatDate,
-  handleStatusClick,
   startEdit,
   sendViaWhatsApp,
   sendViaEmail,
   exportToPDF,
-  deleteItem,
   setModalType,
   setShowModal,
   theme,
   darkMode
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
+  
+  // 🔥 Cargar datos desde Firebase
+  const { quotations, loading, deleteQuotation, updateQuotation } = useQuotations();
+  const { services } = useServices();
+  const { clients } = useClients();
+  const { company } = useCompany();
+
+  // 🔍 Estados de búsqueda y filtros
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({
+    dateFrom: '',
+    dateTo: '',
+    status: '',
+    priority: '',
+  });
+  const [showFilters, setShowFilters] = useState(false);
+
+  // Función para formatear fechas
+  const formatDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-CL');
+  };
+
+  // Función para cambiar estado de cotización
+  const handleStatusClick = async (quotationId, newStatus) => {
+    try {
+      await updateQuotation(quotationId, { status: newStatus });
+    } catch (error) {
+      console.error("Error al cambiar estado:", error);
+      alert("Error al cambiar el estado de la cotización");
+    }
+  };
+
+  // Filtrar cotizaciones
+  const filteredQuotations = useMemo(() => {
+    if (!quotations) return [];
+    
+    let filtered = quotations.filter((quotation) => {
+      // Búsqueda por texto
+      const searchFields = [
+        quotation.clientName,
+        quotation.projectName,
+        quotation.status,
+        quotation.priority,
+        quotation.id?.toString()
+      ].filter(Boolean);
+      
+      const matchesSearch = searchFields.some((field) =>
+        field.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      // Filtros adicionales
+      const matchesDateFrom = !filters.dateFrom || new Date(quotation.date) >= new Date(filters.dateFrom);
+      const matchesDateTo = !filters.dateTo || new Date(quotation.date) <= new Date(filters.dateTo);
+      const matchesStatus = !filters.status || quotation.status === filters.status;
+      const matchesPriority = !filters.priority || quotation.priority === filters.priority;
+
+      return matchesSearch && matchesDateFrom && matchesDateTo && matchesStatus && matchesPriority;
+    });
+
+    return filtered;
+  }, [quotations, searchTerm, filters]);
   
   const clearFilters = () => {
     setFilters({
@@ -48,12 +103,20 @@ const QuotationsView = ({
       status: '',
       priority: '',
     });
-    onSearchChange({ target: { value: '' } });
+    setSearchTerm('');
   };
 
   const handleDownloadTechnicalReport = (quotation) => {
-    generateTechnicalReportPDF(quotation, allServices);
+    generateTechnicalReportPDF(quotation, services || []);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Cargando cotizaciones...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
@@ -89,7 +152,7 @@ const QuotationsView = ({
               <input
                 type="text"
                 value={searchTerm}
-                onChange={onSearchChange}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar cotizaciones..."
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
@@ -141,7 +204,7 @@ const QuotationsView = ({
               </tr>
             </thead>
             <tbody>
-              {getFilteredQuotations().map(quotation => (
+              {filteredQuotations.map(quotation => (
                 <tr 
                   key={quotation.id} 
                   className={`border-t transition-colors ${
@@ -236,7 +299,7 @@ const QuotationsView = ({
                         <NotepadText className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => deleteItem('quotations', quotation.id)}
+                        onClick={() => deleteQuotation(quotation.id)}
                         className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
                         }`}
@@ -254,7 +317,7 @@ const QuotationsView = ({
 
         {/* CARDS - SOLO MÓVIL */}
         <div className="md:hidden">
-          {getFilteredQuotations().map(quotation => (
+          {filteredQuotations.map(quotation => (
             <div 
               key={quotation.id}
               className={`p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}
@@ -362,7 +425,7 @@ const QuotationsView = ({
                     <NotepadText className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-gray-600'}`} />
                   </button>
                   <button
-                    onClick={() => deleteItem('quotations', quotation.id)}
+                    onClick={() => deleteQuotation(quotation.id)}
                     className="flex items-center justify-center p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                     title="Eliminar"
                   >
@@ -374,7 +437,7 @@ const QuotationsView = ({
           ))}
 
           {/* MENSAJE CUANDO NO HAY COTIZACIONES */}
-          {getFilteredQuotations().length === 0 && (
+          {filteredQuotations.length === 0 && (
             <div className={`text-center py-12 px-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium mb-2">No hay cotizaciones</p>

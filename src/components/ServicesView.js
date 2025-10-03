@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Search, 
   Plus, 
@@ -10,22 +10,60 @@ import {
   Tag
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
+import { useServices } from '../hooks/useServices';
 
 const ServicesView = ({
-  data,
-  searchTerm,
-  onSearchChange,
-  getFilteredServices,
-  toggleServiceStatus,
   startEdit,
-  deleteItem,
-  duplicateService,
   setModalType,
   setShowModal,
   theme,
   darkMode
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
+  
+  // 🔥 Cargar servicios desde Firebase
+  const { services, loading, deleteService, updateService } = useServices();
+  
+  // 🔍 Estado de búsqueda
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // Filtrar servicios
+  const filteredServices = useMemo(() => {
+    if (!services) return [];
+    return services.filter((service) =>
+      [service.name, service.category, service.price?.toString()]
+        .filter(Boolean)
+        .some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [services, searchTerm]);
+
+  // Alternar estado activo/inactivo del servicio
+  const toggleServiceStatus = async (serviceId, currentStatus) => {
+    try {
+      await updateService(serviceId, { active: !currentStatus });
+    } catch (error) {
+      console.error("Error al cambiar estado del servicio:", error);
+      alert("Error al cambiar el estado del servicio");
+    }
+  };
+
+  // Duplicar servicio
+  const duplicateService = (service) => {
+    const newService = {
+      ...service,
+      name: `${service.name} (Copia)`,
+      id: undefined // Que Firebase genere un nuevo ID
+    };
+    startEdit('service', newService);
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Cargando servicios...</p>
+      </div>
+    );
+  }
   
   return (
     <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
@@ -60,7 +98,7 @@ const ServicesView = ({
             <input
               type="text"
               value={searchTerm}
-              onChange={onSearchChange}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Buscar servicios..."
               className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                 darkMode 
@@ -94,7 +132,7 @@ const ServicesView = ({
               </tr>
             </thead>
             <tbody>
-              {getFilteredServices().map(service => (
+              {filteredServices.map(service => (
                 <tr 
                   key={service.id} 
                   className={`border-t transition-colors ${
@@ -183,7 +221,7 @@ const ServicesView = ({
                         <Copy className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => deleteItem('services', service.id)}
+                        onClick={() => deleteService(service.id)}
                         className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
                         }`}
@@ -201,7 +239,7 @@ const ServicesView = ({
 
         {/* CARDS - SOLO MÓVIL */}
         <div className="md:hidden">
-          {getFilteredServices().map(service => (
+          {filteredServices.map(service => (
             <div 
               key={service.id}
               className={`p-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} last:border-b-0`}
@@ -287,7 +325,7 @@ const ServicesView = ({
                   </span>
                 </button>
                 <button
-                  onClick={() => deleteItem('services', service.id)}
+                  onClick={() => deleteService(service.id)}
                   className="flex items-center justify-center space-x-1 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -298,7 +336,7 @@ const ServicesView = ({
           ))}
 
           {/* MENSAJE CUANDO NO HAY SERVICIOS */}
-          {getFilteredServices().length === 0 && (
+          {filteredServices.length === 0 && (
             <div className={`text-center py-12 px-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               <Settings className="w-12 h-12 mx-auto mb-4 opacity-20" />
               <p className="text-lg font-medium mb-2">No hay servicios registrados</p>
@@ -325,17 +363,17 @@ const ServicesView = ({
         <div className={`px-4 md:px-6 py-4 border-t ${darkMode ? 'border-gray-700 bg-gray-750' : 'border-gray-200 bg-gray-50'}`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between text-sm space-y-2 md:space-y-0">
             <span className={darkMode ? 'text-gray-400' : 'text-gray-500'}>
-              Total de servicios: <span className="font-medium">{getFilteredServices().length}</span>
+              Total de servicios: <span className="font-medium">{filteredServices.length}</span>
             </span>
             <div className="flex space-x-4">
               <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Activos: <span className="text-green-600 font-medium">
-                  {getFilteredServices().filter(s => s.active).length}
+                  {filteredServices.filter(s => s.active).length}
                 </span>
               </span>
               <span className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Inactivos: <span className="text-red-600 font-medium">
-                  {getFilteredServices().filter(s => !s.active).length}
+                  {filteredServices.filter(s => !s.active).length}
                 </span>
               </span>
             </div>

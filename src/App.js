@@ -99,13 +99,15 @@ const mockFirebaseAuth = {
   }
 };
 
-// DATOS SIMULADOS
+// DATOS SIMULADOS PARA USUARIOS (AUTH)
 const mockFirebaseData = {
   users: [
     { id: 1, email: 'admin@empresa.com', name: 'Administrador', role: 'admin', avatar: null },
     { id: 2, email: 'usuario@empresa.com', name: 'Usuario Regular', role: 'user', avatar: null },
     { id: 3, email: 'vendedor@empresa.com', name: 'Vendedor', role: 'seller', avatar: null }
   ],
+  notifications: []
+};
   
 const CotizacionesApp = () => {
   // ESTADOS PRINCIPALES
@@ -305,53 +307,18 @@ const showNotification = (message, type = 'success') => {
     }
   };
 
-  // FUNCIONES DE FILTRADO
+  // FUNCIONES DE FILTRADO (SIMPLIFICADAS PARA COMPATIBILIDAD)
   const getFilteredClients = useCallback(() => {
-    if (!data?.clients) return [];
-    const searchLower = searchTerm.toLowerCase();
-    return data.clients.filter(client => {
-      if (!searchTerm) return true;
-      return (
-        client.empresa.toLowerCase().includes(searchLower) ||
-        client.encargado.toLowerCase().includes(searchLower) ||
-        client.rut.includes(searchTerm) ||
-        client.email.toLowerCase().includes(searchLower)
-      );
-    });
-  }, [searchTerm, data?.clients]);
+    return []; // Los componentes ahora manejan sus propios datos desde Firebase
+  }, []);
 
   const getFilteredServices = useCallback(() => {
-    if (!data?.services) return [];
-    const searchLower = searchTerm.toLowerCase();
-    return data.services.filter(service => {
-      if (!searchTerm) return true;
-      return (
-        service.name.toLowerCase().includes(searchLower) ||
-        service.category.toLowerCase().includes(searchLower)
-      );
-    });
-  }, [searchTerm, data?.services]);
+    return []; // Los componentes ahora manejan sus propios datos desde Firebase
+  }, []);
 
   const getFilteredQuotations = useCallback(() => {
-    if (!data?.quotations) return [];
-    return data.quotations.filter(quotation => {
-      const matchesSearch = !searchTerm ||
-        quotation.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        quotation.client.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesFilters =
-        (!filters.status || quotation.status === filters.status) &&
-        (!filters.priority || quotation.priority === filters.priority) &&
-        (!filters.client || quotation.client === filters.client) &&
-        (!filters.dateFrom || quotation.date >= filters.dateFrom) &&
-        (!filters.dateTo || quotation.date <= filters.dateTo) &&
-        (!filters.minAmount || quotation.total >= Number(filters.minAmount)) &&
-        (!filters.maxAmount || quotation.total <= Number(filters.maxAmount)) &&
-        (!filters.createdBy || quotation.createdBy === filters.createdBy);
-
-      return matchesSearch && matchesFilters;
-    });
-  }, [searchTerm, filters, data?.quotations]);
+    return []; // Los componentes ahora manejan sus propios datos desde Firebase
+  }, []);
 
   // FUNCIONES DE VALIDACIÓN
   const validateQuotationForm = (quotationData) => {
@@ -1362,98 +1329,37 @@ return (
           <div className="flex-1">
             {currentView === 'dashboard' && <DashboardView />}
             {currentView === 'quotations' && (
-  <QuotationsView
-    data={data}
-    searchTerm={searchTerm}
-    onSearchChange={handleSearchChange}
-    filters={filters}
-    setFilters={setFilters}   // 👈 AGREGA ESTO
-    showFilters={showFilters}
-    setShowFilters={setShowFilters}
-    getFilteredQuotations={getFilteredQuotations}
-    formatDate={formatDate}
-    handleStatusClick={(quotation) => {
-      const currentStatus = quotation.status;
-      let newStatus;
-      if (currentStatus === 'Pendiente') {
-        newStatus = 'Facturada';
-      } else if (currentStatus === 'Facturada') {
-        newStatus = 'Pendiente';
-      } else {
-        newStatus = 'Pendiente';
-      }
-      changeQuotationStatus(quotation.id, newStatus);
-    }}
-    startEdit={startEdit}
-    sendViaWhatsApp={sendViaWhatsApp}
-    sendViaEmail={sendViaEmail}
-    exportToPDF={exportToPDF}
-    deleteItem={deleteItem}
-    setModalType={setModalType}
-    setShowModal={setShowModal}
-    theme={theme}
-    darkMode={darkMode}
-  />
-)}
-            {currentView === 'clients' && (
-  <ClientsView
-    data={data}
-    searchTerm={searchTerm}
-    onSearchChange={handleSearchChange}
-    getFilteredClients={getFilteredClients}
-    startEdit={startEdit}
-    deleteItem={deleteItem}
-    setModalType={setModalType}
-    setShowModal={setShowModal}
-    theme={theme}
-    darkMode={darkMode}
-  />
-)}
-{currentView === 'services' && (
-  <ServicesView
-    data={data}
-    searchTerm={searchTerm}
-    onSearchChange={handleSearchChange}
-    getFilteredServices={getFilteredServices}
-    toggleServiceStatus={(serviceId, currentStatus) => {
-      const newStatus = !currentStatus;
-      setData(prev => ({
-        ...prev,
-        services: prev.services.map(s =>
-          s.id === serviceId ? { ...s, active: newStatus } : s
-        )
-      }));
-      showNotification(
-        newStatus ? 'Servicio activado' : 'Servicio desactivado', 
-        'success'
-      );
-    }}
-    startEdit={startEdit}
-    deleteItem={deleteItem}
-    duplicateService={duplicateService}
-    setModalType={setModalType}
-    setShowModal={setShowModal}
-    theme={theme}
-    darkMode={darkMode}
-  />
-)}
-            {currentView === 'company' && (
-              <CompanySettingsView 
-                data={data}
-                setData={setData}
-                editingCompany={editingCompany}
-                setEditingCompany={setEditingCompany}
-                newCompanyLogo={newCompanyLogo}
-                setNewCompanyLogo={setNewCompanyLogo}
+              <QuotationsView
+                startEdit={startEdit}
+                sendViaWhatsApp={sendViaWhatsApp}
+                sendViaEmail={sendViaEmail}
+                exportToPDF={exportToPDF}
+                setModalType={setModalType}
+                setShowModal={setShowModal}
                 theme={theme}
-                setTheme={setTheme}
                 darkMode={darkMode}
-                setDarkMode={setDarkMode}
-                formatRut={formatRut}
-                validateRut={validateRut}
-                validateEmail={validateEmail}
-                showNotification={showNotification}
               />
+            )}
+            {currentView === 'clients' && (
+              <ClientsView
+                setModalType={setModalType}
+                setShowModal={setShowModal}
+                theme={theme}
+                darkMode={darkMode}
+                startEdit={startEdit}
+              />
+            )}
+            {currentView === 'services' && (
+              <ServicesView
+                startEdit={startEdit}
+                setModalType={setModalType}
+                setShowModal={setShowModal}
+                theme={theme}
+                darkMode={darkMode}
+              />
+            )}
+            {currentView === 'company' && (
+              <CompanySettingsView />
             )}
           </div>
         </div>
@@ -1470,15 +1376,8 @@ return (
       {showModal && modalType === 'quotation' && (
         <QuotationModal
           isEditing={editingQuotation !== null}
-          quotationData={editingQuotation || newQuotation}
-          data={data}
+          quotationData={editingQuotation || null}
           onCancel={cancelEdit}
-          onSave={saveQuotation}
-          onAddItem={addQuotationItem}
-          onUpdateItem={updateQuotationItem}
-          onRemoveItem={removeQuotationItem}
-          onFieldChange={handleQuotationFieldChange}
-          calculateQuotationTotals={calculateQuotationTotals}
           theme={theme}
           darkMode={darkMode}
         />
@@ -1486,10 +1385,8 @@ return (
       {showModal && modalType === 'client' && (
         <ClientModal
           isEditing={editingClient !== null}
-          clientData={editingClient || newClient}
+          clientData={editingClient || null}
           onCancel={cancelEdit}
-          onSave={saveClient}
-          onFieldChange={handleClientFieldChange}
           formatRut={formatRut}
           validateRut={validateRut}
           validateEmail={validateEmail}
@@ -1500,10 +1397,8 @@ return (
       {showModal && modalType === 'service' && (
         <ServiceModal
           isEditing={editingService !== null}
-          serviceData={editingService || newService}
+          serviceData={editingService || null}
           onCancel={cancelEdit}
-          onSave={saveService}
-          onFieldChange={handleServiceFieldChange}
           theme={theme}
           darkMode={darkMode}
         />

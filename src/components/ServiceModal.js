@@ -1,18 +1,26 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils.js';
+import { useServices } from '../hooks/useServices';
 import ServicesData from '../utils/ServicesData'; // 👈 importamos datos base
 
 const ServiceModal = memo(({
   isEditing,
   serviceData,
   onCancel,
-  onSave,
-  onFieldChange,
   theme = 'blue',
   darkMode = false
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
+  const { addService, updateService } = useServices();
+
+  // Estado local para el formulario
+  const [formData, setFormData] = useState(serviceData || {});
+
+  // Si cambian los datos (ej: editar), los cargamos al estado
+  useEffect(() => {
+    setFormData(serviceData || {});
+  }, [serviceData]);
 
   const categoryColors = {
     'General': darkMode ? 'bg-gray-600 text-gray-200' : 'bg-gray-100 text-gray-800',
@@ -30,26 +38,66 @@ const ServiceModal = memo(({
         s.name.toLowerCase() === value.toLowerCase()
       );
       if (foundService) {
-        onFieldChange('name', foundService.name);
-        onFieldChange('price', foundService.price);
-        onFieldChange('category', foundService.category);
-        onFieldChange('active', foundService.active);
-        onFieldChange('specs', foundService.specs); // 👈 specs añadidas
+        setFormData(prev => ({
+          ...prev,
+          name: foundService.name,
+          price: foundService.price,
+          category: foundService.category,
+          active: foundService.active,
+          specs: foundService.specs
+        }));
         return;
       }
     }
-    onFieldChange(field, value);
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSelectService = (serviceId) => {
     if (!serviceId) return;
     const selected = ServicesData.services.find(s => s.id === Number(serviceId));
     if (selected) {
-      onFieldChange('name', selected.name);
-      onFieldChange('price', selected.price);
-      onFieldChange('category', selected.category);
-      onFieldChange('active', selected.active);
-      onFieldChange('specs', selected.specs);
+      setFormData(prev => ({
+        ...prev,
+        name: selected.name,
+        price: selected.price,
+        category: selected.category,
+        active: selected.active,
+        specs: selected.specs
+      }));
+    }
+  };
+
+  // Guardar servicio en Firebase
+  const handleSave = async () => {
+    try {
+      if (!formData.name || !formData.price || formData.price <= 0) return;
+
+      if (isEditing && formData.id) {
+        await updateService(formData.id, formData);
+      } else {
+        await addService(formData);
+      }
+      onCancel(); // cerrar modal al terminar
+    } catch (error) {
+      console.error("Error al guardar servicio:", error);
+      alert("Hubo un error al guardar el servicio. Inténtalo nuevamente.");
+    }
+  };
+
+  // Guardar servicio en Firebase
+  const handleSave = async () => {
+    try {
+      if (!formData.name || !formData.price || formData.price <= 0) return;
+
+      if (isEditing && formData.id) {
+        await updateService(formData.id, formData);
+      } else {
+        await addService(formData);
+      }
+      onCancel(); // cerrar modal al terminar
+    } catch (error) {
+      console.error("Error al guardar servicio:", error);
+      alert("Hubo un error al guardar el servicio. Inténtalo nuevamente.");
     }
   };
 
@@ -112,7 +160,7 @@ const ServiceModal = memo(({
             </label>
             <input
               type="text"
-              value={serviceData?.name || ''}
+              value={formData?.name || ''}
               onChange={(e) => handleInputChange('name', e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                 darkMode 
@@ -137,7 +185,7 @@ const ServiceModal = memo(({
               </span>
               <input
                 type="number"
-                value={serviceData?.price || ''}
+                value={formData?.price || ''}
                 onChange={(e) => handleInputChange('price', Number(e.target.value))}
                 className={`w-full pl-8 pr-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
@@ -159,7 +207,7 @@ const ServiceModal = memo(({
               Categoría
             </label>
             <select
-              value={serviceData?.category || 'General'}
+              value={formData?.category || 'General'}
               onChange={(e) => handleInputChange('category', e.target.value)}
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                 darkMode 
@@ -175,10 +223,10 @@ const ServiceModal = memo(({
               <option value="Otros">Otros</option>
             </select>
 
-            {serviceData?.category && (
+            {formData?.category && (
               <div className="mt-2">
-                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${categoryColors[serviceData.category] || categoryColors.General}`}>
-                  {serviceData.category}
+                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${categoryColors[formData.category] || categoryColors.General}`}>
+                  {formData.category}
                 </span>
               </div>
             )}
@@ -189,7 +237,7 @@ const ServiceModal = memo(({
             <label className="flex items-center space-x-3 cursor-pointer">
               <input
                 type="checkbox"
-                checked={serviceData?.active ?? true}
+                checked={formData?.active ?? true}
                 onChange={(e) => handleInputChange('active', e.target.checked)}
                 className={`w-4 h-4 border rounded focus:ring-2 ${
                   theme === 'blue' ? 'text-blue-600 focus:ring-blue-500' :
@@ -209,7 +257,7 @@ const ServiceModal = memo(({
           </div>
 
           {/* VISTA PREVIA DEL SERVICIO */}
-          {(serviceData?.name || (serviceData?.price && serviceData.price > 0)) && (
+          {(formData?.name || (formData?.price && formData.price > 0)) && (
             <div className={`border rounded-lg p-4 ${
               darkMode 
                 ? 'bg-gray-700 border-gray-600' 
@@ -219,23 +267,23 @@ const ServiceModal = memo(({
                 Vista Previa
               </h4>
               <div className={`text-sm space-y-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                {serviceData?.name && (
-                  <p><strong>Servicio:</strong> {serviceData.name}</p>
+                {formData?.name && (
+                  <p><strong>Servicio:</strong> {formData.name}</p>
                 )}
-                {serviceData?.price && serviceData.price > 0 && (
-                  <p><strong>Precio:</strong> ${Number(serviceData.price).toLocaleString()}</p>
+                {formData?.price && formData.price > 0 && (
+                  <p><strong>Precio:</strong> ${Number(formData.price).toLocaleString()}</p>
                 )}
-                {serviceData?.category && (
-                  <p><strong>Categoría:</strong> {serviceData.category}</p>
+                {formData?.category && (
+                  <p><strong>Categoría:</strong> {formData.category}</p>
                 )}
                 <div className="flex items-center space-x-2">
                   <strong>Estado:</strong>
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    serviceData?.active !== false
+                    formData?.active !== false
                       ? 'bg-green-100 text-green-800'
                       : 'bg-red-100 text-red-800'
                   }`}>
-                    {serviceData?.active !== false ? 'Activo' : 'Inactivo'}
+                    {formData?.active !== false ? 'Activo' : 'Inactivo'}
                   </span>
                 </div>
               </div>
@@ -281,7 +329,7 @@ const ServiceModal = memo(({
           </div>
 
           {/* VALIDACIONES EN TIEMPO REAL */}
-          {serviceData?.price && serviceData.price <= 0 && (
+          {formData?.price && formData.price <= 0 && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 dark:bg-red-900 dark:bg-opacity-20 dark:border-red-800">
               <div className="flex items-center">
                 <AlertCircle className="w-4 h-4 text-red-500 mr-2" />
@@ -308,10 +356,10 @@ const ServiceModal = memo(({
             Cancelar
           </button>
           <button
-            onClick={onSave}
-            disabled={!serviceData?.name || !serviceData?.price || serviceData.price <= 0}
+            onClick={handleSave}
+            disabled={!formData?.name || !formData?.price || formData.price <= 0}
             className={`px-6 py-2 text-white rounded-lg transition-colors ${
-              !serviceData?.name || !serviceData?.price || serviceData.price <= 0
+              !formData?.name || !formData?.price || formData.price <= 0
                 ? 'bg-gray-400 cursor-not-allowed' 
                 : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
             }`}
