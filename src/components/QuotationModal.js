@@ -21,7 +21,6 @@ const QuotationModal = memo(({
   // Estado local para el formulario
   const [formData, setFormData] = useState(quotationData || {
     clientName: '',
-    projectName: '',
     date: new Date().toISOString().split('T')[0],
     status: 'Pendiente',
     priority: 'Media',
@@ -33,7 +32,6 @@ const QuotationModal = memo(({
   useEffect(() => {
     setFormData(quotationData || {
       clientName: '',
-      projectName: '',
       date: new Date().toISOString().split('T')[0],
       status: 'Pendiente',
       priority: 'Media',
@@ -62,9 +60,10 @@ const QuotationModal = memo(({
   const handleAddItem = () => {
     const newItem = {
       id: Date.now(),
-      name: '',
+      service: '',
       quantity: 1,
-      price: 0
+      unitPrice: 0,
+      total: 0
     };
     setFormData(prev => ({
       ...prev,
@@ -82,11 +81,15 @@ const QuotationModal = memo(({
           
           // Si se cambia el servicio, actualizar el precio automáticamente
           if (field === 'service' && value) {
-            const selectedService = services?.find(s => s.id === value);
+            const selectedService = services?.find(s => s.name === value);
             if (selectedService) {
-              updatedItem.name = selectedService.name;
-              updatedItem.price = selectedService.price;
+              updatedItem.unitPrice = selectedService.basePrice || 0;
             }
+          }
+          
+          // Recalcular el total siempre que cambie cantidad o precio
+          if (field === 'quantity' || field === 'service') {
+            updatedItem.total = (updatedItem.quantity || 1) * (updatedItem.unitPrice || 0);
           }
           
           return updatedItem;
@@ -107,7 +110,10 @@ const QuotationModal = memo(({
   // Guardar cotización en Firebase
   const handleSave = async () => {
     try {
-      if (!formData.clientName || !formData.projectName) return;
+      if (!formData.clientName) {
+        alert('Por favor selecciona un cliente');
+        return;
+      }
 
       if (isEditing && formData.id) {
         await updateQuotation(formData.id, formData);
@@ -147,46 +153,27 @@ const QuotationModal = memo(({
 
         {/* CONTENIDO DEL MODAL */}
         <div className="p-6 space-y-6">
-          {/* CLIENTE Y PROYECTO */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Cliente *
-              </label>
-              <select
-                value={formData?.clientName || ''}
-                onChange={(e) => handleInputChange('clientName', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white' 
-                    : 'bg-white border-gray-300 text-gray-900'
-                }`}
-              >
-                <option value="">Seleccionar cliente</option>
-                {clients?.map(client => (
-                  <option key={client.id} value={client.empresa}>
-                    {client.empresa}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Nombre del Proyecto *
-              </label>
-              <input
-                type="text"
-                value={formData?.projectName || ''}
-                onChange={(e) => handleInputChange('projectName', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
-                  darkMode 
-                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
-                placeholder="Nombre del proyecto"
-              />
-            </div>
+          {/* CLIENTE */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+              Cliente *
+            </label>
+            <select
+              value={formData?.clientName || ''}
+              onChange={(e) => handleInputChange('clientName', e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                darkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white' 
+                  : 'bg-white border-gray-300 text-gray-900'
+              }`}
+            >
+              <option value="">Seleccionar cliente</option>
+              {clients?.map(client => (
+                <option key={client.id} value={client.empresa}>
+                  {client.empresa}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* FECHA Y ESTADO */}
@@ -221,9 +208,7 @@ const QuotationModal = memo(({
                 }`}
               >
                 <option value="Pendiente">Pendiente</option>
-                <option value="Aprobada">Aprobada</option>
-                <option value="Rechazada">Rechazada</option>
-                <option value="En Proceso">En Proceso</option>
+                <option value="Facturada">Facturada</option>
               </select>
             </div>
           </div>
@@ -355,9 +340,9 @@ const QuotationModal = memo(({
                             }`}
                           >
                             <option value="">Seleccionar servicio</option>
-                            {(services || []).filter(s => s.active).map(service => (
+                            {(services || []).map(service => (
                               <option key={service.id} value={service.name}>
-                                {service.name}
+                                {service.name} - ${(service.basePrice || 0).toLocaleString()}
                               </option>
                             ))}
                           </select>
