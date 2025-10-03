@@ -73,6 +73,9 @@ const QuotationModal = memo(({
 
   // Actualizar item
   const handleUpdateItem = (itemId, field, value) => {
+    console.log('handleUpdateItem called:', { itemId, field, value });
+    console.log('Available services:', services);
+    
     setFormData(prev => ({
       ...prev,
       items: (prev.items || []).map(item => {
@@ -82,14 +85,17 @@ const QuotationModal = memo(({
           // Si se cambia el servicio, actualizar el precio automáticamente
           if (field === 'service' && value) {
             const selectedService = services?.find(s => s.name === value);
+            console.log('Selected service:', selectedService);
             if (selectedService) {
-              updatedItem.unitPrice = selectedService.basePrice || 0;
+              updatedItem.unitPrice = selectedService.price || 0;
+              console.log('Setting unitPrice to:', selectedService.price);
             }
           }
           
           // Recalcular el total siempre que cambie cantidad o precio
           if (field === 'quantity' || field === 'service') {
             updatedItem.total = (updatedItem.quantity || 1) * (updatedItem.unitPrice || 0);
+            console.log('Calculated total:', updatedItem.total);
           }
           
           return updatedItem;
@@ -342,7 +348,7 @@ const QuotationModal = memo(({
                             <option value="">Seleccionar servicio</option>
                             {(services || []).map(service => (
                               <option key={service.id} value={service.name}>
-                                {service.name} - ${(service.basePrice || 0).toLocaleString()}
+                                {service.name} - ${(service.price || 0).toLocaleString()}
                               </option>
                             ))}
                           </select>
