@@ -84,23 +84,6 @@ const ServiceModal = memo(({
     }
   };
 
-  // Guardar servicio en Firebase
-  const handleSave = async () => {
-    try {
-      if (!formData.name || !formData.price || formData.price <= 0) return;
-
-      if (isEditing && formData.id) {
-        await updateService(formData.id, formData);
-      } else {
-        await addService(formData);
-      }
-      onCancel(); // cerrar modal al terminar
-    } catch (error) {
-      console.error("Error al guardar servicio:", error);
-      alert("Hubo un error al guardar el servicio. Inténtalo nuevamente.");
-    }
-  };
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className={`rounded-xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto ${
