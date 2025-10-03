@@ -3,12 +3,11 @@ import {
   handleThemeChange, 
   toggleDarkMode, 
   handleLogoUpload, 
-  removeLogo, 
-  saveCompanySettings,
+  removeLogo,
   getThemeClasses 
 } from '../lib/utils';
+import { useCompany } from '../hooks/useCompany';
 
-// COMPONENTE CONFIGURACIÓN DE EMPRESA
 const CompanySettingsView = ({ 
   data, 
   setData, 
@@ -26,51 +25,53 @@ const CompanySettingsView = ({
   showNotification
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
-  
-  // Inicializar editingCompany con los datos de la empresa
+  const { company, addCompany, updateCompany } = useCompany();
+
+  // Inicializar edición con datos de Firestore
   useEffect(() => {
-    if (data.company && !editingCompany) {
-      setEditingCompany({ ...data.company });
+    if (company && !editingCompany) {
+      setEditingCompany({ ...company });
     }
+  }, [company]);
+
+  // Manejar cambios en inputs
+  const handleCompanyChange = useCallback((field, value) => {
+    setEditingCompany(prev => {
+      let processedValue = value;
+      if (field === 'rut') processedValue = formatRut(value);
+      return { ...prev, [field]: processedValue };
+    });
   }, []);
 
-// Función para manejar cambios en los inputs con validación
-const handleCompanyChange = useCallback((field, value) => {
-  setEditingCompany(prev => {
-    let processedValue = value;
-    
-    // Formatear RUT automáticamente
-    if (field === 'rut') {
-      processedValue = formatRut(value);
-    }
-    
-    return { ...prev, [field]: processedValue };
-  });
-}, []);
+  // Guardar en Firestore
+  const handleSaveCompany = useCallback(async () => {
+    if (!editingCompany) return;
 
-  // Función para guardar - actualiza el estado y luego usa la función de utils
-const handleSaveCompany = useCallback(() => {
-  if (!editingCompany) return;
-  
-  // Validar RUT si existe
-  if (editingCompany.rut && !validateRut(editingCompany.rut)) {
-    showNotification('RUT inválido', 'error');
-    return;
-  }
-  
-  // Validar Email si existe
-  if (editingCompany.email && !validateEmail(editingCompany.email)) {
-    showNotification('Email inválido', 'error');
-    return;
-  }
-  
-  // Actualizar el estado local
-  setData(prev => ({ ...prev, company: editingCompany }));
-  
-  // Guardar usando la función de utils
-  saveCompanySettings({ ...data, company: editingCompany }, theme, darkMode);
-}, [editingCompany, data, theme, darkMode]);
-  
+    // Validaciones
+    if (editingCompany.rut && !validateRut(editingCompany.rut)) {
+      showNotification('RUT inválido', 'error');
+      return;
+    }
+    if (editingCompany.email && !validateEmail(editingCompany.email)) {
+      showNotification('Email inválido', 'error');
+      return;
+    }
+
+    try {
+      if (company?.id) {
+        await updateCompany(company.id, editingCompany);
+        showNotification('Empresa actualizada con éxito', 'success');
+      } else {
+        await addCompany(editingCompany);
+        showNotification('Empresa registrada con éxito', 'success');
+      }
+      setData(prev => ({ ...prev, company: editingCompany }));
+    } catch (error) {
+      console.error('Error al guardar empresa:', error);
+      showNotification('Hubo un error al guardar los datos de la empresa', 'error');
+    }
+  }, [editingCompany, company, theme, darkMode]);
+
   return (
     <div className={`flex-1 p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="mb-8">
@@ -113,9 +114,7 @@ const handleSaveCompany = useCallback(() => {
                 placeholder="12.345.678-9"
               />
             </div>
-          </div>
-
-          <div>
+            <div>
             <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
               Dirección
             </label>
@@ -182,7 +181,7 @@ const handleSaveCompany = useCallback(() => {
             </div>
           </div>
 
-          {/* BOTÓN GUARDAR */}
+           {/* BOTÓN GUARDAR */}
           <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
             <button
               onClick={handleSaveCompany}
