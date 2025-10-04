@@ -64,6 +64,8 @@ import {
   removeLogo, 
   saveCompanySettings, 
   loadSavedSettings, 
+  loadUserPreferences,
+  saveUserPreferences,
   getThemeClasses 
 } from './lib/utils.js';
 
@@ -72,6 +74,7 @@ import { useQuotations } from './hooks/useQuotations';
 import { useClients } from './hooks/useClients';
 import { useServices } from './hooks/useServices';
 import { useCompany } from './hooks/useCompany';
+import { useUserRoles } from './hooks/useUserRoles';
 
 const CotizacionesApp = () => {
   // ESTADOS PRINCIPALES
@@ -84,10 +87,11 @@ const CotizacionesApp = () => {
   const { clients } = useClients();
   const { services } = useServices();
   const { company } = useCompany();
+  const { userRole, loading: roleLoading, isAdmin, canEditCompany, canCreateContent } = useUserRoles(currentUser?.uid);
 
   // LISTENER DE AUTENTICACIÓN DE FIREBASE
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         setCurrentUser({
           uid: user.uid,
@@ -95,9 +99,14 @@ const CotizacionesApp = () => {
           displayName: user.displayName || user.email
         });
         setCurrentView('dashboard');
+        
+        // Cargar preferencias del usuario autenticado
+        await loadUserPreferences(user.uid, setTheme, setDarkMode);
       } else {
         setCurrentUser(null);
         setCurrentView('login');
+        // Cargar configuraciones locales cuando no hay usuario
+        loadSavedSettings(setTheme, setDarkMode);
       }
     });
 
@@ -110,9 +119,16 @@ const CotizacionesApp = () => {
   const [compactView, setCompactView] = useState(false);
 
   // CARGAR CONFIGURACIONES GUARDADAS AL INICIAR
-useEffect(() => {
-  loadSavedSettings(setTheme, setDarkMode);
-}, []);
+  useEffect(() => {
+    loadSavedSettings(setTheme, setDarkMode);
+  }, []);
+
+  // GUARDAR PREFERENCIAS DEL USUARIO EN FIREBASE
+  useEffect(() => {
+    if (currentUser?.uid && !roleLoading) {
+      saveUserPreferences(currentUser.uid, theme, darkMode);
+    }
+  }, [theme, darkMode, currentUser?.uid, roleLoading]);
 
   // ESTADOS PARA FORMULARIOS DE AUTENTICACIÓN
   const [loginForm, setLoginForm] = useState({ email: '', password: '' });
@@ -869,6 +885,9 @@ const Sidebar = () => {
             <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {currentUser?.displayName}
             </p>
+            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+              {roleLoading ? 'Cargando...' : (userRole === 'admin' ? '👑 Administrador' : '👤 Usuario')}
+            </p>
           </div>
         </div>
       </div>
@@ -1263,6 +1282,9 @@ return (
                 darkMode={darkMode}
                 setTheme={setTheme}
                 setDarkMode={setDarkMode}
+                currentUser={currentUser}
+                userRole={userRole}
+                canEditCompany={canEditCompany}
               />
             )}
           </div>

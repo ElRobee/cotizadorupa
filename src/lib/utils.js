@@ -1,6 +1,8 @@
 // FUNCIONES PARA MANEJO DE TEMAS Y MODO OSCURO
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from './firebase';
 
 // Función para combinar clases CSS (utilizada por componentes UI)
 export function cn(...inputs) {
@@ -8,14 +10,18 @@ export function cn(...inputs) {
 }
 
 // Función para cambiar el tema de la aplicación
-export const handleThemeChange = (newTheme, setTheme) => {
+export const handleThemeChange = (newTheme, setTheme, userId = null) => {
   setTheme(newTheme);
-  // Guardar en localStorage
+  // Guardar en localStorage como respaldo
   localStorage.setItem('app-theme', newTheme);
+  // Guardar en Firebase si hay usuario autenticado
+  if (userId) {
+    saveUserPreferences(userId, newTheme, null);
+  }
 };
 
 // Función para toggle del modo oscuro
-export const toggleDarkMode = (darkMode, setDarkMode) => {
+export const toggleDarkMode = (darkMode, setDarkMode, userId = null) => {
   const newDarkMode = !darkMode;
   setDarkMode(newDarkMode);
   
@@ -26,8 +32,12 @@ export const toggleDarkMode = (darkMode, setDarkMode) => {
     document.documentElement.classList.remove('dark');
   }
   
-  // Guardar en localStorage
+  // Guardar en localStorage como respaldo
   localStorage.setItem('app-dark-mode', newDarkMode.toString());
+  // Guardar en Firebase si hay usuario autenticado
+  if (userId) {
+    saveUserPreferences(userId, null, newDarkMode);
+  }
 };
 
 // Función para obtener clases CSS basadas en el tema actual
@@ -99,6 +109,65 @@ export const getThemeClasses = (theme, darkMode = false) => {
 };
 
 // FUNCIONES SIMPLIFICADAS PARA COMPATIBILIDAD CON APP.JS
+
+// Función para guardar preferencias del usuario en Firebase
+export const saveUserPreferences = async (userId, theme = null, darkMode = null) => {
+  if (!userId) return;
+  
+  try {
+    const updateData = {};
+    if (theme !== null) updateData.theme = theme;
+    if (darkMode !== null) updateData.darkMode = darkMode;
+    
+    if (Object.keys(updateData).length > 0) {
+      updateData.updatedAt = new Date().toISOString();
+      await setDoc(doc(db, 'userPreferences', userId), updateData, { merge: true });
+    }
+  } catch (error) {
+    console.error('Error saving user preferences:', error);
+  }
+};
+
+// Función para cargar preferencias del usuario desde Firebase
+export const loadUserPreferences = async (userId, setTheme, setDarkMode) => {
+  if (!userId) {
+    // Si no hay usuario, cargar desde localStorage
+    loadSavedSettings(setTheme, setDarkMode);
+    return;
+  }
+  
+  try {
+    const userPrefDoc = await getDoc(doc(db, 'userPreferences', userId));
+    
+    if (userPrefDoc.exists()) {
+      const preferences = userPrefDoc.data();
+      
+      if (preferences.theme) {
+        setTheme(preferences.theme);
+        localStorage.setItem('app-theme', preferences.theme);
+      }
+      
+      if (preferences.darkMode !== undefined) {
+        setDarkMode(preferences.darkMode);
+        localStorage.setItem('app-dark-mode', preferences.darkMode.toString());
+        
+        // Aplicar dark mode al DOM
+        if (preferences.darkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    } else {
+      // Si no hay preferencias en Firebase, cargar desde localStorage
+      loadSavedSettings(setTheme, setDarkMode);
+    }
+  } catch (error) {
+    console.error('Error loading user preferences:', error);
+    // Fallback a localStorage en caso de error
+    loadSavedSettings(setTheme, setDarkMode);
+  }
+};
 
 // Función para cargar configuraciones guardadas (simplificada)
 export const loadSavedSettings = (setTheme, setDarkMode) => {
