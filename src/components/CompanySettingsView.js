@@ -4,7 +4,7 @@ import { handleThemeChange, toggleDarkMode, getThemeClasses } from "../lib/utils
 import { uploadCompanyLogo, removeCompanyLogo } from "../lib/logoService";
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../lib/firebase';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, getDocs, updateDoc, deleteDoc } from 'firebase/firestore';
 
 import { 
   Save, 
@@ -24,7 +24,9 @@ import {
   User,
   UserPlus,
   Users,
-  X
+  X,
+  Edit2,
+  Check
 } from "lucide-react";
 
 const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUser, userRole, userProfile, updateUserProfile, canEditCompany }) => {
@@ -61,6 +63,10 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
     username: ''
   });
   const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [usersList, setUsersList] = useState([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [editingUserId, setEditingUserId] = useState(null);
+  const [editingUserName, setEditingUserName] = useState('');
 
   // Cargar datos iniciales cuando vienen de Firestore
   useEffect(() => {
@@ -94,6 +100,32 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       setEditingUsername(userProfile.username);
     }
   }, [userProfile]);
+
+  // Cargar lista de usuarios
+  const loadUsers = async () => {
+    if (!userCanEdit) return;
+    
+    setLoadingUsers(true);
+    try {
+      const usersSnapshot = await getDocs(collection(db, 'users'));
+      const users = usersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setUsersList(users);
+    } catch (error) {
+      console.error("Error cargando usuarios:", error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
+
+  // Cargar usuarios cuando el componente se monte (solo para admins)
+  useEffect(() => {
+    if (userCanEdit) {
+      loadUsers();
+    }
+  }, [userCanEdit]);
 
   // Asegurar inicialización rápida para usuarios sin permisos
   useEffect(() => {
@@ -209,12 +241,71 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       });
       setShowCreateUserModal(false);
       
+      // Recargar lista de usuarios
+      loadUsers();
+      
     } catch (error) {
       console.error("Error al crear usuario:", error);
       alert(`Error al crear usuario: ${error.message}`);
     } finally {
       setIsCreatingUser(false);
     }
+  };
+
+  // Actualizar nombre de usuario
+  const handleUpdateUsername = async (userId, newUsername) => {
+    try {
+      await updateDoc(doc(db, 'users', userId), {
+        username: newUsername,
+        updatedAt: new Date().toISOString()
+      });
+      
+      // Actualizar lista local
+      setUsersList(users => users.map(user => 
+        user.id === userId ? { ...user, username: newUsername } : user
+      ));
+      
+      setEditingUserId(null);
+      setEditingUserName('');
+      alert("Nombre actualizado correctamente ✅");
+    } catch (error) {
+      console.error("Error actualizando nombre:", error);
+      alert("Error al actualizar nombre ❌");
+    }
+  };
+
+  // Eliminar usuario
+  const handleDeleteUser = async (userId, userEmail) => {
+    if (userId === currentUser?.uid) {
+      alert("No puedes eliminar tu propia cuenta");
+      return;
+    }
+
+    if (window.confirm(`¿Estás seguro de eliminar al usuario ${userEmail}?`)) {
+      try {
+        await deleteDoc(doc(db, 'users', userId));
+        
+        // Actualizar lista local
+        setUsersList(users => users.filter(user => user.id !== userId));
+        
+        alert("Usuario eliminado correctamente ✅");
+      } catch (error) {
+        console.error("Error eliminando usuario:", error);
+        alert("Error al eliminar usuario ❌");
+      }
+    }
+  };
+
+  // Iniciar edición de nombre
+  const startEditingUser = (userId, currentName) => {
+    setEditingUserId(userId);
+    setEditingUserName(currentName);
+  };
+
+  // Cancelar edición
+  const cancelEditingUser = () => {
+    setEditingUserId(null);
+    setEditingUserName('');
   };
 
   // Asegurar que siempre tengamos editingCompany
@@ -551,17 +642,131 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
 
           {userCanEdit ? (
             <div className="space-y-4">
-              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Crea nuevos usuarios para acceder al sistema
-              </p>
-              
-              <button
-                onClick={() => setShowCreateUserModal(true)}
-                className={`w-full flex items-center justify-center space-x-2 px-4 py-3 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
-              >
-                <UserPlus className="w-5 h-5" />
-                <span>Crear Nuevo Usuario</span>
-              </button>
+              <div className="flex items-center justify-between">
+                <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Gestiona los usuarios del sistema
+                </p>
+                <button
+                  onClick={() => setShowCreateUserModal(true)}
+                  className={`flex items-center space-x-2 px-3 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span className="text-sm">Crear Usuario</span>
+                </button>
+              </div>
+
+              {/* Lista de usuarios */}
+              <div className={`border rounded-lg ${darkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+                {loadingUsers ? (
+                  <div className="p-4 text-center">
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      Cargando usuarios...
+                    </p>
+                  </div>
+                ) : usersList.length === 0 ? (
+                  <div className="p-4 text-center">
+                    <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                      No hay usuarios registrados
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-200 dark:divide-gray-600">
+                    {usersList.map((user) => (
+                      <div key={user.id} className="p-4 flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                            user.role === 'admin' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600'
+                          }`}>
+                            {user.role === 'admin' ? (
+                              <Shield className="w-4 h-4" />
+                            ) : (
+                              <User className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              {editingUserId === user.id ? (
+                                <div className="flex items-center space-x-2">
+                                  <input
+                                    type="text"
+                                    value={editingUserName}
+                                    onChange={(e) => setEditingUserName(e.target.value)}
+                                    className={`px-2 py-1 text-sm rounded border ${
+                                      darkMode
+                                        ? 'bg-gray-700 border-gray-600 text-white'
+                                        : 'bg-white border-gray-300 text-gray-900'
+                                    }`}
+                                    onKeyPress={(e) => {
+                                      if (e.key === 'Enter') {
+                                        handleUpdateUsername(user.id, editingUserName);
+                                      }
+                                    }}
+                                  />
+                                  <button
+                                    onClick={() => handleUpdateUsername(user.id, editingUserName)}
+                                    className="p-1 text-green-600 hover:bg-green-100 rounded"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </button>
+                                  <button
+                                    onClick={cancelEditingUser}
+                                    className="p-1 text-gray-600 hover:bg-gray-100 rounded"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              ) : (
+                                <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                                  {user.username || 'Sin nombre'}
+                                </p>
+                              )}
+                            </div>
+                            <p className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {user.email}
+                            </p>
+                            <span className={`inline-block text-xs px-2 py-1 rounded-full ${
+                              user.role === 'admin' 
+                                ? 'bg-red-100 text-red-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {user.role === 'admin' ? 'Administrador' : 'Usuario'}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {editingUserId !== user.id && (
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={() => startEditingUser(user.id, user.username)}
+                              className={`p-2 rounded transition-colors ${
+                                darkMode 
+                                  ? 'text-gray-400 hover:text-blue-400 hover:bg-gray-700' 
+                                  : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+                              }`}
+                              title="Editar nombre"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                            {user.id !== currentUser?.uid && (
+                              <button
+                                onClick={() => handleDeleteUser(user.id, user.email)}
+                                className={`p-2 rounded transition-colors ${
+                                  darkMode 
+                                    ? 'text-gray-400 hover:text-red-400 hover:bg-gray-700' 
+                                    : 'text-gray-600 hover:text-red-600 hover:bg-red-50'
+                                }`}
+                                title="Eliminar usuario"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
