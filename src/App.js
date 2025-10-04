@@ -42,7 +42,8 @@ import {
   User,
   Home,
   Check,
-  XCircle
+  XCircle,
+  Wrench
 } from 'lucide-react';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from './lib/firebase';
@@ -950,6 +951,19 @@ const Sidebar = () => {
             <span>Servicios</span>
           </button>
 
+          {/* Mantenimiento */}
+          <button
+            onClick={() => setCurrentView('maintenance')}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+              currentView === 'maintenance' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
+            }`}
+          >
+            <Wrench className="w-5 h-5" />
+            <span>Mantenimiento</span>
+          </button>
+
           {/* Empresa */}
           <button
             onClick={() => setCurrentView('company')}
@@ -961,19 +975,6 @@ const Sidebar = () => {
           >
             <Building2 className="w-5 h-5" />
             <span>Empresa</span>
-          </button>
-
-          {/* Mantenimiento */}
-          <button
-            onClick={() => setCurrentView('maintenance')}
-            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
-              currentView === 'maintenance' 
-                ? `${currentTheme.secondary} ${currentTheme.text}` 
-                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
-            }`}
-          >
-            <Settings className="w-5 h-5" />
-            <span>Mantenimiento</span>
           </button>
         </div>
       </nav>

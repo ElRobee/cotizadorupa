@@ -36,11 +36,18 @@ const ServicesView = ({
   // Filtrar servicios
   const filteredServices = useMemo(() => {
     if (!services) return [];
-    return services.filter((service) =>
+    const filtered = services.filter((service) =>
       [service.name, service.category, service.price?.toString()]
         .filter(Boolean)
         .some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+    // Ordenar alfabéticamente por nombre de servicio
+    filtered.sort((a, b) => {
+      const nameA = a.name || '';
+      const nameB = b.name || '';
+      return nameA.toLowerCase().localeCompare(nameB.toLowerCase());
+    });
+    return filtered;
   }, [services, searchTerm]);
 
   // Alternar estado activo/inactivo del servicio

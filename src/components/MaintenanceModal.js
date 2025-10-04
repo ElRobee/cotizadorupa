@@ -22,7 +22,7 @@ const MaintenanceModal = ({
   // Estados para equipo
   const [equipmentData, setEquipmentData] = useState({
     nombre_equipo: '',
-    tipo_equipo: 'vehículo',
+    tipo_equipo: 'Vehículo',
     marca: '',
     modelo: '',
     año: new Date().getFullYear(),
@@ -31,7 +31,7 @@ const MaintenanceModal = ({
     numero_motor: '',
     kilometraje_actual: '',
     horas_uso: '',
-    estado_equipo: 'operativo',
+    estado_equipo: 'Operativo',
     prox_mantencion_km: '',
     prox_mantencion_horas: '',
     revision_tecnica_fecha: '',
@@ -68,24 +68,24 @@ const MaintenanceModal = ({
   const [loading, setLoading] = useState(false);
 
   const equipmentTypes = [
-    'vehículo', 'grúa', 'plataforma elevadora', 'retroexcavadora', 
-    'generador', 'compresor', 'soldadora', 'montacargas', 'otro'
+    'Vehículo', 'Grúa', 'Plataforma Elevadora', 'Retroexcavadora', 
+    'Generador', 'Compresor', 'Soldadora', 'Montacargas', 'Otro'
   ];
 
   const maintenanceTypes = [
-    'preventiva',
-    'correctiva',
-    'predictiva',
-    'emergencia',
-    'revisión técnica',
-    'cambio de aceite',
-    'cambio de filtros',
-    'revisión de frenos',
-    'alineación y balanceo',
-    'reparación de motor',
-    'reparación eléctrica',
-    'pintura y carrocería',
-    'otra'
+    'Preventiva',
+    'Correctiva',
+    'Predictiva',
+    'Emergencia',
+    'Revisión técnica',
+    'Cambio de aceite',
+    'Cambio de filtros',
+    'Revisión de frenos',
+    'Alineación y balanceo',
+    'Reparación de motor',
+    'Reparación eléctrica',
+    'Pintura y carrocería',
+    'Otra'
   ];
 
   // Cargar datos del equipo seleccionado
@@ -96,7 +96,7 @@ const MaintenanceModal = ({
       // Reset para nuevo equipo
       setEquipmentData({
         nombre_equipo: '',
-        tipo_equipo: 'vehículo',
+        tipo_equipo: 'Vehículo',
         marca: '',
         modelo: '',
         año: new Date().getFullYear(),
@@ -105,7 +105,7 @@ const MaintenanceModal = ({
         numero_motor: '',
         kilometraje_actual: '',
         horas_uso: '',
-        estado_equipo: 'operativo',
+        estado_equipo: 'Operativo',
         prox_mantencion_km: '',
         prox_mantencion_horas: '',
         revision_tecnica_fecha: '',

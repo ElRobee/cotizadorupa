@@ -96,6 +96,13 @@ const QuotationsView = ({
       return matchesSearch && matchesDateFrom && matchesDateTo && matchesStatus && matchesPriority;
     });
 
+    // Ordenar por número de cotización (de mayor a menor)
+    filtered.sort((a, b) => {
+      const numberA = parseInt(a.number) || 0;
+      const numberB = parseInt(b.number) || 0;
+      return numberB - numberA; // Orden descendente (más recientes primero)
+    });
+
     return filtered;
   }, [quotations, searchTerm, filters]);
   

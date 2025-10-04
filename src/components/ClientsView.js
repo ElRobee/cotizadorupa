@@ -27,11 +27,18 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit })
   // Filtrar clientes
   const filteredClients = useMemo(() => {
     if (!clients) return [];
-    return clients.filter((c) =>
+    const filtered = clients.filter((c) =>
       [c.empresa, c.encargado, c.rut, c.email, c.telefono, c.ciudad]
         .filter(Boolean)
         .some((field) => field.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+    // Ordenar alfabéticamente por empresa
+    filtered.sort((a, b) => {
+      const empresaA = a.empresa || '';
+      const empresaB = b.empresa || '';
+      return empresaA.toLowerCase().localeCompare(empresaB.toLowerCase());
+    });
+    return filtered;
   }, [clients, searchTerm]);
 
   if (loading) {
