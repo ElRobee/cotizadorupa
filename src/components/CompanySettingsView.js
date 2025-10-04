@@ -22,7 +22,25 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
   const { company, updateCompany, loading } = useCompany();
   const currentTheme = getThemeClasses(theme, darkMode);
 
-  const [editingCompany, setEditingCompany] = useState(null);
+  // Helper para verificar permisos de edición
+  const userCanEdit = typeof canEditCompany === 'function' ? canEditCompany() : canEditCompany;
+
+  // Inicializar editingCompany inmediatamente para usuarios sin permisos
+  const [editingCompany, setEditingCompany] = useState(() => {
+    if (!userCanEdit) {
+      return {
+        razonSocial: '',
+        rut: '',
+        direccion: '',
+        telefono: '',
+        email: '',
+        logo: '',
+        theme: theme,
+        darkMode: darkMode
+      };
+    }
+    return null;
+  });
   const [isSaving, setIsSaving] = useState(false);
 
   // Cargar datos iniciales cuando vienen de Firestore
@@ -36,7 +54,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       if (company.darkMode !== undefined && setDarkMode) {
         setDarkMode(company.darkMode);
       }
-    } else if (!loading) {
+    } else if (!loading && !editingCompany) {
       // Si no hay datos de empresa, inicializar con valores por defecto
       setEditingCompany({
         razonSocial: '',
@@ -49,11 +67,11 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
         darkMode: darkMode
       });
     }
-  }, [company, setTheme, setDarkMode, loading, theme, darkMode]);
+  }, [company, setTheme, setDarkMode, loading, theme, darkMode, editingCompany]);
 
-  // Asegurar que editingCompany esté inicializado para todos los usuarios
+  // Asegurar inicialización rápida para usuarios sin permisos
   useEffect(() => {
-    if (!editingCompany && !loading) {
+    if (!loading && !editingCompany) {
       setEditingCompany({
         razonSocial: company?.razonSocial || '',
         rut: company?.rut || '',
@@ -65,26 +83,15 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
         darkMode: darkMode
       });
     }
-  }, [editingCompany, loading, company, theme, darkMode]);
+  }, [loading, editingCompany, company, theme, darkMode]);
 
-  if (loading) {
+  // Solo mostrar loading para usuarios admin que realmente necesitan cargar datos
+  if (userCanEdit && loading && !editingCompany) {
     return (
       <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
         <div className="flex items-center justify-center py-20">
           <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
             Cargando configuración de empresa...
-          </p>
-        </div>
-      </div>
-    );
-  }
-  
-  if (!editingCompany) {
-    return (
-      <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <div className="flex items-center justify-center py-20">
-          <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
-            Inicializando configuración de empresa...
           </p>
         </div>
       </div>
@@ -120,6 +127,20 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       setIsSaving(false);
     }
   };
+
+  // Asegurar que siempre tengamos editingCompany
+  if (!editingCompany) {
+    setEditingCompany({
+      razonSocial: company?.razonSocial || '',
+      rut: company?.rut || '',
+      direccion: company?.direccion || '',
+      telefono: company?.telefono || '',
+      email: company?.email || '',
+      logo: company?.logo || '',
+      theme: theme,
+      darkMode: darkMode
+    });
+  }
 
   // Subir logo
   const handleLogoUpload = async (e) => {
@@ -158,7 +179,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
         </div>
 
         {/* BOTÓN GUARDAR - Solo para administradores */}
-        {canEditCompany() && (
+        {userCanEdit && (
           <button
             onClick={handleSave}
             disabled={isSaving}
@@ -178,7 +199,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
         
         {/* Sección de información de empresa - Solo administradores */}
-        {canEditCompany() ? (
+        {userCanEdit ? (
           <>
             {/* CARD: INFORMACIÓN BÁSICA */}
             <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>

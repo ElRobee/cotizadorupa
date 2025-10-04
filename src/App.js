@@ -1276,7 +1276,7 @@ return (
                 darkMode={darkMode}
               />
             )}
-            {currentView === 'company' && (
+            {currentView === 'company' && !roleLoading && (
               <CompanySettingsView 
                 theme={theme}
                 darkMode={darkMode}
@@ -1286,6 +1286,15 @@ return (
                 userRole={userRole}
                 canEditCompany={canEditCompany}
               />
+            )}
+            {currentView === 'company' && roleLoading && (
+              <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+                <div className="flex items-center justify-center py-20">
+                  <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    Verificando permisos de usuario...
+                  </p>
+                </div>
+              </div>
             )}
           </div>
         </div>
