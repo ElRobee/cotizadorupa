@@ -73,9 +73,6 @@ const QuotationModal = memo(({
 
   // Actualizar item
   const handleUpdateItem = (itemId, field, value) => {
-    console.log('handleUpdateItem called:', { itemId, field, value });
-    console.log('Available services:', services);
-    
     setFormData(prev => ({
       ...prev,
       items: (prev.items || []).map(item => {
@@ -85,17 +82,14 @@ const QuotationModal = memo(({
           // Si se cambia el servicio, actualizar el precio automáticamente
           if (field === 'service' && value) {
             const selectedService = services?.find(s => s.name === value);
-            console.log('Selected service:', selectedService);
             if (selectedService) {
               updatedItem.unitPrice = selectedService.price || 0;
-              console.log('Setting unitPrice to:', selectedService.price);
             }
           }
           
           // Recalcular el total siempre que cambie cantidad o precio
           if (field === 'quantity' || field === 'service') {
             updatedItem.total = (updatedItem.quantity || 1) * (updatedItem.unitPrice || 0);
-            console.log('Calculated total:', updatedItem.total);
           }
           
           return updatedItem;
@@ -118,6 +112,11 @@ const QuotationModal = memo(({
     try {
       if (!formData.clientName) {
         alert('Por favor selecciona un cliente');
+        return;
+      }
+
+      if (!formData.items || formData.items.length === 0) {
+        alert('Por favor agrega al menos un servicio');
         return;
       }
 
@@ -348,16 +347,16 @@ const QuotationModal = memo(({
                             <option value="">Seleccionar servicio</option>
                             {(services || []).map(service => (
                               <option key={service.id} value={service.name}>
-                                {service.name} - ${(service.price || 0).toLocaleString()}
+                                {service.name}
                               </option>
                             ))}
                           </select>
                         </td>
                         <td className={`py-3 px-4 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                          ${(item.unitPrice || 0).toLocaleString()}
+                          ${Math.round(item.unitPrice || 0).toLocaleString()}
                         </td>
                         <td className={`py-3 px-4 font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                          ${(item.total || 0).toLocaleString()}
+                          ${Math.round(item.total || 0).toLocaleString()}
                         </td>
                         <td className="py-3 px-4">
                           <button
@@ -397,25 +396,25 @@ const QuotationModal = memo(({
                 <div className="flex justify-between">
                   <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>Subtotal:</span>
                   <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ${totals.subtotal.toLocaleString()}
+                    ${Math.round(totals.subtotal).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>IVA (19%):</span>
                   <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ${totals.iva.toLocaleString()}
+                    ${Math.round(totals.iva).toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>Total Bruto:</span>
                   <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ${totals.totalBruto.toLocaleString()}
+                    ${Math.round(totals.totalBruto).toLocaleString()}
                   </span>
                 </div>
                 {totals.discountAmount > 0 && (
                   <div className="flex justify-between text-red-600 dark:text-red-400">
                     <span>Descuento ({formData?.discount || 0}%):</span>
-                    <span className="font-semibold">-${totals.discountAmount.toLocaleString()}</span>
+                    <span className="font-semibold">-${Math.round(totals.discountAmount).toLocaleString()}</span>
                   </div>
                 )}
                 <div className={`flex justify-between border-t pt-3 text-xl font-bold ${
@@ -428,7 +427,7 @@ const QuotationModal = memo(({
                   'text-gray-700'
                 } ${darkMode ? 'dark:text-opacity-90' : ''}`}>
                   <span>TOTAL FINAL:</span>
-                  <span>${totals.total.toLocaleString()}</span>
+                  <span>${Math.round(totals.total).toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -451,9 +450,9 @@ const QuotationModal = memo(({
           </button>
           <button
             onClick={handleSave}
-            disabled={!formData?.clientName || !formData?.projectName}
+            disabled={!formData?.clientName || !formData?.items?.length}
             className={`px-6 py-2 text-white rounded-lg transition-colors ${
-              !formData?.clientName || !formData?.projectName
+              !formData?.clientName || !formData?.items?.length
                 ? 'bg-gray-400 cursor-not-allowed'
                 : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
             }`}
