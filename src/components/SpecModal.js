@@ -13,6 +13,8 @@ const SpecModal = memo(({
   const currentTheme = getThemeClasses(theme, darkMode);
   
   const [formData, setFormData] = useState({
+    brand: '',
+    model: '',
     type: '',
     maxPlatformHeight_m: '',
     workingHeight_m: '',
@@ -24,12 +26,15 @@ const SpecModal = memo(({
       length: '',
       width: '',
       stowedHeight: ''
-    }
+    },
+    others: ''
   });
 
   useEffect(() => {
     if (service && service.specs) {
       setFormData({
+        brand: service.specs.brand || '',
+        model: service.specs.model || '',
         type: service.specs.type || '',
         maxPlatformHeight_m: service.specs.maxPlatformHeight_m || '',
         workingHeight_m: service.specs.workingHeight_m || '',
@@ -41,10 +46,13 @@ const SpecModal = memo(({
           length: service.specs.dimensions_m?.length || '',
           width: service.specs.dimensions_m?.width || '',
           stowedHeight: service.specs.dimensions_m?.stowedHeight || ''
-        }
+        },
+        others: service.specs.others || ''
       });
     } else {
       setFormData({
+        brand: '',
+        model: '',
         type: '',
         maxPlatformHeight_m: '',
         workingHeight_m: '',
@@ -56,7 +64,8 @@ const SpecModal = memo(({
           length: '',
           width: '',
           stowedHeight: ''
-        }
+        },
+        others: ''
       });
     }
   }, [service]);
@@ -110,6 +119,44 @@ const SpecModal = memo(({
         <div className="p-6 space-y-6">
           {/* Grid de campos técnicos */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                Marca
+              </label>
+              <input
+                type="text"
+                value={formData.brand}
+                onChange={(e) => handleInputChange('brand', e.target.value)}
+                placeholder="Ej: JLG, Genie, Skyjack"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${
+                darkMode ? 'text-gray-300' : 'text-gray-700'
+              }`}>
+                Modelo
+              </label>
+              <input
+                type="text"
+                value={formData.model}
+                onChange={(e) => handleInputChange('model', e.target.value)}
+                placeholder="Ej: 2630ES, GS-2632"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
+
             <div>
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
@@ -299,6 +346,26 @@ const SpecModal = memo(({
                 }`}
               />
             </div>
+          </div>
+
+          {/* Otros datos */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${
+              darkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Otros datos
+            </label>
+            <textarea
+              value={formData.others}
+              onChange={(e) => handleInputChange('others', e.target.value)}
+              placeholder="Información adicional, características especiales, accesorios, etc."
+              rows={3}
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                darkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                  : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+              }`}
+            />
           </div>
         </div>
 

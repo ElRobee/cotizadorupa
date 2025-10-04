@@ -14,10 +14,15 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
     // Buscar el servicio por nombre en lugar de serviceId
     const serviceDetails = allServices.find(s => s.name === item.service);
     return serviceDetails;
-  }).filter(Boolean); // Filtra los servicios que no se encuentren
+  }).filter(Boolean) // Filtra los servicios que no se encuentren
+    .filter(service => {
+      // Filtrar solo servicios de categorías específicas
+      const allowedCategories = ['Elevadores', 'Maquinarias', 'Transporte'];
+      return service.category && allowedCategories.includes(service.category);
+    });
 
   if (servicesInQuotation.length === 0) {
-    alert('Esta cotización no contiene servicios válidos para generar un informe técnico.');
+    alert('Esta cotización no contiene servicios de las categorías Elevadores, Maquinarias o Transporte para generar un informe técnico.');
     return false;
   }
 
@@ -27,7 +32,7 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
   );
 
   if (servicesWithSpecs.length === 0) {
-    const proceed = confirm('Ningún servicio en esta cotización tiene especificaciones técnicas detalladas. ¿Deseas generar el informe de todas formas?');
+    const proceed = confirm(`Ningún servicio de las categorías Elevadores, Maquinarias o Transporte en esta cotización tiene especificaciones técnicas detalladas. ¿Deseas generar el informe de todas formas?\n\nServicios encontrados: ${servicesInQuotation.length}`);
     if (!proceed) return false;
   }
 
@@ -72,6 +77,8 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
           <!-- Especificaciones técnicas -->
           <h4 style="color: #333; margin-bottom: 10px;">Especificaciones Técnicas:</h4>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+            ${service.specs.brand ? `<div><strong>Marca:</strong> ${service.specs.brand}</div>` : ''}
+            ${service.specs.model ? `<div><strong>Modelo:</strong> ${service.specs.model}</div>` : ''}
             ${service.specs.type ? `<div><strong>Tipo:</strong> ${service.specs.type}</div>` : ''}
             ${service.specs.maxPlatformHeight_m ? `<div><strong>Altura de Plataforma:</strong> ${service.specs.maxPlatformHeight_m} metros</div>` : ''}
             ${service.specs.workingHeight_m ? `<div><strong>Altura de Trabajo:</strong> ${service.specs.workingHeight_m} metros</div>` : ''}
@@ -83,6 +90,14 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
               `<div><strong>Dimensiones:</strong> ${service.specs.dimensions_m.length || 0}m x ${service.specs.dimensions_m.width || 0}m x ${service.specs.dimensions_m.stowedHeight || 0}m</div>` : 
               ''}
           </div>
+          ${service.specs.others ? `
+          <div style="margin-top: 10px;">
+            <h5 style="color: #333; margin-bottom: 5px;">Información Adicional:</h5>
+            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 3px solid #007bff;">
+              ${service.specs.others}
+            </div>
+          </div>
+          ` : ''}
           ` : `
           <div style="padding: 15px; text-align: center; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
             <p style="margin: 0;">
