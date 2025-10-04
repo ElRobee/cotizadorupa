@@ -20,11 +20,11 @@ import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
 import { useCompany } from '../hooks/useCompany';
 import { generateTechnicalReportPDF } from '../utils/InformePDF';
+import { sendViaEmail } from '../utils/sendViaEmail';
 
 const QuotationsView = ({
   startEdit,
   sendViaWhatsApp,
-  sendViaEmail,
   exportToPDF,
   setModalType,
   setShowModal,
@@ -57,9 +57,11 @@ const QuotationsView = ({
   };
 
   // Función para cambiar estado de cotización
-  const handleStatusClick = async (quotationId, newStatus) => {
+  const handleStatusClick = async (quotation) => {
     try {
-      await updateQuotation(quotationId, { status: newStatus });
+      // Alternar entre Pendiente y Facturada
+      const newStatus = quotation.status === 'Pendiente' ? 'Facturada' : 'Pendiente';
+      await updateQuotation(quotation.id, { status: newStatus });
     } catch (error) {
       console.error("Error al cambiar estado:", error);
       alert("Error al cambiar el estado de la cotización");
@@ -271,7 +273,7 @@ const QuotationsView = ({
                         <MessageCircle className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => sendViaEmail(quotation, data)}
+                        onClick={() => sendViaEmail(quotation, { clients, company }, null)}
                         className={`p-1 text-blue-600 hover:text-blue-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-blue-100 hover:bg-opacity-20' : 'hover:bg-blue-100'
                         }`}
@@ -397,7 +399,7 @@ const QuotationsView = ({
                 {/* Segunda fila: Email, PDF, Informe, Eliminar */}
                 <div className="grid grid-cols-4 gap-2">
                   <button
-                    onClick={() => sendViaEmail(quotation, data)}
+                    onClick={() => sendViaEmail(quotation, { clients, company }, null)}
                     className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
                       darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-100 hover:bg-blue-200'
                     }`}

@@ -59,8 +59,8 @@ export const generateQuotationPDF = async (quotation, company, client) => {
             <tr>
               <td style="border: 1px solid #ddd; padding: 8px;">${item.quantity}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">${item.service}</td>
-              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${item.unitPrice.toLocaleString()}</td>
-              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${item.total.toLocaleString()}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${Math.round(item.unitPrice || 0).toLocaleString()}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${Math.round(item.total || 0).toLocaleString()}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -79,20 +79,20 @@ export const generateQuotationPDF = async (quotation, company, client) => {
             <span>Subtotal:</span>
             <span>$${totals.subtotal.toLocaleString()}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: red;">
+                      <span>$${Math.round(totals.subtotal || 0).toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
             <span>IVA (19%):</span>
-            <span>$${totals.iva.toLocaleString()}</span>
+            <span>$${Math.round(totals.iva || 0).toLocaleString()}</span>
           </div>
           ${totals.discountAmount > 0 ? `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: red;">
-              <span>Descuento (${quotation.discount}%):</span>
-              <span>-$${totals.discountAmount.toLocaleString()}</span>
-            </div>
-          ` : ''}
-          <div style="display: flex; justify-content: space-between; border-top: 2px solid #333; padding-top: 8px; font-weight: bold; font-size: 18px;">
-            <span>TOTAL FINAL:</span>
-            <span>$${totals.total.toLocaleString()}</span>
-          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #dc2626;">
+            <span>Descuento:</span>
+              <span>-$${Math.round(totals.discountAmount || 0).toLocaleString()}</span>
+          </div>` : ''}
+          <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; border-top: 2px solid #333; padding-top: 10px;">
+            <span>TOTAL:</span>
+            <span>$${Math.round(totals.total || 0).toLocaleString()}</span>
         </div>
       </div>
 

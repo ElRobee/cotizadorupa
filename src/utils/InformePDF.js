@@ -1,7 +1,7 @@
 export const generateTechnicalReportPDF = async (quotation, allServices, company) => {
   const servicesInQuotation = quotation.items.map(item => {
-    // Asumiendo que el item en la cotización tiene un serviceId
-    const serviceDetails = allServices.find(s => s.id === item.serviceId);
+    // Buscar el servicio por nombre en lugar de serviceId
+    const serviceDetails = allServices.find(s => s.name === item.service);
     return serviceDetails;
   }).filter(Boolean); // Filtra los servicios que no se encuentren
 
@@ -27,26 +27,36 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
 
       <div style="text-align: center; margin-bottom: 30px;">
         <h2 style="color: #333;">INFORME TÉCNICO DE SERVICIOS</h2>
-        <p><strong>Cotización N°:</strong> ${quotation.number} | <strong>Cliente:</strong> ${quotation.client}</p>
+        <p><strong>Cotización N°:</strong> ${quotation.number} | <strong>Cliente:</strong> ${quotation.client || quotation.clientName}</p>
       </div>
 
       ${servicesInQuotation.map(service => `
         <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
           <h3 style="color: #0056b3; border-bottom: 1px solid #0056b3; padding-bottom: 10px; margin-top: 0;">${service.name}</h3>
           
+          ${service.technicalInfo ? `
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
-            <div><strong>Marca:</strong> ${service.technicalInfo.brand}</div>
-            <div><strong>Altura Máxima:</strong> ${service.technicalInfo.maxHeight}</div>
-            <div><strong>Alcance Vertical:</strong> ${service.technicalInfo.verticalReach}</div>
-            <div><strong>Capacidad de Carga:</strong> ${service.technicalInfo.loadCapacity}</div>
-            <div><strong>Tipo de Motor:</strong> ${service.technicalInfo.engineType}</div>
-            <div><strong>Dimensiones:</strong> ${service.technicalInfo.dimensions}</div>
+            <div><strong>Marca:</strong> ${service.technicalInfo.brand || 'No especificado'}</div>
+            <div><strong>Altura Máxima:</strong> ${service.technicalInfo.maxHeight || 'No especificado'}</div>
+            <div><strong>Alcance Vertical:</strong> ${service.technicalInfo.verticalReach || 'No especificado'}</div>
+            <div><strong>Capacidad de Carga:</strong> ${service.technicalInfo.loadCapacity || 'No especificado'}</div>
+            <div><strong>Tipo de Motor:</strong> ${service.technicalInfo.engineType || 'No especificado'}</div>
+            <div><strong>Dimensiones:</strong> ${service.technicalInfo.dimensions || 'No especificado'}</div>
           </div>
           
           <div style="border-top: 1px solid #eee; padding-top: 15px;">
             <p style="margin: 0; font-weight: bold; color: #333;">Funcionalidad:</p>
-            <p style="margin: 5px 0 0 0; color: #555;">${service.technicalInfo.functionality}</p>
+            <p style="margin: 5px 0 0 0; color: #555;">${service.technicalInfo.functionality || 'No especificado'}</p>
           </div>
+          ` : `
+          <div style="padding: 20px; text-align: center; background-color: #f9f9f9; border-radius: 5px;">
+            <p style="margin: 0; color: #666;">
+              <strong>Información técnica no disponible para este servicio.</strong><br>
+              Precio: $${Math.round(service.price || 0).toLocaleString()}<br>
+              Categoría: ${service.category || 'No especificado'}
+            </p>
+          </div>
+          `}
         </div>
       `).join('')}
 

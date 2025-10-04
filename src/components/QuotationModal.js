@@ -123,9 +123,20 @@ const QuotationModal = memo(({
       // Calcular totales antes de guardar
       const totals = calculateQuotationTotals(formData.items, formData.discount);
       
+      // Generar número de cotización si es nueva
+      const quotationNumber = isEditing && formData.number ? formData.number : `COT-${Date.now()}`;
+      
+      // Calcular fecha válida hasta (30 días desde hoy)
+      const validUntilDate = new Date();
+      validUntilDate.setDate(validUntilDate.getDate() + 30);
+      
       // Crear objeto de cotización con todos los datos necesarios
       const quotationToSave = {
         ...formData,
+        // Generar número de cotización
+        number: quotationNumber,
+        // Calcular fecha válida hasta
+        validUntil: validUntilDate.toISOString().split('T')[0],
         // Mapear clientName a client para compatibilidad con QuotationsView
         client: formData.clientName,
         // Agregar totales calculados

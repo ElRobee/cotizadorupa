@@ -1231,7 +1231,6 @@ return (
               <QuotationsView
                 startEdit={startEdit}
                 sendViaWhatsApp={sendViaWhatsApp}
-                sendViaEmail={sendViaEmail}
                 exportToPDF={exportToPDF}
                 setModalType={setModalType}
                 setShowModal={setShowModal}
