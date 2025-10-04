@@ -705,7 +705,8 @@ const showNotification = (message, type = 'success') => {
       return;
     }
 
-    const client = clients.find(c => c.empresa === quotation.client);
+    const clientName = quotation.client || quotation.clientName;
+    const client = clients.find(c => c.empresa === clientName);
     const totals = calculateQuotationTotals(quotation.items, quotation.discount);
 
     const message = `
@@ -713,21 +714,21 @@ const showNotification = (message, type = 'success') => {
 ▪▪▪▪▪▪▪▪▪▪▪▪▪
 📅 *Fecha:* ${quotation.date}
 ⏰ *Válida hasta:* ${quotation.validUntil}
-🏢 *Cliente:* ${quotation.client}
-💰 *Total:* $${totals.total.toLocaleString()}
+🏢 *Cliente:* ${clientName}
+💰 *Total:* $${Math.round(totals.total).toLocaleString()}
 📊 *Estado:* ${quotation.status}
 🎯 *Prioridad:* ${quotation.priority}
 
 *🛠️ SERVICIOS:*
 ${quotation.items.map(item =>
-  `• ${item.quantity}x ${item.service}\n  💵 $${item.total.toLocaleString()}`
+  `• ${item.quantity}x ${item.service}\n  💵 $${Math.round(item.total || 0).toLocaleString()}`
 ).join('\n')}
 
 *💳 RESUMEN FINANCIERO:*
-• Subtotal: $${totals.subtotal.toLocaleString()}
-• IVA (19%): $${totals.iva.toLocaleString()}
-${totals.discountAmount > 0 ? `• Descuento: -$${totals.discountAmount.toLocaleString()}` : ''}
-• *TOTAL: $${totals.total.toLocaleString()}*
+• Subtotal: $${Math.round(totals.subtotal).toLocaleString()}
+• IVA (19%): $${Math.round(totals.iva).toLocaleString()}
+${totals.discountAmount > 0 ? `• Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}` : ''}
+• *TOTAL: $${Math.round(totals.total).toLocaleString()}*
 
 ▪▪▪▪▪▪▪▪▪▪▪▪▪
 🏢 *${company?.razonSocial || 'Mi Empresa'}*
@@ -781,7 +782,8 @@ _"Documento válido sólo como Cotización"_
       return;
     }
 
-    const client = clients.find(c => c.empresa === quotation.client);
+    const clientName = quotation.client || quotation.clientName;
+    const client = clients.find(c => c.empresa === clientName);
 
     try {
       await generateQuotationPDF(quotation, company, client);
@@ -1041,7 +1043,7 @@ const DashboardView = () => {
                   theme === 'red' ? 'text-red-600' :
                   'text-gray-600'
                 }`}>
-                  ${stats.totalRevenue.toLocaleString()}
+                  ${Math.round(stats.totalRevenue || 0).toLocaleString()}
                 </p>
               </div>
               <DollarSign className={`w-12 h-12 opacity-20 ${
@@ -1071,12 +1073,12 @@ const DashboardView = () => {
                     {quotation.number}
                   </p>
                   <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    {quotation.client}
+                    {quotation.client || quotation.clientName}
                   </p>
                 </div>
                 <div className="text-right">
                   <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ${quotation.total.toLocaleString()}
+                    ${(quotation.total || 0).toLocaleString()}
                   </p>
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                     quotation.status === 'Pendiente' ? 'bg-orange-100 text-orange-800' :
