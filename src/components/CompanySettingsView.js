@@ -53,8 +53,6 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
     return null;
   });
   const [isSaving, setIsSaving] = useState(false);
-  const [editingUsername, setEditingUsername] = useState(userProfile?.username || currentUser?.displayName || '');
-  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [showCreateUserModal, setShowCreateUserModal] = useState(false);
   const [newUserForm, setNewUserForm] = useState({
     email: '',
@@ -93,13 +91,6 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       });
     }
     }, [company, theme, setTheme, darkMode, setDarkMode, loading]);
-
-  // Sincronizar username cuando cambie userProfile
-  useEffect(() => {
-    if (userProfile?.username) {
-      setEditingUsername(userProfile.username);
-    }
-  }, [userProfile]);
 
   // Cargar lista de usuarios
   const loadUsers = async () => {
@@ -183,25 +174,6 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       alert("Error al guardar configuración ❌");
     } finally {
       setIsSaving(false);
-    }
-  };
-
-  // Actualizar perfil del usuario
-  const handleUpdateProfile = async () => {
-    if (!updateUserProfile) {
-      alert("Error: Función de actualización no disponible");
-      return;
-    }
-    
-    setIsUpdatingProfile(true);
-    try {
-      await updateUserProfile({ username: editingUsername });
-      alert("Perfil actualizado correctamente ✅");
-    } catch (error) {
-      console.error("Error al actualizar perfil:", error);
-      alert("Error al actualizar perfil ❌");
-    } finally {
-      setIsUpdatingProfile(false);
     }
   };
 
@@ -830,45 +802,6 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
                   {darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
                 </span>
               </button>
-            </div>
-
-            {/* Separador */}
-            <div className={`border-t ${darkMode ? 'border-gray-600' : 'border-gray-200'} my-4`}></div>
-
-            {/* Editar Perfil */}
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Nombre de Usuario
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={editingUsername}
-                  onChange={(e) => setEditingUsername(e.target.value)}
-                  className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all ${
-                    darkMode
-                      ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:border-gray-500'
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:border-gray-400'
-                  }`}
-                  placeholder="Tu nombre para cotizaciones"
-                />
-                <button
-                  onClick={handleUpdateProfile}
-                  disabled={isUpdatingProfile || editingUsername === userProfile?.username}
-                  className={`px-4 py-2 text-white rounded-lg transition-colors ${
-                    editingUsername === userProfile?.username
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
-                  } ${
-                    isUpdatingProfile ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {isUpdatingProfile ? 'Guardando...' : 'Actualizar'}
-                </button>
-              </div>
-              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Este nombre aparecerá en las cotizaciones y emails que generes
-              </p>
             </div>
           </div>
         </div>
