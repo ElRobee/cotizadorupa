@@ -57,6 +57,8 @@ import ServiceModal from './components/ServiceModal';
 import AuthView from './components/AuthView';
 import MobileNav from './components/layout/MobileNav';
 import CompanySettingsView from './components/CompanySettingsView';
+import MaintenanceView from './components/MaintenanceView';
+import MaintenanceModal from './components/MaintenanceModal';
 import { 
   handleThemeChange, 
   toggleDarkMode, 
@@ -180,6 +182,7 @@ const CotizacionesApp = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedEquipment, setSelectedEquipment] = useState(null);
 
   // FUNCIONES DE BÚSQUEDA CON USECALLBACK PARA EVITAR PÉRDIDA DE FOCO
   const handleSearchChange = useCallback((e) => {
@@ -959,6 +962,19 @@ const Sidebar = () => {
             <Building2 className="w-5 h-5" />
             <span>Empresa</span>
           </button>
+
+          {/* Mantenimiento */}
+          <button
+            onClick={() => setCurrentView('maintenance')}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+              currentView === 'maintenance' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
+            }`}
+          >
+            <Settings className="w-5 h-5" />
+            <span>Mantenimiento</span>
+          </button>
         </div>
       </nav>
 
@@ -1300,6 +1316,19 @@ return (
                 </div>
               </div>
             )}
+
+            {/* Vista de Mantenimiento */}
+            {currentView === 'maintenance' && (
+              <MaintenanceView
+                setModalType={setModalType}
+                setShowModal={setShowModal}
+                setSelectedEquipment={setSelectedEquipment}
+                theme={theme}
+                darkMode={darkMode}
+                currentUser={currentUser}
+                userProfile={userProfile}
+              />
+            )}
           </div>
         </div>
         <MobileNav 
@@ -1345,6 +1374,20 @@ return (
           onCancel={cancelEdit}
           theme={theme}
           darkMode={darkMode}
+        />
+      )}
+
+      {/* Modal de Mantenimiento */}
+      {showModal && (modalType === 'maintenance' || modalType === 'maintenance-record') && (
+        <MaintenanceModal
+          showModal={showModal}
+          setShowModal={setShowModal}
+          modalType={modalType}
+          theme={theme}
+          darkMode={darkMode}
+          selectedEquipment={selectedEquipment}
+          currentUser={currentUser}
+          userProfile={userProfile}
         />
       )}
 
