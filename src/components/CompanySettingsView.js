@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useCompany } from "../hooks/useCompany";
 import { handleThemeChange, toggleDarkMode, getThemeClasses } from "../lib/utils";
 import { uploadCompanyLogo, removeCompanyLogo } from "../lib/logoService";
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth, db } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 import { 
   Save, 
@@ -18,7 +21,10 @@ import {
   Image,
   Shield,
   Lock,
-  User
+  User,
+  UserPlus,
+  Users,
+  X
 } from "lucide-react";
 
 const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUser, userRole, userProfile, updateUserProfile, canEditCompany }) => {
@@ -47,6 +53,14 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
   const [isSaving, setIsSaving] = useState(false);
   const [editingUsername, setEditingUsername] = useState(userProfile?.username || currentUser?.displayName || '');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [showCreateUserModal, setShowCreateUserModal] = useState(false);
+  const [newUserForm, setNewUserForm] = useState({
+    email: '',
+    password: '',
+    role: 'user',
+    username: ''
+  });
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   // Cargar datos iniciales cuando vienen de Firestore
   useEffect(() => {
@@ -159,6 +173,50 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
     }
   };
 
+  // Crear nuevo usuario (solo administradores)
+  const handleCreateUser = async () => {
+    if (!userCanEdit) {
+      alert("Solo los administradores pueden crear usuarios");
+      return;
+    }
+
+    setIsCreatingUser(true);
+    try {
+      // Crear usuario en Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, newUserForm.email, newUserForm.password);
+      const newUser = userCredential.user;
+
+      // Generar username a partir del email si no se proporcionó
+      const username = newUserForm.username || newUserForm.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+      // Guardar datos del usuario en Firestore
+      await setDoc(doc(db, 'users', newUser.uid), {
+        role: newUserForm.role,
+        username: username,
+        email: newUserForm.email,
+        createdAt: new Date().toISOString(),
+        createdBy: currentUser.uid
+      });
+
+      alert(`Usuario ${newUserForm.email} creado correctamente ✅`);
+      
+      // Resetear formulario
+      setNewUserForm({
+        email: '',
+        password: '',
+        role: 'user',
+        username: ''
+      });
+      setShowCreateUserModal(false);
+      
+    } catch (error) {
+      console.error("Error al crear usuario:", error);
+      alert(`Error al crear usuario: ${error.message}`);
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
+
   // Asegurar que siempre tengamos editingCompany
   if (!editingCompany) {
     setEditingCompany({
@@ -210,6 +268,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
   };
 
   return (
+    <>
     <div className={`flex-1 p-4 md:p-8 ${darkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 space-y-4 md:space-y-0">
@@ -259,7 +318,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
       )}
 
       {/* CONTENIDO PRINCIPAL */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
         
         {/* CARD: INFORMACIÓN BÁSICA */}
         <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
@@ -478,6 +537,41 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
           </div>
         </div>
 
+        {/* CARD: GESTIÓN DE USUARIOS - Solo para administradores */}
+        <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
+          <div className="flex items-center space-x-3 mb-6">
+            <Users className={`w-6 h-6 ${currentTheme.primary}`} />
+            <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              Gestión de Usuarios
+            </h3>
+            {!userCanEdit && (
+              <Lock className={`w-4 h-4 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+            )}
+          </div>
+
+          {userCanEdit ? (
+            <div className="space-y-4">
+              <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Crea nuevos usuarios para acceder al sistema
+              </p>
+              
+              <button
+                onClick={() => setShowCreateUserModal(true)}
+                className={`w-full flex items-center justify-center space-x-2 px-4 py-3 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+              >
+                <UserPlus className="w-5 h-5" />
+                <span>Crear Nuevo Usuario</span>
+              </button>
+            </div>
+          ) : (
+            <div className={`p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+              <p className={`text-sm text-center ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Solo los administradores pueden gestionar usuarios
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* CARD: PERSONALIZACIÓN - Disponible para todos los usuarios */}
         <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
           <div className="flex items-center space-x-3 mb-6">
@@ -575,6 +669,132 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
         </div>
       </div>
     </div>
+
+    {/* MODAL: CREAR USUARIO */}
+    {showCreateUserModal && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className={`w-full max-w-md mx-4 rounded-xl shadow-xl p-6 ${
+          darkMode ? 'bg-gray-800' : 'bg-white'
+        }`}>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              Crear Nuevo Usuario
+            </h3>
+            <button
+              onClick={() => setShowCreateUserModal(false)}
+              className={`p-1 rounded-lg transition-colors ${
+                darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+              }`}
+            >
+              <X className={`w-5 h-5 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Email */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Email
+              </label>
+              <input
+                type="email"
+                value={newUserForm.email}
+                onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})}
+                className={`w-full px-3 py-2 rounded-lg border-2 transition-all ${
+                  darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                }`}
+                placeholder="usuario@ejemplo.com"
+                required
+              />
+            </div>
+
+            {/* Contraseña */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Contraseña
+              </label>
+              <input
+                type="password"
+                value={newUserForm.password}
+                onChange={(e) => setNewUserForm({...newUserForm, password: e.target.value})}
+                className={`w-full px-3 py-2 rounded-lg border-2 transition-all ${
+                  darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                }`}
+                placeholder="Mínimo 6 caracteres"
+                required
+              />
+            </div>
+
+            {/* Nombre de usuario */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Nombre de Usuario (opcional)
+              </label>
+              <input
+                type="text"
+                value={newUserForm.username}
+                onChange={(e) => setNewUserForm({...newUserForm, username: e.target.value})}
+                className={`w-full px-3 py-2 rounded-lg border-2 transition-all ${
+                  darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                }`}
+                placeholder="Se generará automáticamente si no se especifica"
+              />
+            </div>
+
+            {/* Rol */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Rol
+              </label>
+              <select
+                value={newUserForm.role}
+                onChange={(e) => setNewUserForm({...newUserForm, role: e.target.value})}
+                className={`w-full px-3 py-2 rounded-lg border-2 transition-all ${
+                  darkMode
+                    ? 'bg-gray-700 border-gray-600 text-white focus:border-blue-500'
+                    : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
+                }`}
+              >
+                <option value="user">Usuario</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Botones */}
+          <div className="flex space-x-3 mt-6">
+            <button
+              onClick={() => setShowCreateUserModal(false)}
+              className={`flex-1 px-4 py-2 border rounded-lg transition-colors ${
+                darkMode 
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreateUser}
+              disabled={isCreatingUser || !newUserForm.email || !newUserForm.password}
+              className={`flex-1 px-4 py-2 text-white rounded-lg transition-colors ${
+                isCreatingUser || !newUserForm.email || !newUserForm.password
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
+              }`}
+            >
+              {isCreatingUser ? 'Creando...' : 'Crear Usuario'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
   );
 };
 

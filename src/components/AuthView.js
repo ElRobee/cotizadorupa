@@ -100,18 +100,6 @@ const AuthView = memo(({
             {/* Enlaces de navegación */}
             <div className="text-center space-y-3 sm:space-y-2 pt-2">
               <button
-                onClick={() => onSwitchMode('register')}
-                className={`block w-full text-sm transition-colors py-2 rounded-md ${
-                  theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-50' :
-                  theme === 'green' ? 'text-green-600 hover:text-green-800 hover:bg-green-50' :
-                  theme === 'purple' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-50' :
-                  theme === 'red' ? 'text-red-600 hover:text-red-800 hover:bg-red-50' :
-                  'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-                } ${darkMode ? 'hover:bg-gray-700 hover:text-opacity-80' : ''}`}
-              >
-                ¿No tienes cuenta? Regístrate
-              </button>
-              <button
                 onClick={() => onSwitchMode('forgot')}
                 className={`block w-full text-sm transition-colors py-1 rounded-md ${
                   theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-50' :
@@ -200,20 +188,6 @@ const AuthView = memo(({
             >
               Registrarse
             </button>
-            <div className="text-center">
-              <button
-                onClick={() => onSwitchMode('login')}
-                className={`text-sm transition-colors ${
-                  theme === 'blue' ? 'text-blue-600 hover:text-blue-800' :
-                  theme === 'green' ? 'text-green-600 hover:text-green-800' :
-                  theme === 'purple' ? 'text-purple-600 hover:text-purple-800' :
-                  theme === 'red' ? 'text-red-600 hover:text-red-800' :
-                  'text-gray-600 hover:text-gray-800'
-                } ${darkMode ? 'hover:text-opacity-80' : ''}`}
-              >
-                ¿Ya tienes cuenta? Inicia sesión
-              </button>
-            </div>
           </div>
         )}
 
