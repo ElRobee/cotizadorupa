@@ -22,7 +22,7 @@ const AuthView = memo(({
   const currentTheme = getThemeClasses(theme, darkMode);
 
   return (
-    <div className={`min-h-screen flex items-center justify-center p-4 ${
+    <div className={`min-h-screen flex items-center justify-center px-4 py-6 sm:px-6 lg:px-8 ${
       darkMode 
         ? 'bg-gradient-to-br from-gray-900 to-gray-800' 
         : `bg-gradient-to-br ${
@@ -33,19 +33,19 @@ const AuthView = memo(({
             'from-gray-50 to-slate-100'
           }`
     }`}>
-      <div className={`max-w-md w-full rounded-xl shadow-2xl p-8 ${
+      <div className={`w-full max-w-sm sm:max-w-md rounded-xl shadow-2xl p-6 sm:p-8 ${
         darkMode ? 'bg-gray-800' : 'bg-white'
       }`}>
         {/* HEADER */}
-        <div className="text-center mb-8">
-          <Building2 className={`w-16 h-16 mx-auto mb-4 ${
+        <div className="text-center mb-6 sm:mb-8">
+          <Building2 className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 ${
             theme === 'blue' ? 'text-blue-600' :
             theme === 'green' ? 'text-green-600' :
             theme === 'purple' ? 'text-purple-600' :
             theme === 'red' ? 'text-red-600' :
             'text-gray-600'
           }`} />
-          <h1 className={`text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          <h1 className={`text-2xl sm:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             CotizApp
           </h1>
           <p className={`mt-2 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -55,7 +55,7 @@ const AuthView = memo(({
 
         {/* MODO LOGIN */}
         {authMode === 'login' && (
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-6">
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Email
@@ -64,11 +64,11 @@ const AuthView = memo(({
                 type="email"
                 value={loginForm.email}
                 onChange={onEmailChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                className={`w-full px-3 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                } text-sm sm:text-base`}
                 placeholder="admin@empresa.com"
                 autoComplete="email"
               />
@@ -81,45 +81,45 @@ const AuthView = memo(({
                 type="password"
                 value={loginForm.password}
                 onChange={onPasswordChange}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                className={`w-full px-3 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                } text-sm sm:text-base`}
                 placeholder="123456"
                 autoComplete="current-password"
               />
             </div>
             <button
               onClick={onLogin}
-              className={`w-full text-white py-2 rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+              className={`w-full text-white py-2.5 sm:py-3 rounded-lg transition-colors font-medium ${currentTheme.buttonBg} ${currentTheme.buttonHover} text-sm sm:text-base`}
             >
               Iniciar Sesión
             </button>
             
             {/* Enlaces de navegación */}
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-3 sm:space-y-2 pt-2">
               <button
                 onClick={() => onSwitchMode('register')}
-                className={`block w-full text-sm transition-colors ${
-                  theme === 'blue' ? 'text-blue-600 hover:text-blue-800' :
-                  theme === 'green' ? 'text-green-600 hover:text-green-800' :
-                  theme === 'purple' ? 'text-purple-600 hover:text-purple-800' :
-                  theme === 'red' ? 'text-red-600 hover:text-red-800' :
-                  'text-gray-600 hover:text-gray-800'
-                } ${darkMode ? 'hover:text-opacity-80' : ''}`}
+                className={`block w-full text-sm transition-colors py-2 rounded-md ${
+                  theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-50' :
+                  theme === 'green' ? 'text-green-600 hover:text-green-800 hover:bg-green-50' :
+                  theme === 'purple' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-50' :
+                  theme === 'red' ? 'text-red-600 hover:text-red-800 hover:bg-red-50' :
+                  'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                } ${darkMode ? 'hover:bg-gray-700 hover:text-opacity-80' : ''}`}
               >
                 ¿No tienes cuenta? Regístrate
               </button>
               <button
                 onClick={() => onSwitchMode('forgot')}
-                className={`block w-full text-sm transition-colors ${
-                  theme === 'blue' ? 'text-blue-600 hover:text-blue-800' :
-                  theme === 'green' ? 'text-green-600 hover:text-green-800' :
-                  theme === 'purple' ? 'text-purple-600 hover:text-purple-800' :
-                  theme === 'red' ? 'text-red-600 hover:text-red-800' :
-                  'text-gray-600 hover:text-gray-800'
-                } ${darkMode ? 'hover:text-opacity-80' : ''}`}
+                className={`block w-full text-sm transition-colors py-1 rounded-md ${
+                  theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-50' :
+                  theme === 'green' ? 'text-green-600 hover:text-green-800 hover:bg-green-50' :
+                  theme === 'purple' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-50' :
+                  theme === 'red' ? 'text-red-600 hover:text-red-800 hover:bg-red-50' :
+                  'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                } ${darkMode ? 'hover:bg-gray-700 hover:text-opacity-80' : ''}`}
               >
                 ¿Olvidaste tu contraseña?
               </button>
@@ -129,7 +129,7 @@ const AuthView = memo(({
 
         {/* MODO REGISTRO */}
         {authMode === 'register' && (
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-6">
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 Nombre
@@ -138,11 +138,11 @@ const AuthView = memo(({
                 type="text"
                 value={registerForm.name}
                 onChange={(e) => onRegisterFieldChange('name', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                className={`w-full px-3 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                } text-sm sm:text-base`}
                 placeholder="Tu nombre completo"
               />
             </div>
@@ -154,11 +154,11 @@ const AuthView = memo(({
                 type="email"
                 value={registerForm.email}
                 onChange={(e) => onRegisterFieldChange('email', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                className={`w-full px-3 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                } text-sm sm:text-base`}
                 placeholder="tu@email.com"
               />
             </div>
@@ -170,11 +170,11 @@ const AuthView = memo(({
                 type="password"
                 value={registerForm.password}
                 onChange={(e) => onRegisterFieldChange('password', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                className={`w-full px-3 py-2.5 sm:py-3 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                     : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                } text-sm sm:text-base`}
                 placeholder="Contraseña"
               />
             </div>

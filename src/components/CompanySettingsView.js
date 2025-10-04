@@ -51,6 +51,22 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
     }
   }, [company, setTheme, setDarkMode, loading, theme, darkMode]);
 
+  // Asegurar que editingCompany esté inicializado para todos los usuarios
+  useEffect(() => {
+    if (!editingCompany && !loading) {
+      setEditingCompany({
+        razonSocial: company?.razonSocial || '',
+        rut: company?.rut || '',
+        direccion: company?.direccion || '',
+        telefono: company?.telefono || '',
+        email: company?.email || '',
+        logo: company?.logo || '',
+        theme: theme,
+        darkMode: darkMode
+      });
+    }
+  }, [editingCompany, loading, company, theme, darkMode]);
+
   if (loading) {
     return (
       <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
