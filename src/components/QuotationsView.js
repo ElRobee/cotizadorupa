@@ -107,8 +107,13 @@ const QuotationsView = ({
     setSearchTerm('');
   };
 
-  const handleDownloadTechnicalReport = (quotation) => {
-    generateTechnicalReportPDF(quotation, services || []);
+  const handleDownloadTechnicalReport = async (quotation) => {
+    try {
+      await generateTechnicalReportPDF(quotation, services || [], company);
+    } catch (error) {
+      console.error('Error al generar informe técnico:', error);
+      alert('Error al generar el informe técnico. Inténtalo nuevamente.');
+    }
   };
 
   if (loading) {

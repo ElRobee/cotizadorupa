@@ -1,4 +1,15 @@
 export const generateTechnicalReportPDF = async (quotation, allServices, company) => {
+  // Validar que tengamos los datos necesarios
+  if (!quotation || !quotation.items || quotation.items.length === 0) {
+    alert('La cotización no contiene servicios.');
+    return false;
+  }
+
+  if (!allServices || allServices.length === 0) {
+    alert('No se pudieron cargar los servicios.');
+    return false;
+  }
+
   const servicesInQuotation = quotation.items.map(item => {
     // Buscar el servicio por nombre en lugar de serviceId
     const serviceDetails = allServices.find(s => s.name === item.service);
@@ -8,6 +19,16 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
   if (servicesInQuotation.length === 0) {
     alert('Esta cotización no contiene servicios válidos para generar un informe técnico.');
     return false;
+  }
+
+  // Verificar si al menos un servicio tiene especificaciones
+  const servicesWithSpecs = servicesInQuotation.filter(service => 
+    service.specs && Object.keys(service.specs).some(key => service.specs[key])
+  );
+
+  if (servicesWithSpecs.length === 0) {
+    const proceed = confirm('Ningún servicio en esta cotización tiene especificaciones técnicas detalladas. ¿Deseas generar el informe de todas formas?');
+    if (!proceed) return false;
   }
 
   const htmlContent = `
@@ -28,36 +49,49 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       <div style="text-align: center; margin-bottom: 30px;">
         <h2 style="color: #333;">INFORME TÉCNICO DE SERVICIOS</h2>
         <p><strong>Cotización N°:</strong> ${quotation.number} | <strong>Cliente:</strong> ${quotation.client || quotation.clientName}</p>
+        <p><strong>Fecha:</strong> ${quotation.date} | <strong>Estado:</strong> ${quotation.status}</p>
+        <p><strong>Total de Servicios:</strong> ${servicesInQuotation.length}</p>
       </div>
 
-      ${servicesInQuotation.map(service => `
-        <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
-          <h3 style="color: #0056b3; border-bottom: 1px solid #0056b3; padding-bottom: 10px; margin-top: 0;">${service.name}</h3>
+      ${servicesInQuotation.map((service, index) => `
+        <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; page-break-inside: avoid;">
+          <h3 style="color: #0056b3; border-bottom: 1px solid #0056b3; padding-bottom: 10px; margin-top: 0;">
+            ${index + 1}. ${service.name}
+          </h3>
           
-          ${service.specs ? `
+          <!-- Información básica del servicio -->
+          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+              <div><strong>Categoría:</strong> ${service.category || 'No especificado'}</div>
+              <div><strong>Precio:</strong> $${Math.round(service.price || 0).toLocaleString()}</div>
+              <div><strong>Estado:</strong> ${service.active ? 'Activo' : 'Inactivo'}</div>
+            </div>
+          </div>
+          
+          ${service.specs && Object.keys(service.specs).some(key => service.specs[key]) ? `
+          <!-- Especificaciones técnicas -->
+          <h4 style="color: #333; margin-bottom: 10px;">Especificaciones Técnicas:</h4>
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
-            <div><strong>Tipo:</strong> ${service.specs.type || 'No especificado'}</div>
-            <div><strong>Altura de Plataforma:</strong> ${service.specs.maxPlatformHeight_m ? service.specs.maxPlatformHeight_m + ' metros' : 'No especificado'}</div>
-            <div><strong>Altura de Trabajo:</strong> ${service.specs.workingHeight_m ? service.specs.workingHeight_m + ' metros' : 'No especificado'}</div>
-            <div><strong>Capacidad de Carga:</strong> ${service.specs.capacity_kg ? service.specs.capacity_kg + ' kg' : 'No especificado'}</div>
-            <div><strong>Tipo de Motor:</strong> ${service.specs.power || 'No especificado'}</div>
-            <div><strong>Peso:</strong> ${service.specs.weight_kg ? service.specs.weight_kg + ' kg' : 'No especificado'}</div>
-            <div><strong>Tipo de Tracción:</strong> ${service.specs.driveType || 'No especificado'}</div>
-            <div><strong>Dimensiones:</strong> ${service.specs.dimensions_m ? 
-              `${service.specs.dimensions_m.length || 0}m x ${service.specs.dimensions_m.width || 0}m x ${service.specs.dimensions_m.stowedHeight || 0}m` : 
-              'No especificado'}</div>
+            ${service.specs.type ? `<div><strong>Tipo:</strong> ${service.specs.type}</div>` : ''}
+            ${service.specs.maxPlatformHeight_m ? `<div><strong>Altura de Plataforma:</strong> ${service.specs.maxPlatformHeight_m} metros</div>` : ''}
+            ${service.specs.workingHeight_m ? `<div><strong>Altura de Trabajo:</strong> ${service.specs.workingHeight_m} metros</div>` : ''}
+            ${service.specs.capacity_kg ? `<div><strong>Capacidad de Carga:</strong> ${service.specs.capacity_kg} kg</div>` : ''}
+            ${service.specs.power ? `<div><strong>Tipo de Motor:</strong> ${service.specs.power}</div>` : ''}
+            ${service.specs.weight_kg ? `<div><strong>Peso del Equipo:</strong> ${service.specs.weight_kg} kg</div>` : ''}
+            ${service.specs.driveType ? `<div><strong>Tipo de Tracción:</strong> ${service.specs.driveType}</div>` : ''}
+            ${service.specs.dimensions_m && (service.specs.dimensions_m.length || service.specs.dimensions_m.width || service.specs.dimensions_m.stowedHeight) ? 
+              `<div><strong>Dimensiones:</strong> ${service.specs.dimensions_m.length || 0}m x ${service.specs.dimensions_m.width || 0}m x ${service.specs.dimensions_m.stowedHeight || 0}m</div>` : 
+              ''}
           </div>
           ` : `
-          <div style="padding: 20px; text-align: center; background-color: #f9f9f9; border-radius: 5px;">
-            <p style="margin: 0; color: #666;">
-              <strong>Información técnica no disponible para este servicio.</strong><br>
-              Precio: $${Math.round(service.price || 0).toLocaleString()}<br>
-              Categoría: ${service.category || 'No especificado'}
+          <div style="padding: 15px; text-align: center; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
+            <p style="margin: 0;">
+              <strong>⚠️ Especificaciones técnicas no disponibles</strong><br>
+              <small>Las especificaciones técnicas detalladas no están configuradas para este servicio.</small>
             </p>
           </div>
           `}
-        </div>
-      `).join('')}
+        </div>`).join('')}
 
       <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
         <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
