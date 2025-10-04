@@ -173,6 +173,19 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
     });
   }
 
+  // Mostrar loading si aún no tenemos datos iniciales
+  if (!editingCompany && loading) {
+    return (
+      <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="flex items-center justify-center py-20">
+          <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+            Cargando configuración...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // Subir logo
   const handleLogoUpload = async (e) => {
     const file = e.target.files[0];
@@ -268,7 +281,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
               </label>
               <input
                 type="text"
-                value={editingCompany.razonSocial || ""}
+                value={editingCompany?.razonSocial || ""}
                 onChange={(e) => userCanEdit && setEditingCompany({ ...editingCompany, razonSocial: e.target.value })}
                 disabled={!userCanEdit}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
@@ -291,7 +304,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
               </label>
               <input
                 type="text"
-                value={editingCompany.rut || ""}
+                value={editingCompany?.rut || ""}
                 onChange={(e) => userCanEdit && setEditingCompany({ ...editingCompany, rut: e.target.value })}
                 disabled={!userCanEdit}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
@@ -329,7 +342,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
               </label>
               <input
                 type="text"
-                value={editingCompany.telefono || ""}
+                value={editingCompany?.telefono || ""}
                 onChange={(e) => userCanEdit && setEditingCompany({ ...editingCompany, telefono: e.target.value })}
                 disabled={!userCanEdit}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
@@ -352,7 +365,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
               </label>
               <input
                 type="email"
-                value={editingCompany.email || ""}
+                value={editingCompany?.email || ""}
                 onChange={(e) => userCanEdit && setEditingCompany({ ...editingCompany, email: e.target.value })}
                 disabled={!userCanEdit}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
@@ -375,7 +388,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
               </label>
               <input
                 type="text"
-                value={editingCompany.direccion || ""}
+                value={editingCompany?.direccion || ""}
                 onChange={(e) => userCanEdit && setEditingCompany({ ...editingCompany, direccion: e.target.value })}
                 disabled={!userCanEdit}
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
@@ -407,7 +420,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
 
           <div className="space-y-4">
             {/* Vista previa del logo */}
-            {editingCompany.logo && (
+            {editingCompany?.logo && (
               <div className="flex justify-center">
                 <img
                   src={editingCompany.logo}
@@ -441,7 +454,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
                     />
                   </label>
                   
-                  {editingCompany.logo && (
+                  {editingCompany?.logo && (
                     <button
                       onClick={handleRemoveLogo}
                       className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -462,89 +475,6 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
                 </p>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* CARD: PERFIL PERSONAL - Disponible para todos los usuarios */}
-        <div className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-6`}>
-          <div className="flex items-center space-x-3 mb-6">
-            <User className={`w-6 h-6 ${currentTheme.primary}`} />
-            <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              Mi Perfil
-            </h3>
-          </div>
-
-          <div className="space-y-4">
-            {/* Información del usuario */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={currentUser?.email || ''}
-                  disabled
-                  className={`w-full px-3 py-2 border rounded-lg cursor-not-allowed opacity-60 ${
-                    darkMode 
-                      ? 'bg-gray-800/50 border-gray-600 text-gray-400' 
-                      : 'bg-gray-100 border-gray-300 text-gray-500'
-                  }`}
-                />
-              </div>
-
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Rol
-                </label>
-                <input
-                  type="text"
-                  value={userRole === 'admin' ? 'Administrador' : 'Usuario'}
-                  disabled
-                  className={`w-full px-3 py-2 border rounded-lg cursor-not-allowed opacity-60 ${
-                    darkMode 
-                      ? 'bg-gray-800/50 border-gray-600 text-gray-400' 
-                      : 'bg-gray-100 border-gray-300 text-gray-500'
-                  }`}
-                />
-              </div>
-            </div>
-
-            {/* Nombre de usuario editable */}
-            <div>
-              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                Nombre de Usuario
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={editingUsername}
-                  onChange={(e) => setEditingUsername(e.target.value)}
-                  className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all ${
-                    darkMode
-                      ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:border-gray-500'
-                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:border-gray-400'
-                  }`}
-                  placeholder="Nombre para mostrar en cotizaciones"
-                />
-                <button
-                  onClick={handleUpdateProfile}
-                  disabled={isUpdatingProfile || editingUsername === userProfile?.username}
-                  className={`px-4 py-2 text-white rounded-lg transition-colors ${
-                    editingUsername === userProfile?.username
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
-                  } ${
-                    isUpdatingProfile ? 'opacity-50 cursor-not-allowed' : ''
-                  }`}
-                >
-                  {isUpdatingProfile ? 'Guardando...' : 'Guardar'}
-                </button>
-              </div>
-              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                Este nombre aparecerá en las cotizaciones que generes
-              </p>
-            </div>
           </div>
         </div>
 
@@ -601,6 +531,45 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
                   {darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
                 </span>
               </button>
+            </div>
+
+            {/* Separador */}
+            <div className={`border-t ${darkMode ? 'border-gray-600' : 'border-gray-200'} my-4`}></div>
+
+            {/* Editar Perfil */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                Nombre de Usuario
+              </label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={editingUsername}
+                  onChange={(e) => setEditingUsername(e.target.value)}
+                  className={`flex-1 px-3 py-2 rounded-lg border-2 transition-all ${
+                    darkMode
+                      ? 'bg-gray-800 border-gray-600 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:border-gray-500'
+                      : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 hover:border-gray-400'
+                  }`}
+                  placeholder="Tu nombre para cotizaciones"
+                />
+                <button
+                  onClick={handleUpdateProfile}
+                  disabled={isUpdatingProfile || editingUsername === userProfile?.username}
+                  className={`px-4 py-2 text-white rounded-lg transition-colors ${
+                    editingUsername === userProfile?.username
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
+                  } ${
+                    isUpdatingProfile ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isUpdatingProfile ? 'Guardando...' : 'Actualizar'}
+                </button>
+              </div>
+              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                Este nombre aparecerá en las cotizaciones y emails que generes
+              </p>
             </div>
           </div>
         </div>
