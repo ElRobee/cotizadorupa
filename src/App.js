@@ -726,8 +726,9 @@ ${quotation.items.map(item =>
 
 *💳 RESUMEN FINANCIERO:*
 • Subtotal: $${Math.round(totals.subtotal).toLocaleString()}
+${totals.discountAmount > 0 ? `• Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}
+• Subtotal con Desc.: $${Math.round(totals.subtotalWithDiscount).toLocaleString()}` : ''}
 • IVA (19%): $${Math.round(totals.iva).toLocaleString()}
-${totals.discountAmount > 0 ? `• Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}` : ''}
 • *TOTAL: $${Math.round(totals.total).toLocaleString()}*
 
 ▪▪▪▪▪▪▪▪▪▪▪▪▪

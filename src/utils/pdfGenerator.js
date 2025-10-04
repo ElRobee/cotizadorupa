@@ -2,11 +2,11 @@ export const generateQuotationPDF = async (quotation, company, client) => {
   // Calcular totales
   const calculateTotals = (items, discount = 0) => {
     const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
-    const iva = subtotal * 0.19;
-    const totalBruto = subtotal + iva;
-    const discountAmount = totalBruto * (discount / 100);
-    const total = totalBruto - discountAmount;
-    return { subtotal, iva, totalBruto, discountAmount, total };
+    const discountAmount = subtotal * (discount / 100);
+    const subtotalWithDiscount = subtotal - discountAmount;
+    const iva = subtotalWithDiscount * 0.19;
+    const total = subtotalWithDiscount + iva;
+    return { subtotal, discountAmount, subtotalWithDiscount, iva, total };
   };
 
   const totals = calculateTotals(quotation.items, quotation.discount);
@@ -102,7 +102,7 @@ export const generateQuotationPDF = async (quotation, company, client) => {
       <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
         <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
           "Documento válido sólo como Cotización; No constituye venta ni recibo de dinero; No válido como documento tributario."<br>
-          Cotización válida hasta: ${quotation.validUntil} | Generada por: ${quotation.createdBy || 'Sistema'}
+          Cotización válida hasta: ${quotation.validUntil} | Generada por: ${quotation.createdBy || 'Sistema CotizApp'}
         </p>
       </div>
     </div>
