@@ -34,19 +34,18 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
         <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px;">
           <h3 style="color: #0056b3; border-bottom: 1px solid #0056b3; padding-bottom: 10px; margin-top: 0;">${service.name}</h3>
           
-          ${service.technicalInfo ? `
+          ${service.specs ? `
           <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
-            <div><strong>Marca:</strong> ${service.technicalInfo.brand || 'No especificado'}</div>
-            <div><strong>Altura Máxima:</strong> ${service.technicalInfo.maxHeight || 'No especificado'}</div>
-            <div><strong>Alcance Vertical:</strong> ${service.technicalInfo.verticalReach || 'No especificado'}</div>
-            <div><strong>Capacidad de Carga:</strong> ${service.technicalInfo.loadCapacity || 'No especificado'}</div>
-            <div><strong>Tipo de Motor:</strong> ${service.technicalInfo.engineType || 'No especificado'}</div>
-            <div><strong>Dimensiones:</strong> ${service.technicalInfo.dimensions || 'No especificado'}</div>
-          </div>
-          
-          <div style="border-top: 1px solid #eee; padding-top: 15px;">
-            <p style="margin: 0; font-weight: bold; color: #333;">Funcionalidad:</p>
-            <p style="margin: 5px 0 0 0; color: #555;">${service.technicalInfo.functionality || 'No especificado'}</p>
+            <div><strong>Tipo:</strong> ${service.specs.type || 'No especificado'}</div>
+            <div><strong>Altura de Plataforma:</strong> ${service.specs.maxPlatformHeight_m ? service.specs.maxPlatformHeight_m + ' metros' : 'No especificado'}</div>
+            <div><strong>Altura de Trabajo:</strong> ${service.specs.workingHeight_m ? service.specs.workingHeight_m + ' metros' : 'No especificado'}</div>
+            <div><strong>Capacidad de Carga:</strong> ${service.specs.capacity_kg ? service.specs.capacity_kg + ' kg' : 'No especificado'}</div>
+            <div><strong>Tipo de Motor:</strong> ${service.specs.power || 'No especificado'}</div>
+            <div><strong>Peso:</strong> ${service.specs.weight_kg ? service.specs.weight_kg + ' kg' : 'No especificado'}</div>
+            <div><strong>Tipo de Tracción:</strong> ${service.specs.driveType || 'No especificado'}</div>
+            <div><strong>Dimensiones:</strong> ${service.specs.dimensions_m ? 
+              `${service.specs.dimensions_m.length || 0}m x ${service.specs.dimensions_m.width || 0}m x ${service.specs.dimensions_m.stowedHeight || 0}m` : 
+              'No especificado'}</div>
           </div>
           ` : `
           <div style="padding: 20px; text-align: center; background-color: #f9f9f9; border-radius: 5px;">

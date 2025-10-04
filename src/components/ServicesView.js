@@ -164,7 +164,18 @@ const ServicesView = ({
                   }`}
                 >
                   <td className={`py-4 px-6 font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {service.name}
+                    <div className="flex items-center space-x-2">
+                      <span>{service.name}</span>
+                      {service.specs && Object.keys(service.specs).some(key => service.specs[key]) && (
+                        <FileText className={`w-4 h-4 ${
+                          theme === 'blue' ? 'text-blue-600' :
+                          theme === 'green' ? 'text-green-600' :
+                          theme === 'purple' ? 'text-purple-600' :
+                          theme === 'red' ? 'text-red-600' :
+                          'text-gray-600'
+                        }`} title="Tiene especificaciones técnicas" />
+                      )}
+                    </div>
                     {service.description && (
                       <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {service.description.length > 60 
@@ -282,9 +293,20 @@ const ServicesView = ({
               {/* Header del Card */}
               <div className="flex justify-between items-start mb-3">
                 <div className="flex-1 pr-2">
-                  <h3 className={`font-semibold text-base ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {service.name}
-                  </h3>
+                  <div className="flex items-center space-x-2">
+                    <h3 className={`font-semibold text-base ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {service.name}
+                    </h3>
+                    {service.specs && Object.keys(service.specs).some(key => service.specs[key]) && (
+                      <FileText className={`w-4 h-4 ${
+                        theme === 'blue' ? 'text-blue-600' :
+                        theme === 'green' ? 'text-green-600' :
+                        theme === 'purple' ? 'text-purple-600' :
+                        theme === 'red' ? 'text-red-600' :
+                        'text-gray-600'
+                      }`} title="Tiene especificaciones técnicas" />
+                    )}
+                  </div>
                   {service.description && (
                     <p className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {service.description.length > 80 

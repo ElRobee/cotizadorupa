@@ -13,27 +13,50 @@ const SpecModal = memo(({
   const currentTheme = getThemeClasses(theme, darkMode);
   
   const [formData, setFormData] = useState({
-    brand: '',
-    maxHeight: '',
-    verticalReach: '',
-    loadCapacity: '',
-    engineType: '',
-    dimensions: '',
-    functionality: ''
+    type: '',
+    maxPlatformHeight_m: '',
+    workingHeight_m: '',
+    capacity_kg: '',
+    power: '',
+    weight_kg: '',
+    driveType: '',
+    dimensions_m: {
+      length: '',
+      width: '',
+      stowedHeight: ''
+    }
   });
 
   useEffect(() => {
-    if (service && service.technicalInfo) {
-      setFormData(service.technicalInfo);
+    if (service && service.specs) {
+      setFormData({
+        type: service.specs.type || '',
+        maxPlatformHeight_m: service.specs.maxPlatformHeight_m || '',
+        workingHeight_m: service.specs.workingHeight_m || '',
+        capacity_kg: service.specs.capacity_kg || '',
+        power: service.specs.power || '',
+        weight_kg: service.specs.weight_kg || '',
+        driveType: service.specs.driveType || '',
+        dimensions_m: {
+          length: service.specs.dimensions_m?.length || '',
+          width: service.specs.dimensions_m?.width || '',
+          stowedHeight: service.specs.dimensions_m?.stowedHeight || ''
+        }
+      });
     } else {
       setFormData({
-        brand: '',
-        maxHeight: '',
-        verticalReach: '',
-        loadCapacity: '',
-        engineType: '',
-        dimensions: '',
-        functionality: ''
+        type: '',
+        maxPlatformHeight_m: '',
+        workingHeight_m: '',
+        capacity_kg: '',
+        power: '',
+        weight_kg: '',
+        driveType: '',
+        dimensions_m: {
+          length: '',
+          width: '',
+          stowedHeight: ''
+        }
       });
     }
   }, [service]);
@@ -47,7 +70,7 @@ const SpecModal = memo(({
     
     const updatedService = {
       ...service,
-      technicalInfo: formData
+      specs: formData
     };
     
     onSave(updatedService);
@@ -91,13 +114,13 @@ const SpecModal = memo(({
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                Marca
+                Tipo de Equipo
               </label>
               <input
                 type="text"
-                value={formData.brand}
-                onChange={(e) => handleInputChange('brand', e.target.value)}
-                placeholder="Ej: JLG, Genie, Haulotte"
+                value={formData.type}
+                onChange={(e) => handleInputChange('type', e.target.value)}
+                placeholder="Ej: scissor lift / plataforma tijera"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
@@ -110,13 +133,13 @@ const SpecModal = memo(({
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                Altura Máxima
+                Altura de Plataforma (metros)
               </label>
               <input
-                type="text"
-                value={formData.maxHeight}
-                onChange={(e) => handleInputChange('maxHeight', e.target.value)}
-                placeholder="Ej: 16 metros"
+                type="number"
+                value={formData.maxPlatformHeight_m}
+                onChange={(e) => handleInputChange('maxPlatformHeight_m', Number(e.target.value))}
+                placeholder="Ej: 12"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
@@ -129,13 +152,13 @@ const SpecModal = memo(({
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                Alcance Vertical
+                Altura de Trabajo (metros)
               </label>
               <input
-                type="text"
-                value={formData.verticalReach}
-                onChange={(e) => handleInputChange('verticalReach', e.target.value)}
-                placeholder="Ej: 18 metros"
+                type="number"
+                value={formData.workingHeight_m}
+                onChange={(e) => handleInputChange('workingHeight_m', Number(e.target.value))}
+                placeholder="Ej: 14"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
@@ -148,13 +171,13 @@ const SpecModal = memo(({
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                Capacidad de Carga
+                Capacidad de Carga (kg)
               </label>
               <input
-                type="text"
-                value={formData.loadCapacity}
-                onChange={(e) => handleInputChange('loadCapacity', e.target.value)}
-                placeholder="Ej: 230 kg"
+                type="number"
+                value={formData.capacity_kg}
+                onChange={(e) => handleInputChange('capacity_kg', Number(e.target.value))}
+                placeholder="Ej: 500"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
@@ -167,13 +190,13 @@ const SpecModal = memo(({
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                Tipo de Motor
+                Tipo de Motor/Energía
               </label>
               <input
                 type="text"
-                value={formData.engineType}
-                onChange={(e) => handleInputChange('engineType', e.target.value)}
-                placeholder="Ej: Diésel, Eléctrico, Híbrido"
+                value={formData.power}
+                onChange={(e) => handleInputChange('power', e.target.value)}
+                placeholder="Ej: eléctrica / hidráulica"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
@@ -186,13 +209,13 @@ const SpecModal = memo(({
               <label className={`block text-sm font-medium mb-2 ${
                 darkMode ? 'text-gray-300' : 'text-gray-700'
               }`}>
-                Dimensiones
+                Peso del Equipo (kg)
               </label>
               <input
-                type="text"
-                value={formData.dimensions}
-                onChange={(e) => handleInputChange('dimensions', e.target.value)}
-                placeholder="Ej: 2.5m x 1.2m x 2.0m"
+                type="number"
+                value={formData.weight_kg}
+                onChange={(e) => handleInputChange('weight_kg', Number(e.target.value))}
+                placeholder="Ej: 2000"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
@@ -202,24 +225,80 @@ const SpecModal = memo(({
             </div>
           </div>
 
-          {/* Funcionalidad */}
+          {/* Tipo de Tracción */}
           <div>
             <label className={`block text-sm font-medium mb-2 ${
               darkMode ? 'text-gray-300' : 'text-gray-700'
             }`}>
-              Funcionalidad
+              Tipo de Tracción
             </label>
-            <textarea
-              value={formData.functionality}
-              onChange={(e) => handleInputChange('functionality', e.target.value)}
-              placeholder="Describe la funcionalidad y características especiales del equipo..."
-              rows={4}
+            <input
+              type="text"
+              value={formData.driveType}
+              onChange={(e) => handleInputChange('driveType', e.target.value)}
+              placeholder="Ej: todoterreno / ruedas sólidas"
               className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                 darkMode 
                   ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                   : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
               }`}
             />
+          </div>
+
+          {/* Dimensiones */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${
+              darkMode ? 'text-gray-300' : 'text-gray-700'
+            }`}>
+              Dimensiones (metros)
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <input
+                type="number"
+                step="0.1"
+                value={formData.dimensions_m.length}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  dimensions_m: { ...prev.dimensions_m, length: Number(e.target.value) }
+                }))}
+                placeholder="Largo"
+                className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+              <input
+                type="number"
+                step="0.1"
+                value={formData.dimensions_m.width}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  dimensions_m: { ...prev.dimensions_m, width: Number(e.target.value) }
+                }))}
+                placeholder="Ancho"
+                className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+              <input
+                type="number"
+                step="0.1"
+                value={formData.dimensions_m.stowedHeight}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  dimensions_m: { ...prev.dimensions_m, stowedHeight: Number(e.target.value) }
+                }))}
+                placeholder="Altura"
+                className={`px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                }`}
+              />
+            </div>
           </div>
         </div>
 
