@@ -11,7 +11,9 @@ const QuotationModal = memo(({
   onCancel,
   // Nuevas props para tema
   theme = 'blue',
-  darkMode = false
+  darkMode = false,
+  currentUser,
+  userProfile
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
   const { quotations, addQuotation, updateQuotation } = useQuotations();
@@ -172,6 +174,8 @@ const QuotationModal = memo(({
         iva: Math.round(totals.iva),
         discountAmount: Math.round(totals.discountAmount),
         total: Math.round(totals.total),
+        // Agregar información del usuario
+        createdBy: userProfile?.username || currentUser?.displayName || 'Usuario',
         // Agregar timestamp
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()

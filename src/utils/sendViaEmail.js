@@ -1,5 +1,5 @@
 // utils/sendViaEmail.js
-export const sendViaEmail = (quotation, data, currentUser) => {
+export const sendViaEmail = (quotation, data, currentUser, userProfile) => {
   if (!quotation || !data?.clients || !data?.company) return;
 
   const client = data.clients.find(c => c.empresa === quotation.client);
@@ -24,7 +24,7 @@ Nuestro objetivo es brindarle el mejor servicio posible y apoyar en lo que requi
 Agradecemos su tiempo y la oportunidad de trabajar junto a ustedes.
 
 Atentamente,  
-${currentUser?.displayName || "Usuario"}  
+${userProfile?.username || currentUser?.displayName || "Usuario"}  
 ${data.company.razonSocial}  
 Tel: ${data.company.telefono || "Sin telefono"}  
 Email: ${data.company.email || "Sin email"}  

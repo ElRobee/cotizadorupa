@@ -87,7 +87,7 @@ const CotizacionesApp = () => {
   const { clients } = useClients();
   const { services } = useServices();
   const { company } = useCompany();
-  const { userRole, loading: roleLoading, isAdmin, canEditCompany, canCreateContent } = useUserRoles(currentUser?.uid);
+  const { userRole, userProfile, loading: roleLoading, isAdmin, canEditCompany, canCreateContent } = useUserRoles(currentUser?.uid, currentUser?.email);
 
   // LISTENER DE AUTENTICACIÓN DE FIREBASE
   useEffect(() => {
@@ -1256,6 +1256,8 @@ return (
                 setShowModal={setShowModal}
                 theme={theme}
                 darkMode={darkMode}
+                currentUser={currentUser}
+                userProfile={userProfile}
               />
             )}
             {currentView === 'clients' && (
@@ -1303,6 +1305,9 @@ return (
           setCurrentView={setCurrentView}
           theme={theme}
           darkMode={darkMode}
+          handleLogout={handleLogout}
+          userProfile={userProfile}
+          userRole={userRole}
         />
       </>
     )}
@@ -1315,6 +1320,8 @@ return (
           onCancel={cancelEdit}
           theme={theme}
           darkMode={darkMode}
+          currentUser={currentUser}
+          userProfile={userProfile}
         />
       )}
       {showModal && modalType === 'client' && (

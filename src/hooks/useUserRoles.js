@@ -2,13 +2,15 @@ import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-export const useUserRoles = (userId) => {
+export const useUserRoles = (userId, userEmail) => {
   const [userRole, setUserRole] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!userId) {
       setUserRole(null);
+      setUserProfile(null);
       setLoading(false);
       return;
     }
@@ -20,6 +22,7 @@ export const useUserRoles = (userId) => {
         if (userDoc.exists()) {
           const userData = userDoc.data();
           setUserRole(userData.role || 'user');
+          setUserProfile(userData);
         } else {
           // Si el usuario no existe en Firestore, crear con rol 'user' por defecto
           // Excepto si es el primer usuario (admin)
@@ -28,10 +31,17 @@ export const useUserRoles = (userId) => {
           
           const newRole = isFirstUser ? 'admin' : 'user';
           
-          await setDoc(doc(db, 'users', userId), {
+          // Generar username a partir del email
+          const username = userEmail ? userEmail.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Usuario';
+          
+          const newUserData = {
             role: newRole,
+            username: username,
+            email: userEmail,
             createdAt: new Date().toISOString()
-          });
+          };
+          
+          await setDoc(doc(db, 'users', userId), newUserData);
 
           // Actualizar contador si es el primer usuario
           if (isFirstUser) {
@@ -42,6 +52,7 @@ export const useUserRoles = (userId) => {
           }
           
           setUserRole(newRole);
+          setUserProfile(newUserData);
         }
       } catch (error) {
         console.error('Error fetching user role:', error);
@@ -71,14 +82,33 @@ export const useUserRoles = (userId) => {
     }
   };
 
+  const updateUserProfile = async (updates) => {
+    if (!userId) return false;
+    
+    try {
+      await setDoc(doc(db, 'users', userId), {
+        ...updates,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+      
+      setUserProfile(prev => ({ ...prev, ...updates }));
+      return true;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      return false;
+    }
+  };
+
   const isAdmin = () => userRole === 'admin';
   const canEditCompany = () => userRole === 'admin';
   const canCreateContent = () => ['admin', 'user'].includes(userRole);
 
   return {
     userRole,
+    userProfile,
     loading,
     updateUserRole,
+    updateUserProfile,
     isAdmin,
     canEditCompany,
     canCreateContent
