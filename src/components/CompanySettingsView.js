@@ -21,7 +21,7 @@ import {
   User
 } from "lucide-react";
 
-const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUser, userRole, canEditCompany }) => {
+const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUser, userRole, userProfile, updateUserProfile, canEditCompany }) => {
   const { company, updateCompany, loading } = useCompany();
   const currentTheme = getThemeClasses(theme, darkMode);
 
@@ -45,7 +45,7 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
     return null;
   });
   const [isSaving, setIsSaving] = useState(false);
-  const [editingUsername, setEditingUsername] = useState(userProfile?.username || '');
+  const [editingUsername, setEditingUsername] = useState(userProfile?.username || currentUser?.displayName || '');
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
 
   // Cargar datos iniciales cuando vienen de Firestore
@@ -142,12 +142,15 @@ const CompanySettingsView = ({ theme, darkMode, setTheme, setDarkMode, currentUs
 
   // Actualizar perfil del usuario
   const handleUpdateProfile = async () => {
+    if (!updateUserProfile) {
+      alert("Error: Función de actualización no disponible");
+      return;
+    }
+    
     setIsUpdatingProfile(true);
     try {
-      if (updateUserProfile) {
-        await updateUserProfile({ username: editingUsername });
-        alert("Perfil actualizado correctamente ✅");
-      }
+      await updateUserProfile({ username: editingUsername });
+      alert("Perfil actualizado correctamente ✅");
     } catch (error) {
       console.error("Error al actualizar perfil:", error);
       alert("Error al actualizar perfil ❌");

@@ -87,7 +87,7 @@ const CotizacionesApp = () => {
   const { clients } = useClients();
   const { services } = useServices();
   const { company } = useCompany();
-  const { userRole, userProfile, loading: roleLoading, isAdmin, canEditCompany, canCreateContent } = useUserRoles(currentUser?.uid, currentUser?.email);
+  const { userRole, userProfile, loading: roleLoading, isAdmin, canEditCompany, canCreateContent, updateUserProfile } = useUserRoles(currentUser?.uid, currentUser?.email);
 
   // LISTENER DE AUTENTICACIÓN DE FIREBASE
   useEffect(() => {
@@ -1286,6 +1286,8 @@ return (
                 setDarkMode={setDarkMode}
                 currentUser={currentUser}
                 userRole={userRole}
+                userProfile={userProfile}
+                updateUserProfile={updateUserProfile}
                 canEditCompany={canEditCompany}
               />
             )}
