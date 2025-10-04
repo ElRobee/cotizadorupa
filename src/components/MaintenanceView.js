@@ -40,7 +40,6 @@ const MaintenanceView = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
-  const [selectedEquipment, setSelectedEquipment] = useState(null);
 
   // Tipos de equipos
   const equipmentTypes = [
