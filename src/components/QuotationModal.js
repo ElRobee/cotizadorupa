@@ -14,7 +14,7 @@ const QuotationModal = memo(({
   darkMode = false
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
-  const { addQuotation, updateQuotation } = useQuotations();
+  const { quotations, addQuotation, updateQuotation } = useQuotations();
   const { services } = useServices();
   const { clients } = useClients();
 
@@ -124,7 +124,34 @@ const QuotationModal = memo(({
       const totals = calculateQuotationTotals(formData.items, formData.discount);
       
       // Generar número de cotización si es nueva
-      const quotationNumber = isEditing && formData.number ? formData.number : `COT-${Date.now()}`;
+      let quotationNumber = formData.number;
+      if (!isEditing || !formData.number) {
+        const currentYear = new Date().getFullYear();
+        
+        // Buscar el último número de cotización del año actual
+        const currentYearQuotations = quotations?.filter(q => 
+          q.number && q.number.startsWith(`COT-${currentYear}-`)
+        ) || [];
+        
+        // Obtener el siguiente número correlativo
+        let nextNumber = 1;
+        if (currentYearQuotations.length > 0) {
+          const lastNumbers = currentYearQuotations
+            .map(q => {
+              const match = q.number.match(/COT-\d{4}-(\d{3})/);
+              return match ? parseInt(match[1]) : 0;
+            })
+            .filter(num => !isNaN(num));
+          
+          if (lastNumbers.length > 0) {
+            nextNumber = Math.max(...lastNumbers) + 1;
+          }
+        }
+        
+        // Formatear el número con 3 dígitos (001, 002, etc.)
+        const correlativo = nextNumber.toString().padStart(3, '0');
+        quotationNumber = `COT-${currentYear}-${correlativo}`;
+      }
       
       // Calcular fecha válida hasta (30 días desde hoy)
       const validUntilDate = new Date();
