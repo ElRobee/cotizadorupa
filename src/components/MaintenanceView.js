@@ -13,7 +13,8 @@ import {
   Car,
   Settings,
   FileText,
-  Eye
+  Eye,
+  X
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import { useMaintenance, useMaintenanceRecords } from '../hooks/useMaintenance';
@@ -40,6 +41,8 @@ const MaintenanceView = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  const [selectedEquipmentHistory, setSelectedEquipmentHistory] = useState(null);
 
   // Tipos de equipos
   const equipmentTypes = [
@@ -161,6 +164,12 @@ const MaintenanceView = ({
       console.error('Error al generar PDF:', error);
       alert('Error al generar PDF ❌');
     }
+  };
+
+  // Ver historial de mantenimiento
+  const handleViewHistory = (equipment) => {
+    setSelectedEquipmentHistory(equipment);
+    setShowHistoryModal(true);
   };
 
   if (loading) {
@@ -371,6 +380,7 @@ const MaintenanceView = ({
                   const nextMaintenance = getNextMaintenanceStatus(equipment);
                   const revisionTecnica = getDocumentStatus(equipment.revision_tecnica_fecha);
                   const soap = getDocumentStatus(equipment.soap_fecha);
+                  const permisoCirculacion = getDocumentStatus(equipment.permiso_circulacion_fecha);
                   
                   return (
                     <tr key={equipment.id} className={`hover:${darkMode ? 'bg-gray-700' : 'bg-gray-50'} transition-colors`}>
@@ -420,6 +430,10 @@ const MaintenanceView = ({
                             soap.color === 'green' ? 'bg-green-500' :
                             soap.color === 'yellow' ? 'bg-yellow-500' : 'bg-red-500'
                           }`} title={`SOAP: ${soap.status}`}></span>
+                          <span className={`inline-block w-3 h-3 rounded-full ${
+                            permisoCirculacion.color === 'green' ? 'bg-green-500' :
+                            permisoCirculacion.color === 'yellow' ? 'bg-yellow-500' : 'bg-red-500'
+                          }`} title={`Permiso Circulación: ${permisoCirculacion.status}`}></span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -437,10 +451,7 @@ const MaintenanceView = ({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <button
-                          onClick={() => {
-                            setSelectedEquipment(equipment);
-                            // Ver historial
-                          }}
+                          onClick={() => handleViewHistory(equipment)}
                           className={`inline-flex items-center p-2 rounded-lg transition-colors ${
                             darkMode 
                               ? 'text-gray-400 hover:text-blue-400 hover:bg-gray-700' 
@@ -530,6 +541,7 @@ const MaintenanceView = ({
           const nextMaintenance = getNextMaintenanceStatus(equipment);
           const revisionTecnica = getDocumentStatus(equipment.revision_tecnica_fecha);
           const soap = getDocumentStatus(equipment.soap_fecha);
+          const permisoCirculacion = getDocumentStatus(equipment.permiso_circulacion_fecha);
           
           return (
             <div key={equipment.id} className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} rounded-xl shadow-sm border p-4`}>
@@ -582,6 +594,13 @@ const MaintenanceView = ({
                   }`}></span>
                   <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>SOAP</span>
                 </div>
+                <div className="flex items-center space-x-1">
+                  <span className={`w-3 h-3 rounded-full ${
+                    permisoCirculacion.color === 'green' ? 'bg-green-500' :
+                    permisoCirculacion.color === 'yellow' ? 'bg-yellow-500' : 'bg-red-500'
+                  }`}></span>
+                  <span className={`text-xs ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Permiso Circ.</span>
+                </div>
               </div>
 
               {/* Próximo mantenimiento */}
@@ -601,10 +620,7 @@ const MaintenanceView = ({
               {/* Botones de acción */}
               <div className="grid grid-cols-5 gap-2">
                 <button
-                  onClick={() => {
-                    setSelectedEquipment(equipment);
-                    // Ver historial
-                  }}
+                  onClick={() => handleViewHistory(equipment)}
                   className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
                     darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-100 hover:bg-blue-200'
                   }`}
@@ -673,6 +689,150 @@ const MaintenanceView = ({
           </div>
         )}
       </div>
+
+      {/* MODAL DE HISTORIAL DE MANTENIMIENTO */}
+      {showHistoryModal && selectedEquipmentHistory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className={`w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl ${
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            {/* Header */}
+            <div className={`flex justify-between items-center p-6 border-b ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <div>
+                <h2 className={`text-xl md:text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Historial de Mantenimiento
+                </h2>
+                <p className={`mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  {selectedEquipmentHistory.nombre_equipo} - {selectedEquipmentHistory.patente}
+                </p>
+              </div>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className={`p-2 rounded-lg transition-colors ${
+                  darkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
+                }`}
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="overflow-y-auto max-h-[calc(90vh-140px)] p-6">
+              {(() => {
+                const equipmentRecords = records?.filter(record => record.equipment_id === selectedEquipmentHistory.id) || [];
+                
+                if (equipmentRecords.length === 0) {
+                  return (
+                    <div className="text-center py-12">
+                      <FileText className={`mx-auto h-12 w-12 ${darkMode ? 'text-gray-600' : 'text-gray-400'}`} />
+                      <h3 className={`mt-2 text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
+                        Sin registros de mantenimiento
+                      </h3>
+                      <p className={`mt-1 text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
+                        Este equipo no tiene registros de mantenimiento aún.
+                      </p>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="space-y-4">
+                    {equipmentRecords
+                      .sort((a, b) => new Date(b.fecha_mantencion) - new Date(a.fecha_mantencion))
+                      .map((record, index) => (
+                      <div key={record.id || index} className={`${
+                        darkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-200'
+                      } rounded-lg border p-4`}>
+                        <div className="flex justify-between items-start mb-3">
+                          <div>
+                            <h4 className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {record.tipo_mantencion || 'Mantenimiento'}
+                            </h4>
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              {new Date(record.fecha_mantencion).toLocaleDateString('es-CL')}
+                              {record.kilometraje_mantencion && ` • ${record.kilometraje_mantencion.toLocaleString()} km`}
+                              {record.horas_mantencion && ` • ${record.horas_mantencion} hrs`}
+                            </p>
+                          </div>
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            record.estado_equipo_post === 'operativo' 
+                              ? 'bg-green-100 text-green-800' 
+                              : record.estado_equipo_post === 'en mantenimiento'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {record.estado_equipo_post || 'Sin estado'}
+                          </span>
+                        </div>
+
+                        {record.descripcion_trabajo && (
+                          <div className="mb-3">
+                            <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                              <strong>Trabajo realizado:</strong> {record.descripcion_trabajo}
+                            </p>
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                          {record.taller_responsable && (
+                            <div className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                              <strong>Taller:</strong> {record.taller_responsable}
+                            </div>
+                          )}
+                          {record.tecnico_responsable && (
+                            <div className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                              <strong>Técnico:</strong> {record.tecnico_responsable}
+                            </div>
+                          )}
+                          {record.createdBy && (
+                            <div className={darkMode ? 'text-gray-400' : 'text-gray-600'}>
+                              <strong>Registrado por:</strong> {record.createdBy}
+                            </div>
+                          )}
+                        </div>
+
+                        {record.observaciones && (
+                          <div className="mt-3 pt-3 border-t border-gray-300">
+                            <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                              <strong>Observaciones:</strong> {record.observaciones}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Footer */}
+            <div className={`flex justify-end space-x-3 p-6 border-t ${
+              darkMode ? 'border-gray-700' : 'border-gray-200'
+            }`}>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className={`px-6 py-2 rounded-lg border transition-colors ${
+                  darkMode 
+                    ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={() => handleGeneratePDF(selectedEquipmentHistory)}
+                className={`px-6 py-2 text-white rounded-lg transition-colors ${
+                  currentTheme.buttonBg
+                } ${currentTheme.buttonHover}`}
+              >
+                Generar PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

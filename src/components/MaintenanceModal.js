@@ -38,8 +38,8 @@ const MaintenanceModal = ({
     revision_tecnica_numero: '',
     soap_fecha: '',
     soap_numero: '',
-    seguro_fecha: '',
-    seguro_numero: '',
+    permiso_circulacion_fecha: '',
+    permiso_circulacion_numero: '',
     propietario: '',
     conductor_habitual: '',
     ubicacion_actual: '',
@@ -537,12 +537,12 @@ const MaintenanceModal = ({
                   
                   <div>
                     <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                      Seguro
+                      Permiso de Circulación
                     </label>
                     <input
                       type="date"
-                      value={equipmentData.seguro_fecha}
-                      onChange={(e) => setEquipmentData(prev => ({ ...prev, seguro_fecha: e.target.value }))}
+                      value={equipmentData.permiso_circulacion_fecha}
+                      onChange={(e) => setEquipmentData(prev => ({ ...prev, permiso_circulacion_fecha: e.target.value }))}
                       className={`w-full px-3 py-2 border rounded-lg transition-colors ${
                         darkMode 
                           ? 'bg-gray-700 border-gray-600 text-white' 

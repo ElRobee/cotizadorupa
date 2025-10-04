@@ -28,7 +28,7 @@ export const generateMaintenancePDF = (equipment, records = [], companyData = {}
 
     const revisionTecnica = getDocumentStatus(equipment.revision_tecnica_fecha);
     const soap = getDocumentStatus(equipment.soap_fecha);
-    const seguro = getDocumentStatus(equipment.seguro_fecha);
+    const permisoCirculacion = getDocumentStatus(equipment.permiso_circulacion_fecha);
 
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
@@ -125,11 +125,11 @@ export const generateMaintenancePDF = (equipment, records = [], companyData = {}
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
               <div>
-                <strong>Seguro:</strong> ${formatDate(equipment.seguro_fecha)}
-                ${equipment.seguro_numero ? `<br><small>N°: ${equipment.seguro_numero}</small>` : ''}
+                <strong>Permiso de Circulación:</strong> ${formatDate(equipment.permiso_circulacion_fecha)}
+                ${equipment.permiso_circulacion_numero ? `<br><small>N°: ${equipment.permiso_circulacion_numero}</small>` : ''}
               </div>
-              <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; background-color: ${seguro.color}20; color: ${seguro.color};">
-                ${seguro.status}
+              <span style="padding: 4px 8px; border-radius: 4px; font-size: 12px; background-color: ${permisoCirculacion.color}20; color: ${permisoCirculacion.color};">
+                ${permisoCirculacion.status}
               </span>
             </div>
           </div>
@@ -354,33 +354,6 @@ export const generateMaintenanceRecordPDF = (record, equipment, companyData = {}
           </div>
         </div>
         ` : ''}
-
-        <!-- Costos -->
-        <div style="margin-bottom: 30px;">
-          <h3 style="background-color: #f5f5f5; padding: 10px; margin: 0 0 15px 0; color: #333; border-left: 4px solid #dc3545;">
-            COSTOS
-          </h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
-            <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 4px;">
-              <strong style="color: #666;">Repuestos</strong>
-              <div style="font-size: 18px; font-weight: bold; color: #333; margin-top: 5px;">
-                $${(record.costo_repuestos || 0).toLocaleString()}
-              </div>
-            </div>
-            <div style="text-align: center; padding: 15px; border: 1px solid #ddd; border-radius: 4px;">
-              <strong style="color: #666;">Mano de Obra</strong>
-              <div style="font-size: 18px; font-weight: bold; color: #333; margin-top: 5px;">
-                $${(record.costo_mano_obra || 0).toLocaleString()}
-              </div>
-            </div>
-            <div style="text-align: center; padding: 15px; border: 2px solid #dc3545; border-radius: 4px; background-color: #fff5f5;">
-              <strong style="color: #dc3545;">TOTAL</strong>
-              <div style="font-size: 20px; font-weight: bold; color: #dc3545; margin-top: 5px;">
-                $${((record.costo_repuestos || 0) + (record.costo_mano_obra || 0)).toLocaleString()}
-              </div>
-            </div>
-          </div>
-        </div>
 
         ${(record.prox_mantencion_km || record.prox_mantencion_horas || record.prox_mantencion_fecha) ? `
         <!-- Próximo Mantenimiento -->
