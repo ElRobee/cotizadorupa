@@ -120,10 +120,29 @@ const QuotationModal = memo(({
         return;
       }
 
+      // Calcular totales antes de guardar
+      const totals = calculateQuotationTotals(formData.items, formData.discount);
+      
+      // Crear objeto de cotización con todos los datos necesarios
+      const quotationToSave = {
+        ...formData,
+        // Mapear clientName a client para compatibilidad con QuotationsView
+        client: formData.clientName,
+        // Agregar totales calculados
+        subtotal: Math.round(totals.subtotal),
+        iva: Math.round(totals.iva),
+        totalBruto: Math.round(totals.totalBruto),
+        discountAmount: Math.round(totals.discountAmount),
+        total: Math.round(totals.total),
+        // Agregar timestamp
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
       if (isEditing && formData.id) {
-        await updateQuotation(formData.id, formData);
+        await updateQuotation(formData.id, quotationToSave);
       } else {
-        await addQuotation(formData);
+        await addQuotation(quotationToSave);
       }
       onCancel(); // cerrar modal al terminar
     } catch (error) {

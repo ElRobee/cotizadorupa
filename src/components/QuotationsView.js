@@ -73,8 +73,7 @@ const QuotationsView = ({
     let filtered = quotations.filter((quotation) => {
       // Búsqueda por texto
       const searchFields = [
-        quotation.clientName,
-        quotation.projectName,
+        quotation.client || quotation.clientName, // Compatibilidad con ambos formatos
         quotation.status,
         quotation.priority,
         quotation.id?.toString()
@@ -217,13 +216,13 @@ const QuotationsView = ({
                     {quotation.number}
                   </td>
                   <td className={`py-4 px-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {quotation.client}
+                    {quotation.client || quotation.clientName}
                   </td>
                   <td className={`py-4 px-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     {formatDate(quotation.date)}
                   </td>
                   <td className={`py-4 px-6 font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ${quotation.total.toLocaleString()}
+                    ${(quotation.total || 0).toLocaleString()}
                   </td>
                   <td className="py-4 px-6">
                     <button
@@ -329,7 +328,7 @@ const QuotationsView = ({
                     {quotation.number}
                   </h3>
                   <p className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                    {quotation.client}
+                    {quotation.client || quotation.clientName}
                   </p>
                 </div>
                 <button
@@ -370,7 +369,7 @@ const QuotationsView = ({
                     theme === 'red' ? 'text-red-600' :
                     'text-gray-600'
                   }`}>
-                    ${quotation.total.toLocaleString()}
+                    ${(quotation.total || 0).toLocaleString()}
                   </span>
                 </div>
               </div>
