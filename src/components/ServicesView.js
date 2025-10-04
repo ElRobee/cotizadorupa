@@ -7,10 +7,12 @@ import {
   Copy,
   Settings,
   DollarSign,
-  Tag
+  Tag,
+  FileText
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import { useServices } from '../hooks/useServices';
+import SpecModal from './SpecModal';
 
 const ServicesView = ({
   startEdit,
@@ -26,6 +28,10 @@ const ServicesView = ({
   
   // 🔍 Estado de búsqueda
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // 📋 Estado para SpecModal
+  const [showSpecModal, setShowSpecModal] = useState(false);
+  const [selectedService, setSelectedService] = useState(null);
 
   // Filtrar servicios
   const filteredServices = useMemo(() => {
@@ -55,6 +61,22 @@ const ServicesView = ({
       id: undefined // Que Firebase genere un nuevo ID
     };
     startEdit('service', newService);
+  };
+
+  // Manejar especificaciones técnicas
+  const handleOpenSpecs = (service) => {
+    setSelectedService(service);
+    setShowSpecModal(true);
+  };
+
+  const handleSaveSpecs = async (updatedService) => {
+    try {
+      await updateService(updatedService.id, updatedService);
+      console.log('Especificaciones guardadas exitosamente');
+    } catch (error) {
+      console.error('Error al guardar especificaciones:', error);
+      alert('Error al guardar las especificaciones técnicas');
+    }
   };
 
   if (loading) {
@@ -221,6 +243,19 @@ const ServicesView = ({
                         <Copy className="w-4 h-4" />
                       </button>
                       <button
+                        onClick={() => handleOpenSpecs(service)}
+                        className={`p-1 rounded transition-colors ${
+                          theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-100' :
+                          theme === 'green' ? 'text-green-600 hover:text-green-800 hover:bg-green-100' :
+                          theme === 'purple' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-100' :
+                          theme === 'red' ? 'text-red-600 hover:text-red-800 hover:bg-red-100' :
+                          'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                        } ${darkMode ? 'hover:bg-opacity-20' : ''}`}
+                        title="Especificaciones técnicas"
+                      >
+                        <FileText className="w-4 h-4" />
+                      </button>
+                      <button
                         onClick={() => deleteService(service.id)}
                         className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
@@ -305,7 +340,7 @@ const ServicesView = ({
               </div>
 
               {/* Botones de Acción */}
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 <button
                   onClick={() => startEdit('service', service)}
                   className={`flex items-center justify-center space-x-1 py-2 rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} text-white`}
@@ -322,6 +357,17 @@ const ServicesView = ({
                   <Copy className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-gray-700'}`} />
                   <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-700'}`}>
                     Duplicar
+                  </span>
+                </button>
+                <button
+                  onClick={() => handleOpenSpecs(service)}
+                  className={`flex items-center justify-center space-x-1 py-2 rounded-lg transition-colors ${
+                    darkMode ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-indigo-100 hover:bg-indigo-200'
+                  }`}
+                >
+                  <FileText className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-indigo-700'}`} />
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-indigo-700'}`}>
+                    Specs
                   </span>
                 </button>
                 <button
@@ -380,6 +426,16 @@ const ServicesView = ({
           </div>
         </div>
       </div>
+
+      {/* Modal de Especificaciones Técnicas */}
+      <SpecModal
+        isOpen={showSpecModal}
+        onClose={() => setShowSpecModal(false)}
+        service={selectedService}
+        onSave={handleSaveSpecs}
+        theme={theme}
+        darkMode={darkMode}
+      />
     </div>
   );
 };

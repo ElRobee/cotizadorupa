@@ -79,15 +79,19 @@ export const generateQuotationPDF = async (quotation, company, client) => {
             <span>Subtotal:</span>
             <span>$${Math.round(totals.subtotal || 0).toLocaleString()}</span>
           </div>
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <span>IVA (19%):</span>
-            <span>$${Math.round(totals.iva || 0).toLocaleString()}</span>
-          </div>
           ${totals.discountAmount > 0 ? `
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #dc2626;">
             <span>Descuento:</span>
             <span>-$${Math.round(totals.discountAmount || 0).toLocaleString()}</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>Subtotal con Desc.:</span>
+            <span>$${Math.round(totals.subtotalWithDiscount || 0).toLocaleString()}</span>
           </div>` : ''}
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <span>IVA (19%):</span>
+            <span>$${Math.round(totals.iva || 0).toLocaleString()}</span>
+          </div>
           <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; border-top: 2px solid #333; padding-top: 10px;">
             <span>TOTAL:</span>
             <span>$${Math.round(totals.total || 0).toLocaleString()}</span>

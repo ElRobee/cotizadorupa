@@ -43,11 +43,11 @@ const QuotationModal = memo(({
   // Calcular totales
   const calculateQuotationTotals = (items = [], discount = 0) => {
     const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
-    const iva = subtotal * 0.19;
-    const totalBruto = subtotal + iva;
-    const discountAmount = totalBruto * (discount / 100);
-    const total = totalBruto - discountAmount;
-    return { subtotal, iva, totalBruto, discountAmount, total };
+    const discountAmount = subtotal * (discount / 100);
+    const subtotalWithDiscount = subtotal - discountAmount;
+    const iva = subtotalWithDiscount * 0.19;
+    const total = subtotalWithDiscount + iva;
+    return { subtotal, discountAmount, subtotalWithDiscount, iva, total };
   };
 
   const totals = calculateQuotationTotals(formData?.items || [], formData?.discount || 0);
@@ -168,8 +168,8 @@ const QuotationModal = memo(({
         client: formData.clientName,
         // Agregar totales calculados
         subtotal: Math.round(totals.subtotal),
+        subtotalWithDiscount: Math.round(totals.subtotalWithDiscount),
         iva: Math.round(totals.iva),
-        totalBruto: Math.round(totals.totalBruto),
         discountAmount: Math.round(totals.discountAmount),
         total: Math.round(totals.total),
         // Agregar timestamp
@@ -456,24 +456,24 @@ const QuotationModal = memo(({
                     ${Math.round(totals.subtotal).toLocaleString()}
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>IVA (19%):</span>
-                  <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ${Math.round(totals.iva).toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>Total Bruto:</span>
-                  <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    ${Math.round(totals.totalBruto).toLocaleString()}
-                  </span>
-                </div>
                 {totals.discountAmount > 0 && (
                   <div className="flex justify-between text-red-600 dark:text-red-400">
                     <span>Descuento ({formData?.discount || 0}%):</span>
                     <span className="font-semibold">-${Math.round(totals.discountAmount).toLocaleString()}</span>
                   </div>
                 )}
+                <div className="flex justify-between">
+                  <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>Subtotal con Desc.:</span>
+                  <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    ${Math.round(totals.subtotalWithDiscount).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className={darkMode ? 'text-gray-300' : 'text-gray-600'}>IVA (19%):</span>
+                  <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                    ${Math.round(totals.iva).toLocaleString()}
+                  </span>
+                </div>
                 <div className={`flex justify-between border-t pt-3 text-xl font-bold ${
                   darkMode ? 'border-gray-600' : 'border-gray-200'
                 } ${

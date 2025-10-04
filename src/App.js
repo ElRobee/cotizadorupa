@@ -256,11 +256,11 @@ const showNotification = (message, type = 'success') => {
 
   const calculateQuotationTotals = (items, discount = 0) => {
     const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
-    const iva = subtotal * 0.19;
-    const totalBruto = subtotal + iva;
-    const discountAmount = totalBruto * (discount / 100);
-    const total = totalBruto - discountAmount;
-    return { subtotal, iva, totalBruto, discountAmount, total };
+    const discountAmount = subtotal * (discount / 100);
+    const subtotalWithDiscount = subtotal - discountAmount;
+    const iva = subtotalWithDiscount * 0.19;
+    const total = subtotalWithDiscount + iva;
+    return { subtotal, discountAmount, subtotalWithDiscount, iva, total };
   };
 
   const calculateValidUntilDate = (fromDate) => {
