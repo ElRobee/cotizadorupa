@@ -16,7 +16,7 @@ const ClientImportModal = ({ isOpen, onClose, onImportClients, darkMode }) => {
         'encargado': 'Juan Pérez',
         'rut': '12.345.678-9',
         'email': 'contacto@ejemplo.com',
-        'telefono': '+56 9 1234 5678',
+        'telefono': '56 9 1234 5678',
         'ciudad': 'Santiago',
         'direccion': 'Av. Ejemplo 123'
       },
@@ -25,7 +25,7 @@ const ClientImportModal = ({ isOpen, onClose, onImportClients, darkMode }) => {
         'encargado': 'María González',
         'rut': '98.765.432-1',
         'email': 'info@otra.com',
-        'telefono': '+56 9 8765 4321',
+        'telefono': '56 9 8765 4321',
         'ciudad': 'Valparaíso',
         'direccion': 'Calle Muestra 456'
       }
@@ -238,6 +238,7 @@ const ClientImportModal = ({ isOpen, onClose, onImportClients, darkMode }) => {
               <li>Completa los datos de los clientes en las columnas correspondientes</li>
               <li>Los campos obligatorios son: empresa, encargado, RUT y teléfono</li>
               <li>El RUT debe tener formato chileno (ej: 12.345.678-9)</li>
+              <li>El telefono debe ser 569XXXXXXXX</li>
               <li>El email debe ser válido si se proporciona</li>
             </ul>
           </div>
