@@ -1284,6 +1284,8 @@ return (
                 theme={theme}
                 darkMode={darkMode}
                 startEdit={startEdit}
+                userRole={userRole}
+                isAdmin={isAdmin}
               />
             )}
             {currentView === 'services' && (

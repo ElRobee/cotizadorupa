@@ -8,21 +8,38 @@ import {
   Users,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  Upload
 } from "lucide-react";
 import { getThemeClasses } from "../lib/utils";
 import { useClients } from "../hooks/useClients";
 import { useCompany } from "../hooks/useCompany";
+import ClientImportModal from "./ClientImportModal";
 
-const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit }) => {
+const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit, userRole, isAdmin }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
 
   // 🔥 Cargar clientes desde Firestore
-  const { clients, loading, deleteClient } = useClients();
+  const { clients, loading, deleteClient, addClient } = useClients();
   const { company } = useCompany();
 
   // 🔍 Estado de búsqueda
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Estado para modal de importación
+  const [showImportModal, setShowImportModal] = useState(false);
+
+  // Función para importar clientes masivamente
+  const handleImportClients = async (clientsData) => {
+    try {
+      const promises = clientsData.map(clientData => addClient(clientData));
+      await Promise.all(promises);
+      console.log(`${clientsData.length} clientes importados exitosamente`);
+    } catch (error) {
+      console.error('Error importando clientes:', error);
+      throw error; // Para que el modal pueda manejar el error
+    }
+  };
 
   // Filtrar clientes
   const filteredClients = useMemo(() => {
@@ -61,16 +78,32 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit })
             Gestiona tu base de clientes
           </p>
         </div>
-        <button
-          onClick={() => {
-            setModalType("client");
-            setShowModal(true);
-          }}
-          className={`flex items-center justify-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} w-full md:w-auto`}
-        >
-          <Plus className="w-4 h-4" />
-          <span>Nuevo Cliente</span>
-        </button>
+        <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          {/* Botón de importación solo para administradores */}
+          {isAdmin && (
+            <button
+              onClick={() => setShowImportModal(true)}
+              className={`flex items-center justify-center space-x-2 px-4 py-2 rounded-lg border transition-colors
+                ${darkMode 
+                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                } w-full md:w-auto`}
+            >
+              <Upload className="w-4 h-4" />
+              <span>Importar Excel</span>
+            </button>
+          )}
+          <button
+            onClick={() => {
+              setModalType("client");
+              setShowModal(true);
+            }}
+            className={`flex items-center justify-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} w-full md:w-auto`}
+          >
+            <Plus className="w-4 h-4" />
+            <span>Nuevo Cliente</span>
+          </button>
+        </div>
       </div>
 
       {/* TABLA */}
@@ -201,6 +234,14 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit })
           </div>
         )}
       </div>
+
+      {/* Modal de importación */}
+      <ClientImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+        onImportClients={handleImportClients}
+        darkMode={darkMode}
+      />
     </div>
   );
 };
