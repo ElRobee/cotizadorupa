@@ -1105,7 +1105,14 @@ const DashboardView = () => {
             Cotizaciones Recientes
           </h3>
           <div className="space-y-3">
-            {quotations && quotations.slice(0, 5).map(quotation => (
+            {quotations && quotations
+              .sort((a, b) => {
+                const numberA = parseInt(a.number) || 0;
+                const numberB = parseInt(b.number) || 0;
+                return numberB - numberA; // Orden descendente (más recientes primero)
+              })
+              .slice(0, 5)
+              .map(quotation => (
               <div key={quotation.id} className={`flex items-center justify-between p-3 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                 <div>
                   <p className={`font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>

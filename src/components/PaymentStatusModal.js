@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, FileBarChart, User, Calendar, DollarSign, Download } from 'lucide-react';
+import { X, FileBarChart, User, Calendar, DollarSign, Download, Search } from 'lucide-react';
 import { useClients } from '../hooks/useClients';
 import { useQuotations } from '../hooks/useQuotations';
 import { useCompany } from '../hooks/useCompany';
@@ -9,6 +9,7 @@ const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
   const { clients } = useClients();
   const { quotations } = useQuotations();
   const { company } = useCompany();
+  const [searchTerm, setSearchTerm] = useState('');
   const [selectedClientId, setSelectedClientId] = useState('');
   const [selectedClient, setSelectedClient] = useState(null);
   const [pendingQuotations, setPendingQuotations] = useState([]);
@@ -48,10 +49,17 @@ const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
 
   const currentTheme = getThemeClasses(theme, darkMode);
 
+  // Filtrar clientes basado en el término de búsqueda
+  const filteredClients = clients?.filter(client =>
+    [client.empresa, client.encargado, client.rut, client.email, client.telefono, client.ciudad]
+      .filter(Boolean)
+      .some(field => field.toLowerCase().includes(searchTerm.toLowerCase()))
+  ) || [];
+
   // Efectos para filtrar cotizaciones pendientes cuando se selecciona un cliente
   useEffect(() => {
-    if (selectedClientId && quotations && clients) {
-      const client = clients.find(c => c.id === selectedClientId);
+    if (selectedClientId && quotations && filteredClients) {
+      const client = filteredClients.find(c => c.id === selectedClientId);
       setSelectedClient(client);
 
       const clientPendingQuotations = quotations.filter(quotation => 
@@ -69,7 +77,7 @@ const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
       setPendingQuotations([]);
       setTotalAmount(0);
     }
-  }, [selectedClientId, quotations, clients]);
+  }, [selectedClientId, quotations, filteredClients]);
 
   const handleGenerateReport = async () => {
     if (!selectedClient || pendingQuotations.length === 0) return;
@@ -86,6 +94,7 @@ const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
   };
 
   const resetModal = () => {
+    setSearchTerm('');
     setSelectedClientId('');
     setSelectedClient(null);
     setPendingQuotations([]);
@@ -118,6 +127,30 @@ const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          {/* Buscador de Clientes */}
+          <div className="mb-6">
+            <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+              Buscar Cliente
+            </label>
+            <div className="relative">
+              <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar por empresa, encargado, RUT, email..."
+                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:border-transparent ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                } ${currentTheme.primary.includes('blue') ? 'focus:ring-blue-500' :
+                     currentTheme.primary.includes('green') ? 'focus:ring-green-500' :
+                     currentTheme.primary.includes('purple') ? 'focus:ring-purple-500' :
+                     'focus:ring-red-500'}`}
+              />
+            </div>
+          </div>
+
           {/* Selector de Cliente */}
           <div className="mb-6">
             <label className={`block text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
@@ -135,8 +168,13 @@ const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
                    currentTheme.primary.includes('purple') ? 'focus:ring-purple-500' :
                    'focus:ring-red-500'}`}
             >
-              <option value="">Seleccione un cliente...</option>
-              {clients?.map(client => (
+              <option value="">
+                {filteredClients?.length === 0 && searchTerm 
+                  ? "No se encontraron clientes..." 
+                  : "Seleccione un cliente..."
+                }
+              </option>
+              {filteredClients?.map(client => (
                 <option key={client.id} value={client.id}>
                   {client.empresa} - {client.rut}
                 </option>

@@ -128,17 +128,30 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit, u
 
         {/* LISTADO */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full table-fixed">
             <thead className={darkMode ? "bg-gray-700" : "bg-gray-50"}>
               <tr>
-                {["RUT", "Empresa", "Encargado", "Email", "Teléfono", "Ciudad", "Acciones"].map((head) => (
-                  <th
-                    key={head}
-                    className={`text-left py-4 px-6 text-sm font-medium ${darkMode ? "text-gray-300" : "text-gray-600"}`}
-                  >
-                    {head}
-                  </th>
-                ))}
+                <th className={`text-left py-4 px-6 text-sm font-medium w-32 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  RUT
+                </th>
+                <th className={`text-left py-4 px-6 text-sm font-medium w-48 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Empresa
+                </th>
+                <th className={`text-left py-4 px-6 text-sm font-medium w-40 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Encargado
+                </th>
+                <th className={`text-left py-4 px-6 text-sm font-medium w-48 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Email
+                </th>
+                <th className={`text-left py-4 px-6 text-sm font-medium w-32 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Teléfono
+                </th>
+                <th className={`text-left py-4 px-6 text-sm font-medium w-32 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Ciudad
+                </th>
+                <th className={`text-left py-4 px-6 text-sm font-medium w-32 ${darkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  Acciones
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -149,20 +162,28 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit, u
                     darkMode ? "border-gray-700 hover:bg-gray-700" : "border-gray-200 hover:bg-gray-50"
                   }`}
                 >
-                  <td className={`py-4 px-6 font-medium ${darkMode ? "text-white" : "text-gray-900"}`}>{client.rut}</td>
-                  <td className={`py-4 px-6 font-medium ${darkMode ? "text-white" : "text-gray-900"}`}>{client.empresa}</td>
-                  <td className={`py-4 px-6 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>{client.encargado}</td>
-                  <td className={`py-4 px-6 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-                    <a href={`mailto:${client.email}`} className="text-blue-600 hover:text-blue-800" title={`Enviar email a ${client.email}`}>
+                  <td className={`py-4 px-6 font-medium truncate ${darkMode ? "text-white" : "text-gray-900"}`} title={client.rut}>
+                    {client.rut}
+                  </td>
+                  <td className={`py-4 px-6 font-medium truncate ${darkMode ? "text-white" : "text-gray-900"}`} title={client.empresa}>
+                    {client.empresa}
+                  </td>
+                  <td className={`py-4 px-6 truncate ${darkMode ? "text-gray-300" : "text-gray-700"}`} title={client.encargado}>
+                    {client.encargado}
+                  </td>
+                  <td className={`py-4 px-6 truncate ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    <a href={`mailto:${client.email}`} className="text-blue-600 hover:text-blue-800 truncate block" title={`Enviar email a ${client.email}`}>
                       {client.email}
                     </a>
                   </td>
-                  <td className={`py-4 px-6 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-                    <a href={`tel:${client.telefono}`} className="text-blue-600 hover:text-blue-800">
+                  <td className={`py-4 px-6 truncate ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                    <a href={`tel:${client.telefono}`} className="text-blue-600 hover:text-blue-800 truncate block" title={client.telefono}>
                       {client.telefono}
                     </a>
                   </td>
-                  <td className={`py-4 px-6 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>{client.ciudad}</td>
+                  <td className={`py-4 px-6 truncate ${darkMode ? "text-gray-300" : "text-gray-700"}`} title={client.ciudad}>
+                    {client.ciudad}
+                  </td>
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-2">
                       <button onClick={() => startEdit("client", client)} className="p-1 text-blue-600 hover:text-blue-800" title="Editar cliente">
