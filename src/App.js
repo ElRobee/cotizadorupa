@@ -60,6 +60,7 @@ import MobileNav from './components/layout/MobileNav';
 import CompanySettingsView from './components/CompanySettingsView';
 import MaintenanceView from './components/MaintenanceView';
 import MaintenanceModal from './components/MaintenanceModal';
+import PaymentStatusModal from './components/PaymentStatusModal';
 import { 
   handleThemeChange, 
   toggleDarkMode, 
@@ -182,6 +183,7 @@ const CotizacionesApp = () => {
   // ESTADOS PARA MODALES Y UI
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
+  const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEquipment, setSelectedEquipment] = useState(null);
 
@@ -1231,6 +1233,35 @@ const DashboardView = () => {
                 Nuevo Servicio
               </span>
             </button>
+
+            {/* Estado de Pago */}
+            <button
+              onClick={() => setShowPaymentStatusModal(true)}
+               className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${
+                theme === 'blue' ? 'bg-blue-50 hover:bg-blue-100' :
+                theme === 'green' ? 'bg-green-50 hover:bg-green-100' :
+                theme === 'purple' ? 'bg-purple-50 hover:bg-purple-100' :
+                theme === 'red' ? 'bg-red-50 hover:bg-red-100' :
+                'bg-gray-50 hover:bg-gray-100'
+              } ${darkMode ? 'hover:bg-opacity-10 bg-opacity-10' : ''}`}
+            >
+              <FileBarChart className={`w-5 h-5 ${
+                theme === 'blue' ? 'text-blue-600' :
+                theme === 'green' ? 'text-green-600' :
+                theme === 'purple' ? 'text-purple-600' :
+                theme === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
+              <span className={`font-medium ${
+                theme === 'blue' ? 'text-blue-700' :
+                theme === 'green' ? 'text-green-700' :
+                theme === 'purple' ? 'text-purple-700' :
+                theme === 'red' ? 'text-red-700' :
+                'text-gray-700'
+              } ${darkMode ? 'text-opacity-90' : ''}`}>
+                Estado de Pago
+              </span>
+            </button>
           </div>
         </div>
       </div>
@@ -1393,6 +1424,14 @@ return (
           userProfile={userProfile}
         />
       )}
+
+      {/* Modal de Estado de Pago */}
+      <PaymentStatusModal
+        isOpen={showPaymentStatusModal}
+        onClose={() => setShowPaymentStatusModal(false)}
+        theme={theme}
+        darkMode={darkMode}
+      />
 
       {/* SISTEMA DE NOTIFICACIONES */}
       <NotificationContainer />
