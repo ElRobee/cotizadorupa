@@ -1174,12 +1174,13 @@ const DashboardView = () => {
                 'text-gray-600'
               }`} />
               <span className={`font-medium ${
+                darkMode ? 'text-white' : 
                 theme === 'blue' ? 'text-blue-700' :
                 theme === 'green' ? 'text-green-700' :
                 theme === 'purple' ? 'text-purple-700' :
                 theme === 'red' ? 'text-red-700' :
                 'text-gray-700'
-              } ${darkMode ? 'text-opacity-90' : ''}`}>
+              }`}>
                 Nueva Cotización
               </span>
             </button>
@@ -1206,12 +1207,13 @@ const DashboardView = () => {
                 'text-gray-600'
               }`} />
               <span className={`font-medium ${
+                darkMode ? 'text-white' : 
                 theme === 'blue' ? 'text-blue-700' :
                 theme === 'green' ? 'text-green-700' :
                 theme === 'purple' ? 'text-purple-700' :
                 theme === 'red' ? 'text-red-700' :
                 'text-gray-700'
-              } ${darkMode ? 'text-opacity-90' : ''}`}>
+              }`}>
                 Nuevo Cliente
               </span>
             </button>
@@ -1238,12 +1240,13 @@ const DashboardView = () => {
                 'text-gray-600'
               }`} />
               <span className={`font-medium ${
+                darkMode ? 'text-white' : 
                 theme === 'blue' ? 'text-blue-700' :
                 theme === 'green' ? 'text-green-700' :
                 theme === 'purple' ? 'text-purple-700' :
                 theme === 'red' ? 'text-red-700' :
                 'text-gray-700'
-              } ${darkMode ? 'text-opacity-90' : ''}`}>
+              }`}>
                 Nuevo Servicio
               </span>
             </button>
@@ -1267,12 +1270,13 @@ const DashboardView = () => {
                 'text-gray-600'
               }`} />
               <span className={`font-medium ${
+                darkMode ? 'text-white' : 
                 theme === 'blue' ? 'text-blue-700' :
                 theme === 'green' ? 'text-green-700' :
                 theme === 'purple' ? 'text-purple-700' :
                 theme === 'red' ? 'text-red-700' :
                 'text-gray-700'
-              } ${darkMode ? 'text-opacity-90' : ''}`}>
+              }`}>
                 Estado de Pago
               </span>
             </button>

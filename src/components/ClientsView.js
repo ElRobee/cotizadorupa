@@ -172,12 +172,16 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit, u
                     {client.encargado}
                   </td>
                   <td className={`py-4 px-6 truncate ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-                    <a href={`mailto:${client.email}`} className="text-blue-600 hover:text-blue-800 truncate block" title={`Enviar email a ${client.email}`}>
+                    <a href={`mailto:${client.email}`} className={`hover:underline truncate block ${
+                      darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'
+                    }`} title={`Enviar email a ${client.email}`}>
                       {client.email}
                     </a>
                   </td>
                   <td className={`py-4 px-6 truncate ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-                    <a href={`tel:${client.telefono}`} className="text-blue-600 hover:text-blue-800 truncate block" title={client.telefono}>
+                    <a href={`tel:${client.telefono}`} className={`hover:underline truncate block ${
+                      darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-800'
+                    }`} title={client.telefono}>
                       {client.telefono}
                     </a>
                   </td>

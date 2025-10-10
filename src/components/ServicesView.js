@@ -194,12 +194,20 @@ const ServicesView = ({
                   </td>
                   <td className="py-4 px-6">
                     <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                      theme === 'blue' ? 'bg-blue-100 text-blue-800' :
-                      theme === 'green' ? 'bg-green-100 text-green-800' :
-                      theme === 'purple' ? 'bg-purple-100 text-purple-800' :
-                      theme === 'red' ? 'bg-red-100 text-red-800' :
-                      'bg-gray-100 text-gray-800'
-                    } ${darkMode ? 'bg-opacity-20' : ''}`}>
+                      darkMode ? (
+                        theme === 'blue' ? 'bg-blue-900 text-blue-200' :
+                        theme === 'green' ? 'bg-green-900 text-green-200' :
+                        theme === 'purple' ? 'bg-purple-900 text-purple-200' :
+                        theme === 'red' ? 'bg-red-900 text-red-200' :
+                        'bg-gray-700 text-gray-300'
+                      ) : (
+                        theme === 'blue' ? 'bg-blue-100 text-blue-800' :
+                        theme === 'green' ? 'bg-green-100 text-green-800' :
+                        theme === 'purple' ? 'bg-purple-100 text-purple-800' :
+                        theme === 'red' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      )
+                    }`}>
                       {service.category}
                     </span>
                   </td>
@@ -340,12 +348,20 @@ const ServicesView = ({
                 <div className="flex items-center space-x-2">
                   <Tag className={`w-4 h-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                   <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                    theme === 'blue' ? 'bg-blue-100 text-blue-800' :
-                    theme === 'green' ? 'bg-green-100 text-green-800' :
-                    theme === 'purple' ? 'bg-purple-100 text-purple-800' :
-                    theme === 'red' ? 'bg-red-100 text-red-800' :
-                    'bg-gray-100 text-gray-800'
-                  } ${darkMode ? 'bg-opacity-20' : ''}`}>
+                    darkMode ? (
+                      theme === 'blue' ? 'bg-blue-900 text-blue-200' :
+                      theme === 'green' ? 'bg-green-900 text-green-200' :
+                      theme === 'purple' ? 'bg-purple-900 text-purple-200' :
+                      theme === 'red' ? 'bg-red-900 text-red-200' :
+                      'bg-gray-700 text-gray-300'
+                    ) : (
+                      theme === 'blue' ? 'bg-blue-100 text-blue-800' :
+                      theme === 'green' ? 'bg-green-100 text-green-800' :
+                      theme === 'purple' ? 'bg-purple-100 text-purple-800' :
+                      theme === 'red' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'
+                    )
+                  }`}>
                     {service.category}
                   </span>
                 </div>
