@@ -98,8 +98,15 @@ const QuotationsView = ({
 
     // Ordenar por número de cotización (de mayor a menor)
     filtered.sort((a, b) => {
-      const numberA = parseInt(a.number) || 0;
-      const numberB = parseInt(b.number) || 0;
+      // Extraer los últimos 3 dígitos del formato COT-2025-005
+      const extractNumber = (quotationNumber) => {
+        if (!quotationNumber) return 0;
+        const match = quotationNumber.match(/(\d{3})$/); // Busca los últimos 3 dígitos
+        return match ? parseInt(match[1]) : 0;
+      };
+      
+      const numberA = extractNumber(a.number);
+      const numberB = extractNumber(b.number);
       return numberB - numberA; // Orden descendente (más recientes primero)
     });
 
