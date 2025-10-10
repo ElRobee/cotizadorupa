@@ -40,25 +40,6 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
         </div>
       </div>
 
-      <!-- Resumen ejecutivo -->
-      <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #ffc107;">
-        <h3 style="color: #856404; margin: 0 0 15px 0;">RESUMEN EJECUTIVO</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; text-align: center;">
-          <div>
-            <p style="margin: 0; font-size: 24px; font-weight: bold; color: #dc3545;">${pendingQuotations.length}</p>
-            <p style="margin: 5px 0; color: #856404; font-weight: 500;">Cotizaciones Pendientes</p>
-          </div>
-          <div>
-            <p style="margin: 0; font-size: 24px; font-weight: bold; color: #dc3545;">$${Math.round(totalAmount).toLocaleString()}</p>
-            <p style="margin: 5px 0; color: #856404; font-weight: 500;">Monto Total Pendiente</p>
-          </div>
-          <div>
-            <p style="margin: 0; font-size: 24px; font-weight: bold; color: #dc3545;">$${Math.round(totalAmount / pendingQuotations.length || 0).toLocaleString()}</p>
-            <p style="margin: 5px 0; color: #856404; font-weight: 500;">Promedio por Cotización</p>
-          </div>
-        </div>
-      </div>
-
       <!-- Detalle de cotizaciones pendientes -->
       <div style="margin-bottom: 30px;">
         <h3 style="color: #333; margin: 0 0 20px 0;">DETALLE DE COTIZACIONES PENDIENTES</h3>
@@ -81,15 +62,12 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
               const isExpiringSoon = daysUntilExpiry <= 7 && daysUntilExpiry >= 0;
               
               return `
-                <tr style="${isExpired ? 'background-color: #f8d7da;' : isExpiringSoon ? 'background-color: #fff3cd;' : ''}">
+                <tr>
                   <td style="border: 1px solid #ddd; padding: 10px; font-weight: 500;">${quotation.number}</td>
                   <td style="border: 1px solid #ddd; padding: 10px;">${quotation.date}</td>
                   <td style="border: 1px solid #ddd; padding: 10px;">${quotation.validUntil}</td>
-                  <td style="border: 1px solid #ddd; padding: 10px; text-align: center; color: ${
-                    isExpired ? '#721c24' : isExpiringSoon ? '#856404' : '#155724'
-                  }; font-weight: 500;">
+                  <td style="border: 1px solid #ddd; padding: 10px; text-align: center;">
                     ${isExpired ? `Vencida (${Math.abs(daysUntilExpiry)} días)` : 
-                      isExpiringSoon ? `${daysUntilExpiry} días` : 
                       `${daysUntilExpiry} días`}
                   </td>
                   <td style="border: 1px solid #ddd; padding: 10px; text-align: right; font-weight: 500;">
@@ -108,70 +86,6 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
             </tr>
           </tfoot>
         </table>
-      </div>
-
-      <!-- Análisis de vencimientos -->
-      ${(() => {
-        const expired = pendingQuotations.filter(q => {
-          const validUntilDate = new Date(q.validUntil);
-          const today = new Date();
-          return validUntilDate < today;
-        });
-        
-        const expiringSoon = pendingQuotations.filter(q => {
-          const validUntilDate = new Date(q.validUntil);
-          const today = new Date();
-          const daysUntilExpiry = Math.ceil((validUntilDate - today) / (1000 * 60 * 60 * 24));
-          return daysUntilExpiry <= 7 && daysUntilExpiry >= 0;
-        });
-
-        const expiredAmount = expired.reduce((sum, q) => sum + (q.total || 0), 0);
-        const expiringSoonAmount = expiringSoon.reduce((sum, q) => sum + (q.total || 0), 0);
-
-        return `
-          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #6c757d;">
-            <h3 style="color: #495057; margin: 0 0 15px 0;">ANÁLISIS DE VENCIMIENTOS</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
-              <div style="text-align: center; padding: 15px; background-color: white; border-radius: 6px; border: 1px solid #dee2e6;">
-                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #28a745;">${pendingQuotations.length - expired.length - expiringSoon.length}</p>
-                <p style="margin: 5px 0; color: #495057; font-size: 14px;">Cotizaciones Vigentes</p>
-                <p style="margin: 0; font-weight: bold; color: #28a745;">$${Math.round(totalAmount - expiredAmount - expiringSoonAmount).toLocaleString()}</p>
-              </div>
-              <div style="text-align: center; padding: 15px; background-color: white; border-radius: 6px; border: 1px solid #dee2e6;">
-                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #ffc107;">${expiringSoon.length}</p>
-                <p style="margin: 5px 0; color: #495057; font-size: 14px;">Vencen Pronto (≤7 días)</p>
-                <p style="margin: 0; font-weight: bold; color: #ffc107;">$${Math.round(expiringSoonAmount).toLocaleString()}</p>
-              </div>
-              <div style="text-align: center; padding: 15px; background-color: white; border-radius: 6px; border: 1px solid #dee2e6;">
-                <p style="margin: 0; font-size: 18px; font-weight: bold; color: #dc3545;">${expired.length}</p>
-                <p style="margin: 5px 0; color: #495057; font-size: 14px;">Cotizaciones Vencidas</p>
-                <p style="margin: 0; font-weight: bold; color: #dc3545;">$${Math.round(expiredAmount).toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-        `;
-      })()}
-
-      <!-- Recomendaciones -->
-      <div style="background-color: #d1ecf1; padding: 20px; border-radius: 8px; margin-bottom: 30px; border-left: 4px solid #17a2b8;">
-        <h3 style="color: #0c5460; margin: 0 0 15px 0;">RECOMENDACIONES</h3>
-        <ul style="margin: 0; padding-left: 20px; color: #0c5460;">
-          ${pendingQuotations.filter(q => {
-            const validUntilDate = new Date(q.validUntil);
-            const today = new Date();
-            return validUntilDate < today;
-          }).length > 0 ? '<li style="margin: 8px 0;">Contactar al cliente para renovar las cotizaciones vencidas o proceder con la facturación.</li>' : ''}
-          
-          ${pendingQuotations.filter(q => {
-            const validUntilDate = new Date(q.validUntil);
-            const today = new Date();
-            const daysUntilExpiry = Math.ceil((validUntilDate - today) / (1000 * 60 * 60 * 24));
-            return daysUntilExpiry <= 7 && daysUntilExpiry >= 0;
-          }).length > 0 ? '<li style="margin: 8px 0;">Realizar seguimiento de las cotizaciones que vencen pronto para asegurar el cierre de ventas.</li>' : ''}
-          
-          <li style="margin: 8px 0;">Considerar implementar un programa de seguimiento automático para mejorar la tasa de conversión.</li>
-          <li style="margin: 8px 0;">Revisar periódicamente los términos de validez de las cotizaciones para optimizar el proceso comercial.</li>
-        </ul>
       </div>
 
       <!-- Footer -->
