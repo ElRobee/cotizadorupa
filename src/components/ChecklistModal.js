@@ -3,6 +3,7 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { X, Save, FileText, CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 import { generateChecklistPDF } from '../utils/checklistPDF';
+import { useCompany } from '../hooks/useCompany';
 
 const defaultChecklistItems = [
   // sección: Sistema de luces / parte externa
@@ -72,6 +73,9 @@ export default function ChecklistModal({ isOpen, onClose, initialData = {}, them
   const [saving, setSaving] = useState(false);
   const [printing, setPrinting] = useState(false);
   const [error, setError] = useState(null);
+
+  // Hook para obtener datos de la empresa
+  const { company } = useCompany();
 
   // Clases de tema
   const getThemeClasses = (theme, darkMode) => {
@@ -184,7 +188,7 @@ export default function ChecklistModal({ isOpen, onClose, initialData = {}, them
         observaciones,
         checklist
       };
-      await generateChecklistPDF(checklistData);
+      await generateChecklistPDF(checklistData, company);
     } catch (error) {
       console.error('Error al generar PDF:', error);
       setError('Error al generar el PDF del checklist');

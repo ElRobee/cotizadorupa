@@ -1,4 +1,4 @@
-export const generateChecklistPDF = async (checklistData) => {
+export const generateChecklistPDF = async (checklistData, company) => {
   const getStatusIcon = (value) => {
     switch (value) {
       case 'B': return '✓';
@@ -19,9 +19,23 @@ export const generateChecklistPDF = async (checklistData) => {
 
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-      <!-- Header -->
-      <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px;">
-        <h1 style="color: #333; margin: 0; font-size: 24px;">CHECKLIST DE VEHÍCULO</h1>
+      <!-- Header con Logo y Datos de la Empresa -->
+      <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+        ${company?.logo 
+          ? `<img src="${company.logo}" alt="Logo empresa" style="width: 300px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
+          : ''
+        }
+        <div style="text-align: left;">
+          <h1 style="color: #333; margin: 0;">${company?.razonSocial || 'Empresa'}</h1>
+          <p style="margin: 5px 0;">${company?.direccion || ''} - ${company?.ciudad || ''}, ${company?.region || ''}</p>
+          <p style="margin: 5px 0;">RUT: ${company?.rut || ''} | Tel: ${company?.telefono || ''}</p>
+          <p style="margin: 5px 0;">Email: ${company?.email || ''}</p>
+        </div>
+      </div>
+
+      <!-- Título del Documento -->
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h2 style="color: #333; margin: 0; font-size: 24px;">CHECKLIST DE VEHÍCULO</h2>
         <p style="color: #666; margin: 10px 0;">Control de Inspección Vehicular</p>
         <p style="color: #666; margin: 10px 0;">Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
       </div>
@@ -105,11 +119,11 @@ export const generateChecklistPDF = async (checklistData) => {
       </div>
 
       <!-- Footer -->
-      <div style="margin-top: 40px; padding: 15px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
-        <p style="margin: 0; font-style: italic; color: #6c757d; text-align: center; font-size: 12px;">
-          "Documento de Control Vehicular generado automáticamente"<br>
-          Generado el: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}<br>
-          ${checklistData.empresa} - Control de Flota Vehicular
+      <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
+        <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
+          "Documento de Control Vehicular - No constituye certificación técnica oficial"<br>
+          Checklist válido para: ${checklistData.fecha} | Generado por: ${company?.razonSocial || 'Sistema de Control Vehicular'}<br>
+          Generado el: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}
         </p>
       </div>
     </div>
