@@ -14,12 +14,14 @@ import {
   Settings,
   FileText,
   Eye,
-  X
+  X,
+  Clipboard
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import { useMaintenance, useMaintenanceRecords } from '../hooks/useMaintenance';
 import { useCompany } from '../hooks/useCompany';
 import { generateMaintenancePDF } from '../utils/MaintenancePDF';
+import ChecklistModal from './ChecklistModal';
 
 const MaintenanceView = ({
   setModalType,
@@ -43,6 +45,7 @@ const MaintenanceView = ({
   const [filterStatus, setFilterStatus] = useState('all');
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   const [selectedEquipmentHistory, setSelectedEquipmentHistory] = useState(null);
+  const [showChecklistModal, setShowChecklistModal] = useState(false);
 
   // Tipos de equipos
   const equipmentTypes = [
@@ -197,17 +200,29 @@ const MaintenanceView = ({
           </p>
         </div>
 
-        <button
-          onClick={() => {
-            setSelectedEquipment(null);
-            setModalType('maintenance');
-            setShowModal(true);
-          }}
-          className={`flex items-center space-x-2 px-4 md:px-6 py-2 md:py-3 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
-        >
-          <Plus className="w-4 h-4 md:w-5 md:h-5" />
-          <span className="text-sm md:text-base font-medium">Nuevo Equipo</span>
-        </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <button
+            onClick={() => setShowChecklistModal(true)}
+            className={`flex items-center space-x-2 px-4 md:px-6 py-2 md:py-3 text-white rounded-lg transition-colors ${
+              darkMode ? 'bg-gray-600 hover:bg-gray-700' : 'bg-gray-600 hover:bg-gray-700'
+            }`}
+          >
+            <Clipboard className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="text-sm md:text-base font-medium">Checklist de Vehículo</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setSelectedEquipment(null);
+              setModalType('maintenance');
+              setShowModal(true);
+            }}
+            className={`flex items-center space-x-2 px-4 md:px-6 py-2 md:py-3 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+          >
+            <Plus className="w-4 h-4 md:w-5 md:h-5" />
+            <span className="text-sm md:text-base font-medium">Nuevo Equipo</span>
+          </button>
+        </div>
       </div>
 
       {/* FILTROS Y BÚSQUEDA */}
@@ -833,6 +848,14 @@ const MaintenanceView = ({
           </div>
         </div>
       )}
+
+      {/* Modal de Checklist */}
+      <ChecklistModal 
+        isOpen={showChecklistModal}
+        onClose={() => setShowChecklistModal(false)}
+        theme={theme}
+        darkMode={darkMode}
+      />
     </div>
   );
 };
