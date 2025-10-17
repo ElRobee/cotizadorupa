@@ -1,4 +1,9 @@
 export const generatePaymentStatusPDF = async (client, pendingQuotations, company, totalAmount) => {
+  // Función para formatear números con punto como separador de miles
+  const formatNumber = (num) => {
+    return Math.round(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <!-- Header con logo y datos de la empresa -->
@@ -35,7 +40,6 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
             <p style="margin: 5px 0;"><strong>Contacto:</strong> ${client.encargado || ''}</p>
             <p style="margin: 5px 0;"><strong>Teléfono:</strong> ${client.telefono || ''}</p>
             <p style="margin: 5px 0;"><strong>Email:</strong> ${client.email || ''}</p>
-            <p style="margin: 5px 0;"><strong>Cargo:</strong> ${client.cargo || ''}</p>
           </div>
         </div>
       </div>
@@ -71,7 +75,7 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
                       `${daysUntilExpiry} días`}
                   </td>
                   <td style="border: 1px solid #ddd; padding: 10px; text-align: right; font-weight: 500;">
-                    $${Math.round(quotation.total || 0).toLocaleString()}
+                    $${formatNumber(quotation.total || 0)}
                   </td>
                 </tr>
               `;
@@ -81,7 +85,7 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
             <tr style="background-color: #e9ecef; font-weight: bold;">
               <td colspan="4" style="border: 1px solid #ddd; padding: 12px; text-align: right;">TOTAL GENERAL:</td>
               <td style="border: 1px solid #ddd; padding: 12px; text-align: right; font-size: 18px; color: #dc3545;">
-                $${Math.round(totalAmount).toLocaleString()}
+                $${formatNumber(totalAmount)}
               </td>
             </tr>
           </tfoot>

@@ -1,4 +1,9 @@
 export const generateQuotationPDF = async (quotation, company, client) => {
+  // Función para formatear números con punto como separador de miles
+  const formatNumber = (num) => {
+    return Math.round(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  };
+
   // Calcular totales
   const calculateTotals = (items, discount = 0) => {
     const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
@@ -59,8 +64,8 @@ export const generateQuotationPDF = async (quotation, company, client) => {
             <tr>
               <td style="border: 1px solid #ddd; padding: 8px;">${item.quantity}</td>
               <td style="border: 1px solid #ddd; padding: 8px;">${item.service}</td>
-              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${Math.round(item.unitPrice || 0).toLocaleString()}</td>
-              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${Math.round(item.total || 0).toLocaleString()}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${formatNumber(item.unitPrice || 0)}</td>
+              <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">$${formatNumber(item.total || 0)}</td>
             </tr>
           `).join('')}
         </tbody>
@@ -77,24 +82,24 @@ export const generateQuotationPDF = async (quotation, company, client) => {
         <div style="width: 350px;">
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span>Subtotal:</span>
-            <span>$${Math.round(totals.subtotal || 0).toLocaleString()}</span>
+            <span>$${formatNumber(totals.subtotal || 0)}</span>
           </div>
           ${totals.discountAmount > 0 ? `
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px; color: #dc2626;">
             <span>Descuento:</span>
-            <span>-$${Math.round(totals.discountAmount || 0).toLocaleString()}</span>
+            <span>-$${formatNumber(totals.discountAmount || 0)}</span>
           </div>
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span>Subtotal con Desc.:</span>
-            <span>$${Math.round(totals.subtotalWithDiscount || 0).toLocaleString()}</span>
+            <span>$${formatNumber(totals.subtotalWithDiscount || 0)}</span>
           </div>` : ''}
           <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
             <span>IVA (19%):</span>
-            <span>$${Math.round(totals.iva || 0).toLocaleString()}</span>
+            <span>$${formatNumber(totals.iva || 0)}</span>
           </div>
           <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; border-top: 2px solid #333; padding-top: 10px;">
             <span>TOTAL:</span>
-            <span>$${Math.round(totals.total || 0).toLocaleString()}</span>
+            <span>$${formatNumber(totals.total || 0)}</span>
           </div>
         </div>
       </div>

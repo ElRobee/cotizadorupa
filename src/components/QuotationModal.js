@@ -4,6 +4,7 @@ import { getThemeClasses } from '../lib/utils.js';
 import { useQuotations } from '../hooks/useQuotations';
 import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
+import { useFichasTecnicas } from '../hooks/useFichasTecnicas';
 
 const QuotationModal = memo(({
   isEditing,
@@ -19,6 +20,7 @@ const QuotationModal = memo(({
   const { quotations, addQuotation, updateQuotation } = useQuotations();
   const { services } = useServices();
   const { clients } = useClients();
+  const { fichas } = useFichasTecnicas();
 
   // Estado local para el formulario
   const [formData, setFormData] = useState(quotationData || {
@@ -369,6 +371,9 @@ const QuotationModal = memo(({
                         Servicio
                       </th>
                       <th className={`text-left py-3 px-4 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-600'}`}>
+                        Ficha Técnica
+                      </th>
+                      <th className={`text-left py-3 px-4 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-600'}`}>
                         Precio Unit.
                       </th>
                       <th className={`text-left py-3 px-4 text-sm font-medium ${darkMode ? 'text-gray-200' : 'text-gray-600'}`}>
@@ -409,6 +414,24 @@ const QuotationModal = memo(({
                             {(services || []).map(service => (
                               <option key={service.id} value={service.name}>
                                 {service.name}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="py-3 px-4">
+                          <select
+                            value={item.fichaUrl || ''}
+                            onChange={(e) => handleUpdateItem(item.id, 'fichaUrl', e.target.value)}
+                            className={`w-full px-2 py-1 border rounded focus:outline-none focus:ring-1 ${currentTheme.focus} ${
+                              darkMode 
+                                ? 'bg-gray-800 border-gray-500 text-white' 
+                                : 'bg-white border-gray-300 text-gray-900'
+                            }`}
+                          >
+                            <option value="">Sin ficha técnica</option>
+                            {(fichas || []).map(ficha => (
+                              <option key={ficha.id} value={ficha.urlPDF}>
+                                {ficha.nombre}
                               </option>
                             ))}
                           </select>

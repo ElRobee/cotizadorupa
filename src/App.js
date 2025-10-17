@@ -61,6 +61,7 @@ import CompanySettingsView from './components/CompanySettingsView';
 import MaintenanceView from './components/MaintenanceView';
 import MaintenanceModal from './components/MaintenanceModal';
 import PaymentStatusModal from './components/PaymentStatusModal';
+import FichasAdminModal from './components/FichasAdminModal';
 import { 
   handleThemeChange, 
   toggleDarkMode, 
@@ -184,6 +185,7 @@ const CotizacionesApp = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+  const [showFichasModal, setShowFichasModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEquipment, setSelectedEquipment] = useState(null);
 
@@ -978,6 +980,19 @@ const Sidebar = () => {
             <Building2 className="w-5 h-5" />
             <span>Empresa</span>
           </button>
+
+          {/* Fichas Técnicas - Solo para admins */}
+          {isAdmin && (
+            <button
+              onClick={() => setShowFichasModal(true)}
+              className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+                darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <FileText className="w-5 h-5" />
+              <span>Fichas Técnicas</span>
+            </button>
+          )}
         </div>
       </nav>
 
@@ -1447,6 +1462,14 @@ return (
       <PaymentStatusModal
         isOpen={showPaymentStatusModal}
         onClose={() => setShowPaymentStatusModal(false)}
+        theme={theme}
+        darkMode={darkMode}
+      />
+
+      {/* Modal de Administración de Fichas Técnicas */}
+      <FichasAdminModal
+        isOpen={showFichasModal}
+        onClose={() => setShowFichasModal(false)}
         theme={theme}
         darkMode={darkMode}
       />
