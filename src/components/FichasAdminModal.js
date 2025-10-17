@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, X, Save, FileText } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Save, FileText, Zap, CheckCircle } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import { useFichasTecnicas } from '../hooks/useFichasTecnicas';
+import { initializeFichasTecnicas } from '../utils/fichasInitializer';
 
 const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
@@ -14,6 +15,7 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
     urlPDF: ''
   });
   const [saving, setSaving] = useState(false);
+  const [initializing, setInitializing] = useState(false);
 
   // Reset form when modal opens/closes
   useEffect(() => {
@@ -94,6 +96,28 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
     setFormData({ nombre: '', urlPDF: '' });
   };
 
+  const handleAutoInitialize = async () => {
+    if (!confirm('¿Estás seguro de que deseas crear automáticamente todas las fichas técnicas desde el catálogo predefinido?\n\nEsto no duplicará fichas existentes.')) {
+      return;
+    }
+
+    setInitializing(true);
+    try {
+      const result = await initializeFichasTecnicas();
+      
+      if (result.success) {
+        alert(`✅ Proceso completado exitosamente!\n\n📝 Fichas creadas: ${result.created}\n⏭️ Fichas ya existentes: ${result.skipped}\n📋 Total procesadas: ${result.total}`);
+      } else {
+        alert(`❌ Error durante el proceso: ${result.error}`);
+      }
+    } catch (error) {
+      console.error('Error al inicializar fichas:', error);
+      alert('❌ Error inesperado al crear las fichas técnicas');
+    } finally {
+      setInitializing(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -133,18 +157,51 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
           {!showForm ? (
             <>
-              {/* Action Button */}
-              <div className="flex justify-between items-center mb-6">
-                <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              {/* Action Buttons */}
+              <div className="mb-6">
+                <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mb-4`}>
                   Gestiona las fichas técnicas disponibles para asociar a los servicios.
                 </p>
-                <button
-                  onClick={handleStartNew}
-                  className={`flex items-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Nueva Ficha</span>
-                </button>
+                <div className={`p-3 rounded-lg mb-4 ${darkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'} border`}>
+                  <div className="flex items-start space-x-2">
+                    <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                    <div className={`text-sm ${darkMode ? 'text-blue-200' : 'text-blue-700'}`}>
+                      <strong>Auto-Crear:</strong> Detecta automáticamente los PDFs subidos al repositorio y crea las fichas técnicas correspondientes según el catálogo predefinido.
+                    </div>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleAutoInitialize}
+                    disabled={initializing}
+                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
+                      initializing 
+                        ? 'bg-gray-400 cursor-not-allowed text-white'
+                        : 'bg-green-600 hover:bg-green-700 text-white'
+                    }`}
+                    title="Crear automáticamente todas las fichas del catálogo"
+                  >
+                    {initializing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                        <span>Creando...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4" />
+                        <span>Auto-Crear</span>
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleStartNew}
+                    className={`flex items-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Nueva Ficha</span>
+                  </button>
+                </div>
               </div>
 
               {/* Fichas List */}
