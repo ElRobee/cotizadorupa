@@ -1,16 +1,23 @@
 // Función para convertir PDF a imagen usando PDF.js
 const convertPdfToImage = async (pdfUrl) => {
   try {
+    console.log(`🔄 Iniciando conversión de: ${pdfUrl}`);
+    
     // Verificar acceso al PDF primero
+    console.log(`1️⃣ Verificando acceso al PDF...`);
     const isAccessible = await checkPdfAccess(pdfUrl);
     if (!isAccessible) {
-      throw new Error('PDF no accesible');
+      throw new Error('PDF no accesible - verificar URL o permisos');
     }
+    console.log(`✅ PDF accesible`);
 
     // Cargar PDF.js desde CDN si no está disponible
+    console.log(`2️⃣ Verificando PDF.js...`);
     if (typeof window.pdfjsLib === 'undefined') {
+      console.log(`📦 Cargando PDF.js desde CDN...`);
       await loadPdfJs();
     }
+    console.log(`✅ PDF.js disponible`);
 
     const pdfjsLib = window.pdfjsLib;
     
@@ -18,14 +25,18 @@ const convertPdfToImage = async (pdfUrl) => {
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
     
     // Cargar el PDF
+    console.log(`3️⃣ Cargando documento PDF...`);
     const loadingTask = pdfjsLib.getDocument(pdfUrl);
     const pdf = await loadingTask.promise;
+    console.log(`✅ PDF cargado: ${pdf.numPages} páginas`);
     
     const images = [];
     const maxPages = Math.min(pdf.numPages, 2); // Máximo 2 páginas para no sobrecargar
+    console.log(`4️⃣ Convirtiendo ${maxPages} página(s) a imagen...`);
     
     // Convertir cada página a imagen
     for (let pageNum = 1; pageNum <= maxPages; pageNum++) {
+      console.log(`  📄 Procesando página ${pageNum}/${maxPages}...`);
       const page = await pdf.getPage(pageNum);
       const scale = 1.2; // Escala para buena calidad
       const viewport = page.getViewport({ scale });
@@ -50,11 +61,13 @@ const convertPdfToImage = async (pdfUrl) => {
       // Convertir canvas a imagen base64
       const imageDataUrl = canvas.toDataURL('image/jpeg', 0.85); // JPEG para mejor compresión
       images.push(imageDataUrl);
+      console.log(`  ✅ Página ${pageNum} convertida (${Math.round(imageDataUrl.length / 1024)}KB)`);
     }
     
+    console.log(`🎉 Conversión completada: ${images.length} imágenes generadas`);
     return images;
   } catch (error) {
-    console.error('Error convirtiendo PDF a imagen:', error);
+    console.error('❌ Error en convertPdfToImage:', error);
     throw error; // Re-lanzar el error para manejo en el nivel superior
   }
 };
@@ -95,10 +108,12 @@ const loadPdfJs = () => {
 // Función para verificar si un URL es accesible
 const checkPdfAccess = async (url) => {
   try {
+    console.log(`🔍 Verificando acceso a: ${url}`);
     const response = await fetch(url, { method: 'HEAD' });
+    console.log(`📡 Respuesta: ${response.status} ${response.statusText}`);
     return response.ok;
   } catch (error) {
-    console.error(`Error verificando acceso a PDF ${url}:`, error);
+    console.error(`❌ Error verificando acceso a PDF ${url}:`, error);
     return false;
   }
 };
@@ -140,16 +155,18 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
     for (let i = 0; i < servicesWithTechnicalSheets.length; i++) {
       const item = servicesWithTechnicalSheets[i];
       console.log(`📄 Procesando ${i + 1}/${servicesWithTechnicalSheets.length}: ${item.service}`);
+      console.log(`🔗 URL: ${item.fichaUrl}`);
       
       try {
         const images = await convertPdfToImage(item.fichaUrl);
+        console.log(`✅ Éxito para ${item.service}:`, images ? `${images.length} imágenes` : 'null');
         servicesWithImages.push({
           ...item,
           images: images,
-          success: images !== null
+          success: images !== null && images.length > 0
         });
       } catch (error) {
-        console.error(`Error procesando ${item.service}:`, error);
+        console.error(`❌ Error procesando ${item.service}:`, error);
         servicesWithImages.push({
           ...item,
           images: null,
@@ -163,12 +180,22 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
     
     // Verificar si al menos una ficha se procesó correctamente
     const successfullyProcessed = servicesWithImages.filter(item => item.success).length;
+    
     if (successfullyProcessed === 0) {
-      alert('❌ No se pudieron procesar las fichas técnicas PDF.\n\nVerifica que los archivos PDF sean accesibles y estén en el formato correcto.');
-      return false;
+      // Si ninguna se procesó, preguntar si continuar solo con enlaces
+      const continueWithLinks = confirm('❌ No se pudieron procesar las fichas técnicas PDF como imágenes.\n\n¿Deseas continuar generando el informe solo con enlaces a los PDFs?\n\n(Los enlaces no estarán disponibles en la versión impresa)');
+      
+      if (!continueWithLinks) {
+        return false;
+      }
+      
+      // Continuar con todas las fichas como enlaces
+      console.log('⚠️ Continuando con enlaces únicamente');
     } else if (successfullyProcessed < servicesWithImages.length) {
       const failedCount = servicesWithImages.length - successfullyProcessed;
-      alert(`⚠️ Se procesaron ${successfullyProcessed} de ${servicesWithImages.length} fichas técnicas.\n\n${failedCount} ficha(s) no se pudieron procesar y aparecerán como enlaces.`);
+      alert(`⚠️ Se procesaron ${successfullyProcessed} de ${servicesWithImages.length} fichas técnicas.\n\n${failedCount} ficha(s) aparecerán como enlaces en lugar de imágenes.`);
+    } else {
+      console.log(`🎉 Todas las fichas técnicas se procesaron correctamente`);
     }  const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
@@ -319,4 +346,50 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
     alert(`Error al generar el informe técnico: ${error.message}`);
     return false;
   }
+};
+
+// Función de diagnóstico para probar PDF.js (para debugging)
+window.testPdfJs = async () => {
+  console.log('🔬 DIAGNÓSTICO PDF.js');
+  console.log('='.repeat(50));
+  
+  try {
+    console.log('1️⃣ Probando carga de PDF.js...');
+    await loadPdfJs();
+    console.log('✅ PDF.js cargado correctamente');
+    
+    console.log('2️⃣ Verificando configuración...');
+    console.log('pdfjsLib disponible:', typeof window.pdfjsLib !== 'undefined');
+    console.log('Worker configurado:', window.pdfjsLib?.GlobalWorkerOptions?.workerSrc);
+    
+    // Probar con un PDF de ejemplo
+    const testUrl = '/fichas/GRUA-HORQUILLA-TOYOTA-3Y4TON.pdf'; // Cambia por una URL real
+    console.log(`3️⃣ Probando con PDF de ejemplo: ${testUrl}`);
+    
+    const isAccessible = await checkPdfAccess(testUrl);
+    console.log('Accesible:', isAccessible);
+    
+    if (isAccessible) {
+      console.log('4️⃣ Intentando cargar documento...');
+      const loadingTask = window.pdfjsLib.getDocument(testUrl);
+      const pdf = await loadingTask.promise;
+      console.log(`✅ Documento cargado: ${pdf.numPages} páginas`);
+      
+      console.log('5️⃣ Probando renderizado de primera página...');
+      const page = await pdf.getPage(1);
+      const viewport = page.getViewport({ scale: 0.5 });
+      console.log(`✅ Página obtenida: ${viewport.width}x${viewport.height}`);
+      
+      console.log('🎉 DIAGNÓSTICO EXITOSO - PDF.js funciona correctamente');
+    }
+    
+  } catch (error) {
+    console.error('❌ ERROR EN DIAGNÓSTICO:', error);
+    console.log('💡 Posibles soluciones:');
+    console.log('- Verificar que los PDFs estén en /public/fichas/');
+    console.log('- Comprobar conectividad a CDN');
+    console.log('- Revisar políticas CORS del servidor');
+  }
+  
+  console.log('='.repeat(50));
 };
