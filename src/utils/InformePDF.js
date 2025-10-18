@@ -5,7 +5,7 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       return Math.round(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     };
 
-    console.log('🔧 Generando informe técnico...', { quotation, allServices: allServices?.length, company });
+    console.log('🔧 Generando informe técnico...', { quotation, company });
 
     // Validar que tengamos los datos necesarios
     if (!quotation || !quotation.items || quotation.items.length === 0) {
@@ -13,48 +13,14 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       return false;
     }
 
-  // Obtener servicios con fichas técnicas asociadas
-  const servicesWithTechnicalSheets = quotation.items.filter(item => item.fichaUrl);
-  console.log('📋 Servicios con fichas técnicas:', servicesWithTechnicalSheets);
-  
-  // Preparar servicios para especificaciones legacy (independientemente de si hay fichas técnicas)
-  let servicesInQuotation = [];
-  if (allServices && allServices.length > 0) {
-    servicesInQuotation = quotation.items.map(item => {
-      const serviceDetails = allServices.find(s => s.name === item.service);
-      return serviceDetails;
-    }).filter(Boolean)
-      .filter(service => {
-        const allowedCategories = ['Elevadores', 'Maquinarias', 'Transporte'];
-        return service.category && allowedCategories.includes(service.category);
-      });
-  }
-  console.log('🔧 Servicios con especificaciones legacy:', servicesInQuotation);
+    // Obtener servicios con fichas técnicas asociadas
+    const servicesWithTechnicalSheets = quotation.items.filter(item => item.fichaUrl);
 
-  // Verificar si hay contenido para generar el informe
-  const hasAnyTechnicalContent = servicesWithTechnicalSheets.length > 0 || 
-    (servicesInQuotation.length > 0 && servicesInQuotation.some(service => 
-      service.specs && Object.keys(service.specs).some(key => service.specs[key])
-    ));
-
-  console.log('✅ ¿Tiene contenido técnico?', hasAnyTechnicalContent);
-
-  if (!hasAnyTechnicalContent) {
-    let errorMessage = '';
-    
-    if (servicesWithTechnicalSheets.length === 0 && (!allServices || allServices.length === 0)) {
-      errorMessage = 'No se pudieron cargar los servicios para generar el informe técnico.';
-    } else if (servicesWithTechnicalSheets.length === 0 && servicesInQuotation.length === 0) {
-      errorMessage = 'Esta cotización no contiene servicios con fichas técnicas ni servicios de las categorías Elevadores, Maquinarias o Transporte.\n\nPara generar un informe técnico necesitas:\n• Asociar fichas técnicas a los servicios, O\n• Servicios de categorías: Elevadores, Maquinarias o Transporte con especificaciones configuradas.';
-    } else {
-      errorMessage = `No hay contenido técnico disponible para esta cotización.\n\nDetalles:\n• Servicios con fichas técnicas: ${servicesWithTechnicalSheets.length}\n• Servicios con especificaciones: ${servicesInQuotation.length}\n\nPara generar un informe técnico, asocia fichas técnicas a los servicios en el modal de edición de cotización.`;
-    }
-    
-    alert(errorMessage);
-    return false;
-  }
-
-  const htmlContent = `
+    // Verificar si hay fichas técnicas para generar el informe
+    if (servicesWithTechnicalSheets.length === 0) {
+      alert(`No hay servicios con fichas técnicas asociadas en esta cotización.\n\nPara generar un informe técnico:\n1. Edita la cotización\n2. Selecciona fichas técnicas para los servicios en el dropdown "Ficha Técnica"\n3. Guarda los cambios\n4. Intenta generar el informe nuevamente`);
+      return false;
+    }  const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
         ${company?.logo 
@@ -77,102 +43,41 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       </div>
 
       <!-- Fichas Técnicas -->
-      ${servicesWithTechnicalSheets.length > 0 ? `
-        <div style="margin-bottom: 40px;">
-          <h3 style="color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">
-            📋 FICHAS TÉCNICAS ASOCIADAS
-          </h3>
-          ${servicesWithTechnicalSheets.map((item, index) => `
-            <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; page-break-inside: avoid;">
-              <h4 style="color: #0056b3; margin-top: 0;">
-                ${index + 1}. ${item.service}
-              </h4>
-              <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
-                <p style="margin: 0; color: #333;">
-                  <strong>Ficha Técnica Disponible</strong><br>
-                  <small>Cantidad: ${item.quantity || 1} unidad(es)</small>
-                </p>
-              </div>
-              
-              <!-- Contenedor para el PDF incrustado -->
-              <div style="border: 2px solid #0056b3; border-radius: 8px; overflow: hidden; background-color: #f8f9fa;">
-                <iframe 
-                  src="${item.fichaUrl}" 
-                  width="100%" 
-                  height="600px" 
-                  style="border: none; display: block;"
-                  title="Ficha Técnica - ${item.service}">
-                </iframe>
-                <div style="background-color: #0056b3; color: white; padding: 8px; text-align: center; font-size: 12px;">
-                  <strong>Ficha Técnica:</strong> ${item.service} | 
-                  <a href="${item.fichaUrl}" target="_blank" style="color: white; text-decoration: underline;">
-                    Ver en ventana completa
-                  </a>
-                </div>
+      <div style="margin-bottom: 40px;">
+        <h3 style="color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">
+          📋 FICHAS TÉCNICAS
+        </h3>
+        ${servicesWithTechnicalSheets.map((item, index) => `
+          <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; page-break-inside: avoid;">
+            <h4 style="color: #0056b3; margin-top: 0;">
+              ${index + 1}. ${item.service}
+            </h4>
+            <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+              <p style="margin: 0; color: #333;">
+                <strong>Ficha Técnica Disponible</strong><br>
+                <small>Cantidad: ${item.quantity || 1} unidad(es)</small>
+              </p>
+            </div>
+            
+            <!-- Contenedor para el PDF incrustado -->
+            <div style="border: 2px solid #0056b3; border-radius: 8px; overflow: hidden; background-color: #f8f9fa;">
+              <iframe 
+                src="${item.fichaUrl}" 
+                width="100%" 
+                height="600px" 
+                style="border: none; display: block;"
+                title="Ficha Técnica - ${item.service}">
+              </iframe>
+              <div style="background-color: #0056b3; color: white; padding: 8px; text-align: center; font-size: 12px;">
+                <strong>Ficha Técnica:</strong> ${item.service} | 
+                <a href="${item.fichaUrl}" target="_blank" style="color: white; text-decoration: underline;">
+                  Ver en ventana completa
+                </a>
               </div>
             </div>
-          `).join('')}
-        </div>
-      ` : ''}
-
-      <!-- Servicios sin fichas técnicas (especificaciones legacy) -->
-      ${allServices && servicesInQuotation && servicesInQuotation.length > 0 ? `
-        <div style="margin-bottom: 40px;">
-          <h3 style="color: #333; border-bottom: 2px solid #28a745; padding-bottom: 10px;">
-            📊 ESPECIFICACIONES TÉCNICAS TRADICIONALES
-          </h3>
-          ${servicesInQuotation.map((service, index) => `
-            <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 20px; border-radius: 8px; page-break-inside: avoid;">
-              <h4 style="color: #28a745; margin-top: 0;">
-                ${index + 1}. ${service.name}
-              </h4>
-              
-              <!-- Información básica del servicio -->
-              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 15px;">
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                  <div><strong>Categoría:</strong> ${service.category || 'No especificado'}</div>
-                  <div><strong>Precio:</strong> $${formatNumber(service.price || 0)}</div>
-                  <div><strong>Estado:</strong> ${service.active ? 'Activo' : 'Inactivo'}</div>
-                </div>
-              </div>
-              
-              ${service.specs && Object.keys(service.specs).some(key => service.specs[key]) ? `
-              <!-- Especificaciones técnicas -->
-              <h5 style="color: #333; margin-bottom: 10px;">Especificaciones Técnicas:</h5>
-              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
-                ${service.specs.brand ? `<div><strong>Marca:</strong> ${service.specs.brand}</div>` : ''}
-                ${service.specs.model ? `<div><strong>Modelo:</strong> ${service.specs.model}</div>` : ''}
-                ${service.specs.type ? `<div><strong>Tipo:</strong> ${service.specs.type}</div>` : ''}
-                ${service.specs.maxPlatformHeight_m ? `<div><strong>Altura de Plataforma:</strong> ${service.specs.maxPlatformHeight_m} metros</div>` : ''}
-                ${service.specs.workingHeight_m ? `<div><strong>Altura de Trabajo:</strong> ${service.specs.workingHeight_m} metros</div>` : ''}
-                ${service.specs.capacity_kg ? `<div><strong>Capacidad de Carga:</strong> ${service.specs.capacity_kg} kg</div>` : ''}
-                ${service.specs.power ? `<div><strong>Tipo de Motor:</strong> ${service.specs.power}</div>` : ''}
-                ${service.specs.weight_kg ? `<div><strong>Peso del Equipo:</strong> ${service.specs.weight_kg} kg</div>` : ''}
-                ${service.specs.driveType ? `<div><strong>Tipo de Tracción:</strong> ${service.specs.driveType}</div>` : ''}
-                ${service.specs.dimensions_m && (service.specs.dimensions_m.length || service.specs.dimensions_m.width || service.specs.dimensions_m.stowedHeight) ? 
-                  `<div><strong>Dimensiones:</strong> ${service.specs.dimensions_m.length || 0}m x ${service.specs.dimensions_m.width || 0}m x ${service.specs.dimensions_m.stowedHeight || 0}m</div>` : 
-                  ''}
-              </div>
-              ${service.specs.others ? `
-              <div style="margin-top: 10px;">
-                <h6 style="color: #333; margin-bottom: 5px;">Información Adicional:</h6>
-                <div style="background-color: #f8f9fa; padding: 10px; border-radius: 5px; border-left: 3px solid #007bff;">
-                  ${service.specs.others}
-                </div>
-              </div>
-              ` : ''}
-              ` : `
-              <div style="padding: 15px; text-align: center; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; color: #856404;">
-                <p style="margin: 0;">
-                  <strong>⚠️ Especificaciones técnicas no disponibles</strong><br>
-                  <small>Las especificaciones técnicas detalladas no están configuradas para este servicio.</small>
-                </p>
-              </div>
-              `}
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
+          </div>
+        `).join('')}
+      </div>
 
       <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
         <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
