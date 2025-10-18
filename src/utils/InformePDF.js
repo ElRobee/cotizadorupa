@@ -1,27 +1,26 @@
 export const generateTechnicalReportPDF = async (quotation, allServices, company) => {
-  // Función para formatear números con punto como separador de miles
-  const formatNumber = (num) => {
-    return Math.round(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  };
+  try {
+    // Función para formatear números con punto como separador de miles
+    const formatNumber = (num) => {
+      return Math.round(num || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    };
 
-  // Validar que tengamos los datos necesarios
-  if (!quotation || !quotation.items || quotation.items.length === 0) {
-    alert('La cotización no contiene servicios.');
-    return false;
-  }
+    console.log('🔧 Generando informe técnico...', { quotation, allServices: allServices?.length, company });
 
-  // Obtener servicios con fichas técnicas asociadas
-  const servicesWithTechnicalSheets = quotation.items.filter(item => item.fichaUrl);
-  
-  // Si no hay fichas técnicas, mostrar alert y permitir continuar con las especificaciones tradicionales
-  if (servicesWithTechnicalSheets.length === 0) {
-    // Código legacy para servicios sin fichas técnicas
-    if (!allServices || allServices.length === 0) {
-      alert('No se pudieron cargar los servicios.');
+    // Validar que tengamos los datos necesarios
+    if (!quotation || !quotation.items || quotation.items.length === 0) {
+      alert('La cotización no contiene servicios.');
       return false;
     }
 
-    const servicesInQuotation = quotation.items.map(item => {
+  // Obtener servicios con fichas técnicas asociadas
+  const servicesWithTechnicalSheets = quotation.items.filter(item => item.fichaUrl);
+  console.log('📋 Servicios con fichas técnicas:', servicesWithTechnicalSheets);
+  
+  // Preparar servicios para especificaciones legacy (independientemente de si hay fichas técnicas)
+  let servicesInQuotation = [];
+  if (allServices && allServices.length > 0) {
+    servicesInQuotation = quotation.items.map(item => {
       const serviceDetails = allServices.find(s => s.name === item.service);
       return serviceDetails;
     }).filter(Boolean)
@@ -29,21 +28,30 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
         const allowedCategories = ['Elevadores', 'Maquinarias', 'Transporte'];
         return service.category && allowedCategories.includes(service.category);
       });
+  }
+  console.log('🔧 Servicios con especificaciones legacy:', servicesInQuotation);
 
-    if (servicesInQuotation.length === 0) {
-      alert('Esta cotización no contiene servicios con fichas técnicas ni servicios de las categorías Elevadores, Maquinarias o Transporte para generar un informe técnico.');
-      return false;
-    }
-
-    // Verificar si al menos un servicio tiene especificaciones
-    const servicesWithSpecs = servicesInQuotation.filter(service => 
+  // Verificar si hay contenido para generar el informe
+  const hasAnyTechnicalContent = servicesWithTechnicalSheets.length > 0 || 
+    (servicesInQuotation.length > 0 && servicesInQuotation.some(service => 
       service.specs && Object.keys(service.specs).some(key => service.specs[key])
-    );
+    ));
 
-    if (servicesWithSpecs.length === 0) {
-      alert('No hay servicios con fichas técnicas ni especificaciones técnicas en esta cotización.');
-      return false;
+  console.log('✅ ¿Tiene contenido técnico?', hasAnyTechnicalContent);
+
+  if (!hasAnyTechnicalContent) {
+    let errorMessage = '';
+    
+    if (servicesWithTechnicalSheets.length === 0 && (!allServices || allServices.length === 0)) {
+      errorMessage = 'No se pudieron cargar los servicios para generar el informe técnico.';
+    } else if (servicesWithTechnicalSheets.length === 0 && servicesInQuotation.length === 0) {
+      errorMessage = 'Esta cotización no contiene servicios con fichas técnicas ni servicios de las categorías Elevadores, Maquinarias o Transporte.\n\nPara generar un informe técnico necesitas:\n• Asociar fichas técnicas a los servicios, O\n• Servicios de categorías: Elevadores, Maquinarias o Transporte con especificaciones configuradas.';
+    } else {
+      errorMessage = `No hay contenido técnico disponible para esta cotización.\n\nDetalles:\n• Servicios con fichas técnicas: ${servicesWithTechnicalSheets.length}\n• Servicios con especificaciones: ${servicesInQuotation.length}\n\nPara generar un informe técnico, asocia fichas técnicas a los servicios en el modal de edición de cotización.`;
     }
+    
+    alert(errorMessage);
+    return false;
   }
 
   const htmlContent = `
@@ -213,5 +221,10 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
     return true;
   } else {
     throw new Error('Error al abrir ventana de impresión');
+  }
+  } catch (error) {
+    console.error('❌ Error al generar informe técnico:', error);
+    alert(`Error al generar el informe técnico: ${error.message}`);
+    return false;
   }
 };

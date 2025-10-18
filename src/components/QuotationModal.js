@@ -22,6 +22,11 @@ const QuotationModal = memo(({
   const { clients } = useClients();
   const { fichas } = useFichasTecnicas();
 
+  // Debug: Monitorear fichas técnicas
+  useEffect(() => {
+    console.log('📋 Fichas técnicas disponibles:', fichas?.length || 0, fichas);
+  }, [fichas]);
+
   // Estado local para el formulario
   const [formData, setFormData] = useState(quotationData || {
     clientName: '',
