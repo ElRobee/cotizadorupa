@@ -59,20 +59,59 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
               </p>
             </div>
             
-            <!-- Contenedor para el PDF incrustado -->
+            <!-- Contenedor para la información del PDF -->
             <div style="border: 2px solid #0056b3; border-radius: 8px; overflow: hidden; background-color: #f8f9fa;">
-              <iframe 
-                src="${item.fichaUrl}" 
-                width="100%" 
-                height="600px" 
-                style="border: none; display: block;"
-                title="Ficha Técnica - ${item.service}">
-              </iframe>
-              <div style="background-color: #0056b3; color: white; padding: 8px; text-align: center; font-size: 12px;">
-                <strong>Ficha Técnica:</strong> ${item.service} | 
-                <a href="${item.fichaUrl}" target="_blank" style="color: white; text-decoration: underline;">
-                  Ver en ventana completa
-                </a>
+              <!-- Encabezado del PDF -->
+              <div style="background-color: #0056b3; color: white; padding: 15px; text-align: center;">
+                <h5 style="margin: 0; font-size: 16px;">📄 FICHA TÉCNICA ADJUNTA</h5>
+              </div>
+              
+              <!-- Contenido principal -->
+              <div style="padding: 30px; text-align: center;">
+                <div style="margin-bottom: 20px;">
+                  <svg width="64" height="64" viewBox="0 0 24 24" fill="#0056b3" style="margin-bottom: 15px;">
+                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
+                  </svg>
+                  <h4 style="color: #0056b3; margin: 0 0 10px 0;">Documento PDF Disponible</h4>
+                  <p style="color: #666; margin: 0 0 20px 0; font-size: 14px;">
+                    La ficha técnica detallada está disponible como documento PDF adjunto
+                  </p>
+                </div>
+                
+                <!-- Información del archivo -->
+                <div style="background-color: #e3f2fd; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                  <div style="color: #1565c0; font-size: 14px; line-height: 1.6;">
+                    <strong>📋 Servicio:</strong> ${item.service}<br>
+                    <strong>📄 Archivo:</strong> ${item.fichaUrl.split('/').pop()}<br>
+                    <strong>🔗 Ubicación:</strong> ${item.fichaUrl}
+                  </div>
+                </div>
+                
+                <!-- Enlace para abrir (solo visible en pantalla) -->
+                <div class="screen-only">
+                  <a 
+                    href="${item.fichaUrl}" 
+                    target="_blank" 
+                    style="display: inline-block; background-color: #0056b3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold;"
+                  >
+                    🔗 Abrir Ficha Técnica PDF
+                  </a>
+                  <br><br>
+                  <small style="color: #666;">
+                    Haz clic en el enlace para ver la ficha técnica completa en una nueva ventana
+                  </small>
+                </div>
+                
+                <!-- Información para impresión -->
+                <div class="print-only">
+                  <div style="border: 1px dashed #0056b3; padding: 15px; background-color: #f0f8ff;">
+                    <strong style="color: #0056b3;">📋 NOTA PARA IMPRESIÓN:</strong><br>
+                    <span style="font-size: 12px; color: #666;">
+                      La ficha técnica completa está disponible en formato PDF en la ubicación indicada arriba.
+                      Para acceder al documento completo, consulte la versión digital de este informe.
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -102,7 +141,11 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
                 margin: 1cm;
                 size: A4;
               }
+              .screen-only { display: none !important; }
+              .print-only { display: block !important; }
             }
+            .screen-only { display: block; }
+            .print-only { display: none; }
             body {
               font-family: Arial, sans-serif;
               line-height: 1.4;
