@@ -15,22 +15,53 @@ const convertPdfToImage = async (pdfUrl) => {
         <h4 style="color: #333; margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">
           📋 ${pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ')}
         </h4>
+        <div class="screen-only" style="margin-bottom: 10px; padding: 8px; background: #e8f4ff; border-left: 4px solid #0066cc; font-size: 12px;">
+          💡 <strong>Nota de impresión:</strong> Si el PDF tiene múltiples páginas, se intentará mostrar el contenido completo durante la impresión.
+        </div>
         <iframe 
-          src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=100" 
+          src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-width" 
           width="100%" 
           height="800" 
           style="border: 2px solid #e0e0e0; border-radius: 8px; background: white; display: block !important;"
+          class="pdf-iframe"
+          data-pdf-url="${pdfUrl}"
           frameborder="0"
           allowfullscreen>
           <p>Su navegador no soporta iframes. <a href="${pdfUrl}" target="_blank">Abrir PDF</a></p>
         </iframe>
         <p class="screen-only" style="margin: 10px 0 0 0; font-size: 12px; color: #666; text-align: center;">
-          <a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir en nueva ventana</a>
+          <a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none; margin-right: 15px;">🔗 Abrir en nueva ventana</a>
+          <button onclick="window.open('${pdfUrl}', '_blank'); setTimeout(() => window.print(), 1000);" 
+                  style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;">
+            🖨️ Imprimir PDF directo
+          </button>
         </p>
         <div class="print-only" style="display: none; margin: 10px 0; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; text-align: center; font-size: 12px;">
           📋 <strong>Ficha Técnica:</strong> ${pdfUrl.split('/').pop()}<br>
-          🔗 <strong>Ubicación:</strong> ${pdfUrl}
+          🔗 <strong>Ubicación:</strong> ${pdfUrl}<br>
+          <em>Documento PDF completo disponible en la ubicación indicada</em>
         </div>
+        <script>
+          // Script para intentar forzar la impresión completa del PDF
+          (function() {
+            const iframe = document.querySelector('.pdf-iframe[src*="${pdfUrl.split('/').pop()}"]');
+            if (iframe) {
+              iframe.onload = function() {
+                try {
+                  // Intentar ajustar la altura del iframe al contenido
+                  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                  if (iframeDoc) {
+                    iframe.style.height = (iframeDoc.documentElement.scrollHeight || 1200) + 'px';
+                  }
+                } catch (e) {
+                  console.log('No se puede acceder al contenido del iframe:', e.message);
+                  // Configurar altura mínima para PDFs multipágina
+                  iframe.style.height = '1600px';
+                }
+              };
+            }
+          })();
+        </script>
       </div>
     `;
     
@@ -68,8 +99,9 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       return false;
     }
 
-    // Mostrar confirmación antes de procesar
-    const shouldContinue = confirm(`Se van a procesar ${servicesWithTechnicalSheets.length} ficha(s) técnica(s) PDF.\n\nEsto puede tomar unos momentos. ¿Deseas continuar?`);
+    // Mostrar confirmación antes de procesar con opciones para PDFs multipágina
+    const message = `Se van a procesar ${servicesWithTechnicalSheets.length} ficha(s) técnica(s) PDF.\n\nPara PDFs con múltiples páginas:\n- Se intentará mostrar el contenido completo\n- En impresión se ajustará automáticamente\n\n¿Deseas continuar?`;
+    const shouldContinue = confirm(message);
     if (!shouldContinue) {
       return false;
     }
@@ -198,7 +230,7 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
               @media print {
                 body { margin: 0; }
                 @page {
-                  margin: 1cm;
+                  margin: 0.5cm;
                   size: A4;
                 }
                 .screen-only { display: none !important; }
@@ -209,20 +241,50 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
                   page-break-after: always;
                   margin: 0;
                   padding: 0;
+                  width: 100%;
                 }
                 
-                .pdf-container iframe {
-                  display: none !important;
-                }
-                
-                .pdf-container .print-only {
+                /* Mostrar el PDF completo en impresión */
+                .pdf-container .pdf-iframe {
                   display: block !important;
+                  width: 100% !important;
+                  height: 297mm !important; /* Altura de página A4 */
+                  max-height: none !important;
+                  border: none !important;
+                  margin: 0 !important;
+                  padding: 0 !important;
+                  -webkit-print-color-adjust: exact !important;
+                  print-color-adjust: exact !important;
+                  color-adjust: exact !important;
+                  overflow: visible !important;
+                }
+                
+                /* Asegurar que cada PDF ocupe toda la página */
+                .pdf-container {
+                  height: 297mm !important;
+                  width: 210mm !important;
+                  overflow: visible !important;
+                }
+                
+                /* Fallback: Información del PDF si no se puede imprimir */
+                .pdf-container .print-only {
+                  display: none !important;
                   border: 2px solid #333;
                   padding: 20px;
                   background: #f0f8ff;
                   text-align: center;
                   font-size: 14px;
                   margin: 20px 0;
+                }
+                
+                /* Si el iframe no funciona, mostrar el fallback */
+                @supports not (display: block) {
+                  .pdf-container .pdf-iframe {
+                    display: none !important;
+                  }
+                  .pdf-container .print-only {
+                    display: block !important;
+                  }
                 }
               }
               
@@ -246,11 +308,32 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       
       printWindow.document.close();
       
-      // Esperar a que cargue y luego imprimir
+      // Optimizar PDFs para impresión y luego imprimir
       setTimeout(() => {
-        printWindow.focus();
-        printWindow.print();
-      }, 1000);
+        // Intentar ajustar todos los iframes de PDF para impresión
+        const iframes = printWindow.document.querySelectorAll('.pdf-iframe');
+        iframes.forEach(iframe => {
+          try {
+            // Configurar parámetros adicionales para impresión completa
+            const currentSrc = iframe.src;
+            if (currentSrc.includes('#')) {
+              iframe.src = currentSrc.replace(/#.*/, '') + '#toolbar=0&navpanes=0&scrollbar=0&view=FitV&zoom=page-width';
+            }
+            
+            // Ajustar altura para contenido completo
+            iframe.style.height = '290mm'; // Casi toda la página A4
+            iframe.style.minHeight = '290mm';
+          } catch (e) {
+            console.log('Error optimizando iframe:', e);
+          }
+        });
+        
+        // Dar tiempo para que se apliquen los cambios
+        setTimeout(() => {
+          printWindow.focus();
+          printWindow.print();
+        }, 500);
+      }, 1500);
       
       console.log('🖨️ Ventana de impresión abierta');
       return true;
