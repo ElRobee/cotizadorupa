@@ -1,9 +1,8 @@
-// Función simplificada para crear iframe de PDF
+// Función para crear iframe de PDF optimizado para impresión
 const convertPdfToImage = async (pdfUrl) => {
-  console.log(`� Preparando PDF: ${pdfUrl}`);
+  console.log(`📄 Preparando PDF: ${pdfUrl}`);
   
   try {
-    // Verificar que el URL sea válido
     if (!pdfUrl || !pdfUrl.includes('.pdf')) {
       console.error('URL de PDF inválido:', pdfUrl);
       return null;
@@ -11,23 +10,27 @@ const convertPdfToImage = async (pdfUrl) => {
     
     console.log(`✅ PDF válido, preparando iframe`);
     
-    // Simplemente retornar el HTML del iframe
     return `
-      <div class="pdf-container" style="margin: 20px 0; page-break-inside: avoid;">
+      <div class="pdf-container" style="margin: 20px 0; page-break-inside: avoid; page-break-after: always;">
         <h4 style="color: #333; margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">
           📋 ${pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ')}
         </h4>
         <iframe 
-          src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0" 
+          src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=100" 
           width="100%" 
-          height="500" 
-          style="border: 2px solid #e0e0e0; border-radius: 8px; background: white;"
-          frameborder="0">
+          height="800" 
+          style="border: 2px solid #e0e0e0; border-radius: 8px; background: white; display: block !important;"
+          frameborder="0"
+          allowfullscreen>
           <p>Su navegador no soporta iframes. <a href="${pdfUrl}" target="_blank">Abrir PDF</a></p>
         </iframe>
-        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666; text-align: center;">
+        <p class="screen-only" style="margin: 10px 0 0 0; font-size: 12px; color: #666; text-align: center;">
           <a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir en nueva ventana</a>
         </p>
+        <div class="print-only" style="display: none; margin: 10px 0; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; text-align: center; font-size: 12px;">
+          📋 <strong>Ficha Técnica:</strong> ${pdfUrl.split('/').pop()}<br>
+          🔗 <strong>Ubicación:</strong> ${pdfUrl}
+        </div>
       </div>
     `;
     
@@ -205,8 +208,10 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       alert(`⚠️ Se procesaron ${successfullyProcessed} de ${servicesWithImages.length} fichas técnicas.\n\n${failedCount} ficha(s) aparecerán como enlaces en lugar de imágenes.`);
     } else {
       console.log(`🎉 Todas las fichas técnicas se procesaron correctamente`);
-    }  const htmlContent = `
-    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+    }
+    
+    const htmlContent = `
+    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">`
       <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
         ${company?.logo 
           ? `<img src="${company.logo}" alt="Logo empresa" style="width: 300px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
