@@ -1,105 +1,69 @@
-// Función para convertir PDF a imagen usando una alternativa sin PDF.js externo
+// Función simplificada para crear iframe de PDF
 const convertPdfToImage = async (pdfUrl) => {
+  console.log(`� Preparando PDF: ${pdfUrl}`);
+  
   try {
-    console.log(`🔄 Iniciando conversión de: ${pdfUrl}`);
+    // Verificar que el URL sea válido
+    if (!pdfUrl || !pdfUrl.includes('.pdf')) {
+      console.error('URL de PDF inválido:', pdfUrl);
+      return null;
+    }
     
-    // Verificar acceso al PDF primero
-    console.log(`1️⃣ Verificando acceso al PDF...`);
-    const isAccessible = await checkPdfAccess(pdfUrl);
-    if (!isAccessible) {
-      throw new Error('PDF no accesible - verificar URL o permisos');
-    }
-    console.log(`✅ PDF accesible`);
-
-    // Intentar usar PDF.js si ya está disponible (sin cargar desde CDN)
-    if (typeof window.pdfjsLib !== 'undefined') {
-      console.log(`2️⃣ Usando PDF.js ya disponible...`);
-      return await convertWithPdfJs(pdfUrl);
-    }
-
-    // Alternativa: crear una representación visual del PDF sin PDF.js
-    console.log(`2️⃣ PDF.js no disponible, usando alternativa visual...`);
-    return await createPdfPlaceholder(pdfUrl);
+    console.log(`✅ PDF válido, preparando iframe`);
+    
+    // Simplemente retornar el HTML del iframe
+    return `
+      <div class="pdf-container" style="margin: 20px 0; page-break-inside: avoid;">
+        <h4 style="color: #333; margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">
+          📋 ${pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ')}
+        </h4>
+        <iframe 
+          src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0" 
+          width="100%" 
+          height="500" 
+          style="border: 2px solid #e0e0e0; border-radius: 8px; background: white;"
+          frameborder="0">
+          <p>Su navegador no soporta iframes. <a href="${pdfUrl}" target="_blank">Abrir PDF</a></p>
+        </iframe>
+        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666; text-align: center;">
+          <a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir en nueva ventana</a>
+        </p>
+      </div>
+    `;
     
   } catch (error) {
-    console.error('❌ Error en convertPdfToImage:', error);
-    throw error;
+    console.error('❌ Error preparando PDF:', error);
+    return `
+      <div style="border: 1px solid #ff6b6b; padding: 15px; margin: 10px 0; background-color: #ffe6e6; border-radius: 4px;">
+        <p style="margin: 0; color: #d63031;">⚠️ Error cargando ficha técnica: ${pdfUrl.split('/').pop()}</p>
+      </div>
+    `;
   }
 };
 
-// Función alternativa para crear una representación visual del PDF
-const createPdfPlaceholder = async (pdfUrl) => {
+// Función de diagnóstico simplificada
+window.testPdfConversion = async () => {
+  console.log('🧪 PROBANDO VISUALIZACIÓN PDF');
+  console.log('='.repeat(40));
+  
   try {
-    console.log(`🎨 Creando representación visual para: ${pdfUrl}`);
+    const testUrl = '/fichas/GRUA-HORQUILLA-TOYOTA-3Y4TON.pdf';
+    console.log(`📄 Probando: ${testUrl}`);
     
-    // Crear canvas con información del PDF
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
+    const result = await convertPdfToImage(testUrl);
+    console.log('✅ Resultado:', result ? 'HTML generado' : 'Error');
     
-    // Configurar tamaño (formato A4 aproximado)
-    canvas.width = 600;
-    canvas.height = 800;
-    
-    // Fondo blanco
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    
-    // Borde
-    ctx.strokeStyle = '#ddd';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-    
-    // Encabezado
-    ctx.fillStyle = '#0056b3';
-    ctx.fillRect(20, 20, canvas.width - 40, 80);
-    
-    // Texto del encabezado
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 24px Arial';
-    ctx.textAlign = 'center';
-    ctx.fillText('FICHA TÉCNICA', canvas.width / 2, 70);
-    
-    // Nombre del archivo
-    const fileName = pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ');
-    ctx.fillStyle = '#333';
-    ctx.font = 'bold 18px Arial';
-    ctx.fillText(fileName, canvas.width / 2, 140);
-    
-    // Icono de PDF (simplificado)
-    ctx.fillStyle = '#ff4444';
-    ctx.fillRect(canvas.width / 2 - 40, 180, 80, 100);
-    ctx.fillStyle = 'white';
-    ctx.font = 'bold 16px Arial';
-    ctx.fillText('PDF', canvas.width / 2, 240);
-    
-    // Información adicional
-    ctx.fillStyle = '#666';
-    ctx.font = '14px Arial';
-    ctx.fillText('Documento técnico disponible', canvas.width / 2, 320);
-    ctx.fillText('Haga clic en el enlace para ver', canvas.width / 2, 340);
-    ctx.fillText('el documento completo', canvas.width / 2, 360);
-    
-    // URL del archivo
-    ctx.fillStyle = '#0056b3';
-    ctx.font = '12px Arial';
-    ctx.fillText(pdfUrl, canvas.width / 2, 400);
-    
-    // Información técnica
-    ctx.fillStyle = '#999';
-    ctx.font = '10px Arial';
-    ctx.fillText('Generado automáticamente', canvas.width / 2, canvas.height - 40);
-    ctx.fillText(new Date().toLocaleString(), canvas.width / 2, canvas.height - 25);
-    
-    // Convertir a imagen
-    const imageDataUrl = canvas.toDataURL('image/png', 0.9);
-    console.log(`✅ Representación visual creada (${Math.round(imageDataUrl.length / 1024)}KB)`);
-    
-    return [imageDataUrl];
+    if (result) {
+      console.log('🎉 SISTEMA LISTO PARA MOSTRAR PDFs');
+      // Mostrar una muestra del HTML en la consola
+      console.log('📝 Vista previa HTML:', result.substring(0, 200) + '...');
+    }
     
   } catch (error) {
-    console.error('❌ Error creando representación visual:', error);
-    throw error;
+    console.error('❌ ERROR:', error.message);
   }
+  
+  console.log('='.repeat(40));
 };
 
 // Función para usar PDF.js si está disponible
@@ -162,19 +126,6 @@ const loadPdfJs = () => {
   });
 };
 
-// Función para verificar si un URL es accesible
-const checkPdfAccess = async (url) => {
-  try {
-    console.log(`🔍 Verificando acceso a: ${url}`);
-    const response = await fetch(url, { method: 'HEAD' });
-    console.log(`📡 Respuesta: ${response.status} ${response.statusText}`);
-    return response.ok;
-  } catch (error) {
-    console.error(`❌ Error verificando acceso a PDF ${url}:`, error);
-    return false;
-  }
-};
-
 export const generateTechnicalReportPDF = async (quotation, allServices, company) => {
   try {
     // Función para formatear números con punto como separador de miles
@@ -215,34 +166,22 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       console.log(`🔗 URL: ${item.fichaUrl}`);
       
       try {
-        const images = await convertPdfToImage(item.fichaUrl);
-        console.log(`✅ Éxito para ${item.service}:`, images ? `${images.length} imágenes` : 'null');
+        const result = await convertPdfToImage(item.fichaUrl);
+        console.log(`✅ Éxito para ${item.service}:`, result);
+        
         servicesWithImages.push({
           ...item,
-          images: images,
-          success: images !== null && images.length > 0
+          pdfEmbed: result,
+          success: result !== null
         });
       } catch (error) {
         console.error(`❌ Error procesando ${item.service}:`, error);
-        // Intentar crear representación visual como último recurso
-        try {
-          console.log(`🎨 Creando representación visual para ${item.service}...`);
-          const placeholder = await createPdfPlaceholder(item.fichaUrl);
-          servicesWithImages.push({
-            ...item,
-            images: placeholder,
-            success: true,
-            isPlaceholder: true
-          });
-        } catch (placeholderError) {
-          console.error(`❌ Error creando placeholder para ${item.service}:`, placeholderError);
-          servicesWithImages.push({
-            ...item,
-            images: null,
-            success: false,
-            error: error.message
-          });
-        }
+        servicesWithImages.push({
+          ...item,
+          pdfEmbed: null,
+          success: false,
+          error: error.message
+        });
       }
     }
 
@@ -300,59 +239,28 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
             </h4>
             <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
               <p style="margin: 0; color: #333;">
-                <strong>Ficha Técnica</strong><br>
-                <small>Cantidad: ${item.quantity || 1} unidad(es) | Archivo: ${item.fichaUrl.split('/').pop()}</small>
+                <strong>Cantidad:</strong> ${item.quantity || 1} unidad(es) | 
+                <strong>Precio Unitario:</strong> $${formatNumber(item.price)} | 
+                <strong>Subtotal:</strong> $${formatNumber((item.price || 0) * (item.quantity || 1))}
               </p>
             </div>
             
-            <!-- Imágenes del PDF convertido o enlace de respaldo -->
-            ${item.success && item.images && item.images.length > 0 ? 
-              `<!-- PDF convertido a imágenes -->
-              ${item.images.map((imageData, pageIndex) => `
-                <div style="margin-bottom: 25px; text-align: center; page-break-inside: avoid;">
-                  ${item.images.length > 1 ? `<h5 style="color: #666; margin-bottom: 15px; font-size: 14px;">📄 Página ${pageIndex + 1} de ${item.images.length}</h5>` : ''}
-                  <div style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 10px; background-color: white; display: inline-block; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <img 
-                      src="${imageData}" 
-                      style="max-width: 100%; height: auto; display: block; border-radius: 4px;"
-                      alt="Ficha Técnica - ${item.service} - Página ${pageIndex + 1}"
-                    />
-                  </div>
-                </div>
-              `).join('')}` 
+            <!-- Ficha Técnica embebida -->
+            ${item.success && item.pdfEmbed ? 
+              item.pdfEmbed
             : `
-              <!-- Respaldo: Enlace al PDF cuando no se pudo convertir -->
               <div style="border: 2px solid #ffc107; border-radius: 8px; background-color: #fff3cd; padding: 25px; text-align: center;">
-                <div style="margin-bottom: 15px;">
-                  <svg width="48" height="48" viewBox="0 0 24 24" fill="#856404" style="margin-bottom: 10px;">
-                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z" />
-                  </svg>
-                  <h5 style="color: #856404; margin: 0;">⚠️ Ficha técnica disponible como enlace</h5>
-                  <p style="color: #856404; margin: 10px 0; font-size: 14px;">
-                    ${item.error ? `Error: ${item.error}` : 'No se pudo convertir el PDF a imagen'}
-                  </p>
-                </div>
-                
+                <h5 style="color: #856404; margin: 0 0 10px 0;">⚠️ Error cargando ficha técnica</h5>
+                <p style="color: #856404; margin: 10px 0; font-size: 14px;">
+                  ${item.error || 'No se pudo procesar el archivo PDF'}
+                </p>
                 <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
                   <strong style="color: #495057;">📄 Archivo:</strong> ${item.fichaUrl.split('/').pop()}<br>
                   <strong style="color: #495057;">🔗 Ubicación:</strong> ${item.fichaUrl}
                 </div>
-                
-                <div class="screen-only">
-                  <a 
-                    href="${item.fichaUrl}" 
-                    target="_blank" 
-                    style="display: inline-block; background-color: #ffc107; color: #212529; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: bold; border: 2px solid #ffca2c;"
-                  >
-                    📎 Abrir PDF Original
-                  </a>
-                </div>
-                
-                <div class="print-only">
-                  <p style="color: #856404; font-size: 12px; margin: 10px 0;">
-                    📋 <strong>Para impresión:</strong> Consulte el archivo PDF en la ubicación indicada arriba.
-                  </p>
-                </div>
+                <a href="${item.fichaUrl}" target="_blank" style="background: #ffc107; color: #856404; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                  � Abrir PDF Original
+                </a>
               </div>
             `}
           </div>
@@ -384,15 +292,69 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
               }
               .screen-only { display: none !important; }
               .print-only { display: block !important; }
+              iframe { 
+                display: none !important; 
+              }
+              .pdf-fallback {
+                display: block !important;
+                position: static !important;
+                transform: none !important;
+                background: white !important;
+                padding: 20px !important;
+                border: 2px solid #0056b3 !important;
+              }
             }
             .screen-only { display: block; }
             .print-only { display: none; }
+            .pdf-fallback { display: none; }
             body {
               font-family: Arial, sans-serif;
               line-height: 1.4;
               color: #333;
             }
+            iframe {
+              border: none;
+              width: 100%;
+              height: 100%;
+            }
           </style>
+          <script>
+            // Script para detectar si los iframes no cargan y mostrar fallback
+            document.addEventListener('DOMContentLoaded', function() {
+              const iframes = document.querySelectorAll('iframe[title*="Ficha Técnica"]');
+              
+              iframes.forEach(function(iframe, index) {
+                let loaded = false;
+                
+                iframe.onload = function() {
+                  loaded = true;
+                };
+                
+                iframe.onerror = function() {
+                  showFallback(iframe);
+                };
+                
+                // Timeout para detectar si no carga
+                setTimeout(function() {
+                  if (!loaded) {
+                    console.warn('PDF iframe no cargó, mostrando fallback:', iframe.src);
+                    showFallback(iframe);
+                  }
+                }, 3000);
+              });
+              
+              function showFallback(iframe) {
+                const container = iframe.closest('div[style*="position: relative"]');
+                if (container) {
+                  const fallback = container.querySelector('.pdf-fallback');
+                  if (fallback) {
+                    fallback.style.display = 'block';
+                    iframe.style.display = 'none';
+                  }
+                }
+              }
+            });
+          </script>
         </head>
         <body>
           ${htmlContent}
