@@ -1,0 +1,15 @@
+# Configuración de Headers para Netlify
+# Permitir iframes para PDFs y misma origen
+
+# Permitir PDFs en iframes desde el mismo dominio
+/fichas/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self' https://cotizadorupa.netlify.app
+
+# Configuración general para la aplicación
+/*
+  X-Frame-Options: SAMEORIGIN
+  Content-Security-Policy: frame-ancestors 'self' https://cotizadorupa.netlify.app
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
