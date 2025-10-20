@@ -171,40 +171,64 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
     
     const htmlContent = `
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-      <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
-        ${company?.logo 
-          ? `<img src="${company.logo}" alt="Logo empresa" style="width: 300px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
-          : ''
-        }
-        <div style="text-align: left;">
-          <h1 style="color: #333; margin: 0;">${company.razonSocial}</h1>
-          <p style="margin: 5px 0;">${company.direccion} - ${company.ciudad}, ${company.region}</p>
-          <p style="margin: 5px 0;">RUT: ${company.rut} | Tel: ${company.telefono}</p>
-          <p style="margin: 5px 0;">Email: ${company.email}</p>
+      <!-- PÁGINA 1: Encabezado y Resumen de Servicios -->
+      <div style="page-break-after: always;">
+        <div style="display: flex; align-items: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
+          ${company?.logo 
+            ? `<img src="${company.logo}" alt="Logo empresa" style="width: 300px; height: 120px; object-fit: contain; border-radius: 8px; margin-right: 20px;" />`
+            : ''
+          }
+          <div style="text-align: left;">
+            <h1 style="color: #333; margin: 0;">${company.razonSocial}</h1>
+            <p style="margin: 5px 0;">${company.direccion} - ${company.ciudad}, ${company.region}</p>
+            <p style="margin: 5px 0;">RUT: ${company.rut} | Tel: ${company.telefono}</p>
+            <p style="margin: 5px 0;">Email: ${company.email}</p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 30px;">
+          <h2 style="color: #333;">INFORME TÉCNICO DE SERVICIOS</h2>
+          <p><strong>Cotización N°:</strong> ${quotation.number} | <strong>Cliente:</strong> ${quotation.client || quotation.clientName}</p>
+          <p><strong>Fecha:</strong> ${quotation.date} | <strong>Estado:</strong> ${quotation.status}</p>
+          <p><strong>Total de Servicios con Ficha Técnica:</strong> ${servicesWithImages.length}</p>
+        </div>
+
+        <div style="margin-bottom: 40px;">
+          <h3 style="color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 20px;">
+            📋 LISTA DE SERVICIOS
+          </h3>
+          ${servicesWithImages.map((item, index) => `
+            <div style="border-left: 4px solid #0056b3; padding: 15px 20px; margin-bottom: 15px; background-color: #f8f9fa; border-radius: 4px;">
+              <h4 style="color: #0056b3; margin: 0 0 8px 0; font-size: 16px;">
+                ${index + 1}. ${item.service}
+              </h4>
+              <p style="margin: 0; color: #666; font-size: 14px;">
+                <strong>Cantidad:</strong> ${item.quantity || 1} unidad(es)
+              </p>
+            </div>
+          `).join('')}
+        </div>
+
+        <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
+          <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
+            "Este documento es un informe técnico y no constituye una cotización ni un documento de venta."
+          </p>
         </div>
       </div>
 
-      <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="color: #333;">INFORME TÉCNICO DE SERVICIOS</h2>
-        <p><strong>Cotización N°:</strong> ${quotation.number} | <strong>Cliente:</strong> ${quotation.client || quotation.clientName}</p>
-        <p><strong>Fecha:</strong> ${quotation.date} | <strong>Estado:</strong> ${quotation.status}</p>
-        <p><strong>Total de Servicios:</strong> ${quotation.items.length} | <strong>Con Ficha Técnica:</strong> ${servicesWithImages.length}</p>
-      </div>
-
+      <!-- PÁGINAS SIGUIENTES: Fichas Técnicas con Imágenes -->
       <div style="margin-bottom: 40px;">
-        <h3 style="color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">
-          📋 FICHAS TÉCNICAS
+        <h3 style="color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 30px;">
+          📋 FICHAS TÉCNICAS DETALLADAS
         </h3>
         ${servicesWithImages.map((item, index) => `
-          <div style="border: 1px solid #ddd; padding: 20px; margin-bottom: 30px; border-radius: 8px; page-break-inside: avoid;">
-            <h4 style="color: #0056b3; margin-top: 0; margin-bottom: 15px;">
+          <div style="page-break-before: always; margin-bottom: 30px;">
+            <h4 style="color: #0056b3; margin: 0 0 20px 0; font-size: 18px; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">
               ${index + 1}. ${item.service}
             </h4>
-            <div style="background-color: #f0f8ff; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
-              <p style="margin: 0; color: #333;">
-                <strong>Cantidad:</strong> ${item.quantity || 1} unidad(es) | 
-                <strong>Precio Unitario:</strong> $${formatNumber(item.price)} | 
-                <strong>Subtotal:</strong> $${formatNumber((item.price || 0) * (item.quantity || 1))}
+            <div style="background-color: #f0f8ff; padding: 12px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+              <p style="margin: 0; color: #333; font-size: 14px;">
+                <strong>Cantidad:</strong> ${item.quantity || 1} unidad(es)
               </p>
             </div>
             
@@ -227,12 +251,6 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
             `}
           </div>
         `).join('')}
-      </div>
-
-      <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
-        <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
-          "Este documento es un informe técnico y no constituye una cotización ni un documento de venta."
-        </p>
       </div>
     </div>
     `;
