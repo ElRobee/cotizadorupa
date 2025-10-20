@@ -11,12 +11,12 @@ const convertPdfToImage = async (pdfUrl) => {
     console.log(`✅ PDF válido, preparando iframe`);
     
     return `
-      <div class="pdf-container" style="margin: 20px 0; page-break-inside: avoid; page-break-after: always;">
+      <div class="pdf-container" style="margin: 20px 0; page-break-inside: avoid;">
         <h4 style="color: #333; margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">
           📋 ${pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ')}
         </h4>
         <div class="screen-only" style="margin-bottom: 10px; padding: 8px; background: #e8f4ff; border-left: 4px solid #0066cc; font-size: 12px;">
-          💡 <strong>Nota de impresión:</strong> Si el PDF tiene múltiples páginas, se intentará mostrar el contenido completo durante la impresión.
+          💡 <strong>Nota:</strong> Para PDFs multipágina, usa el botón "Imprimir PDF directo" para obtener el documento completo.
         </div>
         <iframe 
           src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-width" 
@@ -31,37 +31,30 @@ const convertPdfToImage = async (pdfUrl) => {
         </iframe>
         <p class="screen-only" style="margin: 10px 0 0 0; font-size: 12px; color: #666; text-align: center;">
           <a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none; margin-right: 15px;">🔗 Abrir en nueva ventana</a>
-          <button onclick="window.open('${pdfUrl}', '_blank'); setTimeout(() => window.print(), 1000);" 
+          <button onclick="window.open('${pdfUrl}', '_blank')" 
                   style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;">
             🖨️ Imprimir PDF directo
           </button>
         </p>
-        <div class="print-only" style="display: none; margin: 10px 0; padding: 10px; border: 1px solid #ccc; background: #f9f9f9; text-align: center; font-size: 12px;">
-          📋 <strong>Ficha Técnica:</strong> ${pdfUrl.split('/').pop()}<br>
-          🔗 <strong>Ubicación:</strong> ${pdfUrl}<br>
-          <em>Documento PDF completo disponible en la ubicación indicada</em>
+        <div class="print-only" style="display: none; margin: 0; padding: 25px; border: 3px solid #0056b3; background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%); text-align: center; border-radius: 8px;">
+          <h3 style="color: #0056b3; margin: 0 0 15px 0; font-size: 18px;">📄 Ficha Técnica</h3>
+          <p style="margin: 10px 0; color: #333; font-size: 14px; font-weight: bold;">
+            ${pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ')}
+          </p>
+          <div style="background: white; padding: 15px; border-radius: 5px; margin: 15px 0;">
+            <p style="margin: 5px 0; color: #666; font-size: 13px;">
+              <strong>📋 Nombre del archivo:</strong><br>
+              ${pdfUrl.split('/').pop()}
+            </p>
+            <p style="margin: 5px 0; color: #666; font-size: 13px;">
+              <strong>🔗 Ubicación:</strong><br>
+              ${pdfUrl}
+            </p>
+          </div>
+          <p style="margin: 15px 0 0 0; color: #0056b3; font-size: 12px; font-style: italic;">
+            ℹ️ Para visualizar el contenido completo del PDF, acceda a la ubicación indicada arriba
+          </p>
         </div>
-        <script>
-          // Script para intentar forzar la impresión completa del PDF
-          (function() {
-            const iframe = document.querySelector('.pdf-iframe[src*="${pdfUrl.split('/').pop()}"]');
-            if (iframe) {
-              iframe.onload = function() {
-                try {
-                  // Intentar ajustar la altura del iframe al contenido
-                  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                  if (iframeDoc) {
-                    iframe.style.height = (iframeDoc.documentElement.scrollHeight || 1200) + 'px';
-                  }
-                } catch (e) {
-                  console.log('No se puede acceder al contenido del iframe:', e.message);
-                  // Configurar altura mínima para PDFs multipágina
-                  iframe.style.height = '1600px';
-                }
-              };
-            }
-          })();
-        </script>
       </div>
     `;
     
@@ -99,8 +92,8 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       return false;
     }
 
-    // Mostrar confirmación antes de procesar con opciones para PDFs multipágina
-    const message = `Se van a procesar ${servicesWithTechnicalSheets.length} ficha(s) técnica(s) PDF.\n\nPara PDFs con múltiples páginas:\n- Se intentará mostrar el contenido completo\n- En impresión se ajustará automáticamente\n\n¿Deseas continuar?`;
+    // Mostrar confirmación antes de procesar con información clara
+    const message = `Se van a incluir ${servicesWithTechnicalSheets.length} ficha(s) técnica(s) en el informe.\n\n📋 IMPORTANTE SOBRE PDFs:\n• En pantalla: Verás los PDFs embebidos\n• Al imprimir: Se mostrará información de cada ficha técnica\n• Para PDFs completos: Usa el botón "Imprimir PDF directo" de cada ficha\n\n¿Deseas continuar?`;
     const shouldContinue = confirm(message);
     if (!shouldContinue) {
       return false;
@@ -227,76 +220,88 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
             <title>Informe Técnico Cotización ${quotation.number}</title>
             <meta charset="UTF-8">
             <style>
-              @media print {
-                body { margin: 0; }
-                @page {
-                  margin: 0.5cm;
-                  size: A4;
-                }
-                .screen-only { display: none !important; }
-                .print-only { display: block !important; }
-                
-                .pdf-container {
-                  page-break-inside: avoid;
-                  page-break-after: always;
-                  margin: 0;
-                  padding: 0;
-                  width: 100%;
-                }
-                
-                /* Mostrar el PDF completo en impresión */
-                .pdf-container .pdf-iframe {
-                  display: block !important;
-                  width: 100% !important;
-                  height: 297mm !important; /* Altura de página A4 */
-                  max-height: none !important;
-                  border: none !important;
-                  margin: 0 !important;
-                  padding: 0 !important;
-                  -webkit-print-color-adjust: exact !important;
-                  print-color-adjust: exact !important;
-                  color-adjust: exact !important;
-                  overflow: visible !important;
-                }
-                
-                /* Asegurar que cada PDF ocupe toda la página */
-                .pdf-container {
-                  height: 297mm !important;
-                  width: 210mm !important;
-                  overflow: visible !important;
-                }
-                
-                /* Fallback: Información del PDF si no se puede imprimir */
-                .pdf-container .print-only {
-                  display: none !important;
-                  border: 2px solid #333;
-                  padding: 20px;
-                  background: #f0f8ff;
-                  text-align: center;
-                  font-size: 14px;
-                  margin: 20px 0;
-                }
-                
-                /* Si el iframe no funciona, mostrar el fallback */
-                @supports not (display: block) {
-                  .pdf-container .pdf-iframe {
-                    display: none !important;
-                  }
-                  .pdf-container .print-only {
-                    display: block !important;
-                  }
-                }
-              }
-              
-              @media screen {
-                .screen-only { display: block; }
-                .print-only { display: none; }
+              * {
+                box-sizing: border-box;
               }
               
               body {
                 font-family: Arial, sans-serif;
                 line-height: 1.4;
                 color: #333;
+                margin: 0;
+                padding: 0;
+              }
+              
+              @media print {
+                body { 
+                  margin: 0; 
+                  padding: 0;
+                }
+                
+                @page {
+                  margin: 1cm;
+                  size: A4;
+                }
+                
+                /* Ocultar elementos solo de pantalla */
+                .screen-only { 
+                  display: none !important; 
+                }
+                
+                /* Mostrar elementos de impresión */
+                .print-only { 
+                  display: block !important; 
+                }
+                
+                /* Configuración de contenedores PDF */
+                .pdf-container {
+                  page-break-before: auto;
+                  page-break-after: auto;
+                  page-break-inside: avoid;
+                  margin: 0 0 20px 0;
+                  padding: 0;
+                  width: 100%;
+                }
+                
+                /* OCULTAR iframes en impresión - causan páginas en blanco */
+                .pdf-container .pdf-iframe {
+                  display: none !important;
+                  height: 0 !important;
+                  min-height: 0 !important;
+                  visibility: hidden !important;
+                }
+                
+                /* Mostrar tarjeta informativa del PDF */
+                .pdf-container .print-only {
+                  display: block !important;
+                  page-break-inside: avoid;
+                  margin: 0;
+                  padding: 20px;
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                  color-adjust: exact;
+                }
+                
+                /* Evitar saltos de página innecesarios */
+                .pdf-container h4 {
+                  page-break-after: avoid;
+                  margin-bottom: 10px;
+                }
+                
+                /* Optimizar espaciado */
+                h1, h2, h3, h4, h5, h6 {
+                  page-break-after: avoid;
+                }
+                
+                /* Eliminar espacios en blanco extra */
+                .pdf-container > * {
+                  margin-top: 0;
+                }
+              }
+              
+              @media screen {
+                .screen-only { display: block; }
+                .print-only { display: none; }
               }
             </style>
           </head>
@@ -308,32 +313,11 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       
       printWindow.document.close();
       
-      // Optimizar PDFs para impresión y luego imprimir
+      // Esperar un momento para que el contenido cargue y luego imprimir
       setTimeout(() => {
-        // Intentar ajustar todos los iframes de PDF para impresión
-        const iframes = printWindow.document.querySelectorAll('.pdf-iframe');
-        iframes.forEach(iframe => {
-          try {
-            // Configurar parámetros adicionales para impresión completa
-            const currentSrc = iframe.src;
-            if (currentSrc.includes('#')) {
-              iframe.src = currentSrc.replace(/#.*/, '') + '#toolbar=0&navpanes=0&scrollbar=0&view=FitV&zoom=page-width';
-            }
-            
-            // Ajustar altura para contenido completo
-            iframe.style.height = '290mm'; // Casi toda la página A4
-            iframe.style.minHeight = '290mm';
-          } catch (e) {
-            console.log('Error optimizando iframe:', e);
-          }
-        });
-        
-        // Dar tiempo para que se apliquen los cambios
-        setTimeout(() => {
-          printWindow.focus();
-          printWindow.print();
-        }, 500);
-      }, 1500);
+        printWindow.focus();
+        printWindow.print();
+      }, 800);
       
       console.log('🖨️ Ventana de impresión abierta');
       return true;
