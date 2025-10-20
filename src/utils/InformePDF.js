@@ -1,68 +1,94 @@
-// Función para crear iframe de PDF optimizado para impresión
+// Nueva función: convertir cada página del PDF en imágenes (data URLs) y devolver HTML con imágenes
 const convertPdfToImage = async (pdfUrl) => {
-  console.log(`📄 Preparando PDF: ${pdfUrl}`);
-  
+  console.log(`📄 Preparando conversión PDF → imágenes: ${pdfUrl}`);
+
+  // validación rápida
+  if (!pdfUrl || !pdfUrl.toLowerCase().includes('.pdf')) {
+    console.error('URL de PDF inválido:', pdfUrl);
+    return null;
+  }
+
   try {
-    if (!pdfUrl || !pdfUrl.includes('.pdf')) {
-      console.error('URL de PDF inválido:', pdfUrl);
-      return null;
+    // Cargar pdfjs-dist dinámicamente para evitar errores de CSP/Netlify en tiempo de build
+    const pdfjs = await import('pdfjs-dist/legacy/build/pdf.js');
+
+    // Intentar localizar el worker en node_modules; bundlers como CRA / craco manejan esto
+    try {
+      // Usar versión ESM worker si está disponible
+      // eslint-disable-next-line global-require
+      const workerSrc = (await import('pdfjs-dist/build/pdf.worker.entry')).default || '';
+      pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
+    } catch (wErr) {
+      // Fallback: dejar que el bundler inyecte el worker o usar CDN si el equipo lo permite
+      console.warn('No se pudo cargar pdf.worker de forma explícita, confiando en el bundler:', wErr?.message || wErr);
     }
-    
-    console.log(`✅ PDF válido, preparando iframe`);
-    
-    return `
-      <div class="pdf-container" style="margin: 20px 0; page-break-inside: avoid;">
-        <h4 style="color: #333; margin: 0 0 10px 0; font-size: 14px; font-weight: bold;">
-          📋 ${pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ')}
-        </h4>
-        <div class="screen-only" style="margin-bottom: 10px; padding: 8px; background: #e8f4ff; border-left: 4px solid #0066cc; font-size: 12px;">
-          💡 <strong>Nota:</strong> Para PDFs multipágina, usa el botón "Imprimir PDF directo" para obtener el documento completo.
+
+    // Fetch del PDF como arrayBuffer (evita problemas de CORS si el servidor lo permite)
+    const resp = await fetch(pdfUrl);
+    if (!resp.ok) throw new Error(`No se pudo descargar el PDF: ${resp.status} ${resp.statusText}`);
+    const arrayBuffer = await resp.arrayBuffer();
+
+    // Cargar el documento PDF
+    const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
+    const pdf = await loadingTask.promise;
+    console.log(`✅ PDF cargado: ${pdf.numPages} página(s)`);
+
+    const images = [];
+
+    // Limitar para evitar bloquear la UI si son PDFs enormes - procesar todas las páginas según requerimiento
+    const pageCount = pdf.numPages;
+
+    for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+
+      // Renderizar a canvas con escala adecuada (ajustar si se requiere mayor resolución)
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(viewport.width);
+      canvas.height = Math.round(viewport.height);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      await page.render({ canvasContext: ctx, viewport }).promise;
+
+      // Convertir a data URL (JPEG para mejor compatibilidad y tamaño)
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+      images.push(dataUrl);
+
+      // Liberar memoria del canvas
+      // (no hay método de destrucción explícito, dejar que GC haga su trabajo)
+    }
+
+    // Crear HTML con todas las imágenes (cada página como <img>)
+    const title = pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ');
+
+    const imagesHtml = images.map((src, idx) => `
+      <div style="page-break-inside: avoid; margin-bottom: 18px;">
+        <img src="${src}" alt="${title} - página ${idx + 1}" style="width:100%; height:auto; border:1px solid #e6e6e6; border-radius:6px; display:block;" />
+        <p style="text-align:center; font-size:12px; color:#666; margin:6px 0 0 0;">Página ${idx + 1} de ${images.length}</p>
+      </div>
+    `).join('');
+
+    const html = `
+      <div class="pdf-container" style="margin:20px 0; page-break-inside: avoid;">
+        <h4 style="color:#333; margin:0 0 10px 0; font-size:14px; font-weight:bold;">📋 ${title}</h4>
+        <div style="background-color:#f8f9fa; padding:12px; border-radius:6px; margin-bottom:12px; text-align:center;">
+          <small style="color:#333;">Documento procesado y renderizado en memoria (${images.length} página(s))</small>
         </div>
-        <iframe 
-          src="${pdfUrl}#toolbar=0&navpanes=0&scrollbar=0&view=FitH&zoom=page-width" 
-          width="100%" 
-          height="800" 
-          style="border: 2px solid #e0e0e0; border-radius: 8px; background: white; display: block !important;"
-          class="pdf-iframe"
-          data-pdf-url="${pdfUrl}"
-          frameborder="0"
-          allowfullscreen>
-          <p>Su navegador no soporta iframes. <a href="${pdfUrl}" target="_blank">Abrir PDF</a></p>
-        </iframe>
-        <p class="screen-only" style="margin: 10px 0 0 0; font-size: 12px; color: #666; text-align: center;">
-          <a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none; margin-right: 15px;">🔗 Abrir en nueva ventana</a>
-          <button onclick="window.open('${pdfUrl}', '_blank')" 
-                  style="background: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;">
-            🖨️ Imprimir PDF directo
-          </button>
-        </p>
-        <div class="print-only" style="display: none; margin: 0; padding: 25px; border: 3px solid #0056b3; background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%); text-align: center; border-radius: 8px;">
-          <h3 style="color: #0056b3; margin: 0 0 15px 0; font-size: 18px;">📄 Ficha Técnica</h3>
-          <p style="margin: 10px 0; color: #333; font-size: 14px; font-weight: bold;">
-            ${pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ')}
-          </p>
-          <div style="background: white; padding: 15px; border-radius: 5px; margin: 15px 0;">
-            <p style="margin: 5px 0; color: #666; font-size: 13px;">
-              <strong>📋 Nombre del archivo:</strong><br>
-              ${pdfUrl.split('/').pop()}
-            </p>
-            <p style="margin: 5px 0; color: #666; font-size: 13px;">
-              <strong>🔗 Ubicación:</strong><br>
-              ${pdfUrl}
-            </p>
-          </div>
-          <p style="margin: 15px 0 0 0; color: #0056b3; font-size: 12px; font-style: italic;">
-            ℹ️ Para visualizar el contenido completo del PDF, acceda a la ubicación indicada arriba
-          </p>
-        </div>
+        ${imagesHtml}
+        <p style="text-align:center; margin-top:8px; font-size:12px; color:#0066cc;"><a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir PDF original</a></p>
       </div>
     `;
-    
+
+    return html;
+
   } catch (error) {
-    console.error('❌ Error preparando PDF:', error);
+    console.error('❌ Error convirtiendo PDF a imágenes:', error);
     return `
-      <div style="border: 1px solid #ff6b6b; padding: 15px; margin: 10px 0; background-color: #ffe6e6; border-radius: 4px;">
-        <p style="margin: 0; color: #d63031;">⚠️ Error cargando ficha técnica: ${pdfUrl.split('/').pop()}</p>
+      <div style="border:1px solid #ff6b6b; padding:15px; margin:10px 0; background-color:#ffe6e6; border-radius:4px;">
+        <p style="margin:0; color:#d63031;">⚠️ No se pudo procesar la ficha técnica: ${pdfUrl.split('/').pop()}</p>
+        <p style="margin:8px 0 0 0;"><a href="${pdfUrl}" target="_blank">Abrir PDF original</a></p>
       </div>
     `;
   }
