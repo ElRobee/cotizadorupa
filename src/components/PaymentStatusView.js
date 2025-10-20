@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import Filters from "./Filtrosdebusqueda";
-import { useQuotations } from '../hooks/useQuotations';
+import { usePaymentStatus } from '../hooks/usePaymentStatus';
 import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
 import { useCompany } from '../hooks/useCompany';
@@ -34,7 +34,7 @@ const PaymentStatusView = ({
   const currentTheme = getThemeClasses(theme, darkMode);
   
   // 🔥 Cargar datos desde Firebase
-  const { quotations, loading, deleteQuotation, updateQuotation } = useQuotations();
+  const { paymentStatuses, loading, deletePaymentStatus, updatePaymentStatus } = usePaymentStatus();
   const { services } = useServices();
   const { clients } = useClients();
   const { company } = useCompany();
@@ -68,11 +68,11 @@ const PaymentStatusView = ({
     }
   };
 
-  // Filtrar cotizaciones
+  // Filtrar estados de pago
   const filteredQuotations = useMemo(() => {
-    if (!quotations) return [];
+    if (!paymentStatuses) return [];
     
-    let filtered = quotations.filter((quotation) => {
+    let filtered = paymentStatuses.filter((quotation) => {
       // Búsqueda por texto
       const searchFields = [
         quotation.client || quotation.clientName, // Compatibilidad con ambos formatos
@@ -94,22 +94,15 @@ const PaymentStatusView = ({
       return matchesSearch && matchesDateFrom && matchesDateTo && matchesStatus && matchesPriority;
     });
 
-    // Ordenar por número de cotización (de mayor a menor)
+    // Ordenar por número (de mayor a menor)
     filtered.sort((a, b) => {
-      // Extraer los últimos 3 dígitos del formato COT-2025-005
-      const extractNumber = (quotationNumber) => {
-        if (!quotationNumber) return 0;
-        const match = quotationNumber.match(/(\d{3})$/); // Busca los últimos 3 dígitos
-        return match ? parseInt(match[1]) : 0;
-      };
-      
-      const numberA = extractNumber(a.number);
-      const numberB = extractNumber(b.number);
+      const numberA = parseInt(a.number) || 0;
+      const numberB = parseInt(b.number) || 0;
       return numberB - numberA; // Orden descendente (más recientes primero)
     });
 
     return filtered;
-  }, [quotations, searchTerm, filters]);
+  }, [paymentStatuses, searchTerm, filters]);
   
   const clearFilters = () => {
     setFilters({
@@ -301,7 +294,7 @@ const PaymentStatusView = ({
                         <Download className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => deleteQuotation(quotation.id)}
+                        onClick={() => deletePaymentStatus(quotation.id)}
                         className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
                         }`}
@@ -418,7 +411,7 @@ const PaymentStatusView = ({
                     <Download className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-purple-600'}`} />
                   </button>
                   <button
-                    onClick={() => deleteQuotation(quotation.id)}
+                    onClick={() => deletePaymentStatus(quotation.id)}
                     className="flex items-center justify-center p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                     title="Eliminar"
                   >

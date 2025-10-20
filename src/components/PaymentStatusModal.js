@@ -1,29 +1,33 @@
 import React, { memo, useState, useEffect } from 'react';
 import { Plus, Trash2, X } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils.js';
-import { useQuotations } from '../hooks/useQuotations';
+import { usePaymentStatus } from '../hooks/usePaymentStatus';
 import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
 import { useFichasTecnicas } from '../hooks/useFichasTecnicas';
 
 const PaymentStatusModal = memo(({
-  isEditing,
-  quotationData,
-  onCancel,
-  // Nuevas props para tema
+  isOpen,
+  onClose,
+  editingData = null,
   theme = 'blue',
   darkMode = false,
   currentUser,
   userProfile
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
-  const { quotations, addQuotation, updateQuotation } = useQuotations();
+  const { paymentStatuses, addPaymentStatus, updatePaymentStatus } = usePaymentStatus();
   const { services } = useServices();
   const { clients } = useClients();
   const { fichas } = useFichasTecnicas();
 
+  // No renderizar si el modal no está abierto
+  if (!isOpen) return null;
+
+  const isEditing = editingData !== null;
+
   // Estado local para el formulario
-  const [formData, setFormData] = useState(quotationData || {
+  const [formData, setFormData] = useState(editingData || {
     clientName: '',
     date: new Date().toISOString().split('T')[0],
     status: 'Pendiente',
@@ -34,26 +38,30 @@ const PaymentStatusModal = memo(({
 
   // Si cambian los datos (ej: editar), los cargamos al estado
   useEffect(() => {
-    setFormData(quotationData || {
-      clientName: '',
-      date: new Date().toISOString().split('T')[0],
-      status: 'Pendiente',
-      priority: 'Media',
-      items: [],
-      discount: 0
-    });
-  }, [quotationData]);
+    if (isOpen) {
+      setFormData(editingData || {
+        clientName: '',
+        date: new Date().toISOString().split('T')[0],
+        status: 'Pendiente',
+        priority: 'Media',
+        items: [],
+        discount: 0
+      });
+    }
+  }, [editingData, isOpen]);
 
   // Cerrar modal con tecla Escape
   useEffect(() => {
+    if (!isOpen) return;
+    
     const handleEscape = (e) => {
-      if (e.key === 'Escape' && onCancel) {
-        onCancel();
+      if (e.key === 'Escape' && onClose) {
+        onClose();
       }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, []);
+  }, [isOpen, onClose]);
 
   // Calcular totales
   const calculateQuotationTotals = (items = [], discount = 0) => {
@@ -122,7 +130,7 @@ const PaymentStatusModal = memo(({
     }));
   };
 
-  // Guardar cotización en Firebase
+  // Guardar estado de pago en Firebase
   const handleSave = async () => {
     try {
       if (!formData.clientName) {
@@ -138,48 +146,16 @@ const PaymentStatusModal = memo(({
       // Calcular totales antes de guardar
       const totals = calculateQuotationTotals(formData.items, formData.discount);
       
-      // Generar número de cotización si es nueva
-      let quotationNumber = formData.number;
-      if (!isEditing || !formData.number) {
-        const currentYear = new Date().getFullYear();
-        
-        // Buscar el último número de cotización del año actual
-        const currentYearQuotations = quotations?.filter(q => 
-          q.number && q.number.startsWith(`COT-${currentYear}-`)
-        ) || [];
-        
-        // Obtener el siguiente número correlativo
-        let nextNumber = 1;
-        if (currentYearQuotations.length > 0) {
-          const lastNumbers = currentYearQuotations
-            .map(q => {
-              const match = q.number.match(/COT-\d{4}-(\d{3})/);
-              return match ? parseInt(match[1]) : 0;
-            })
-            .filter(num => !isNaN(num));
-          
-          if (lastNumbers.length > 0) {
-            nextNumber = Math.max(...lastNumbers) + 1;
-          }
-        }
-        
-        // Formatear el número con 3 dígitos (001, 002, etc.)
-        const correlativo = nextNumber.toString().padStart(3, '0');
-        quotationNumber = `COT-${currentYear}-${correlativo}`;
-      }
-      
       // Calcular fecha válida hasta (30 días desde hoy)
       const validUntilDate = new Date();
       validUntilDate.setDate(validUntilDate.getDate() + 30);
       
-      // Crear objeto de cotización con todos los datos necesarios
-      const quotationToSave = {
+      // Crear objeto de estado de pago con todos los datos necesarios
+      const paymentStatusToSave = {
         ...formData,
-        // Generar número de cotización
-        number: quotationNumber,
         // Calcular fecha válida hasta
         validUntil: validUntilDate.toISOString().split('T')[0],
-        // Mapear clientName a client para compatibilidad con QuotationsView
+        // Mapear clientName a client para compatibilidad
         client: formData.clientName,
         // Agregar totales calculados
         subtotal: Math.round(totals.subtotal),
@@ -188,28 +164,25 @@ const PaymentStatusModal = memo(({
         discountAmount: Math.round(totals.discountAmount),
         total: Math.round(totals.total),
         // Agregar información del usuario
-        createdBy: userProfile?.username || currentUser?.displayName || 'Usuario',
-        // Agregar timestamp
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        createdBy: userProfile?.username || currentUser?.displayName || 'Usuario'
       };
 
       if (isEditing && formData.id) {
-        await updateQuotation(formData.id, quotationToSave);
+        await updatePaymentStatus(formData.id, paymentStatusToSave);
       } else {
-        await addQuotation(quotationToSave);
+        await addPaymentStatus(paymentStatusToSave);
       }
-      onCancel(); // cerrar modal al terminar
+      onClose(); // cerrar modal al terminar
     } catch (error) {
-      console.error("Error al guardar cotización:", error);
-      alert("Hubo un error al guardar la cotización. Inténtalo nuevamente.");
+      console.error("Error al guardar estado de pago:", error);
+      alert("Hubo un error al guardar el estado de pago. Inténtalo nuevamente.");
     }
   };
 
   return (
     <div 
       className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-      onClick={onCancel}
+      onClick={onClose}
     >
       <div 
         className={`rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
@@ -223,10 +196,10 @@ const PaymentStatusModal = memo(({
         }`}>
           <div className="flex justify-between items-center">
             <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              {isEditing ? 'Editar Cotización' : 'Nuevo Estado de Pago'}
+              {isEditing ? 'Editar Estado de Pago' : 'Nuevo Estado de Pago'}
             </h2>
             <button
-              onClick={onCancel}
+              onClick={onClose}
               className={`transition-colors ${
                 darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'
               }`}
@@ -540,7 +513,7 @@ const PaymentStatusModal = memo(({
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
         }`}>
           <button
-            onClick={onCancel}
+            onClick={onClose}
             className={`px-6 py-2 border rounded-lg transition-colors ${
               darkMode 
                 ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
@@ -558,7 +531,7 @@ const PaymentStatusModal = memo(({
                 : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
             }`}
           >
-            {isEditing ? 'Actualizar' : 'Guardar'} Cotización
+            {isEditing ? 'Actualizar' : 'Guardar'} Estado de Pago
           </button>
         </div>
       </div>
