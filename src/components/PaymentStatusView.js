@@ -136,13 +136,13 @@ const PaymentStatusView = ({
         </div>
         <button
           onClick={() => {
-            setModalType('quotation');
+            setModalType('PaymentStatus');
             setShowModal(true);
           }}
           className={`flex items-center justify-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} w-full md:w-auto`}
         >
           <Plus className="w-4 h-4" />
-          <span>Nueva Cotización</span>
+          <span>Nuevo Estado de Pagos</span>
         </button>
       </div>
 
