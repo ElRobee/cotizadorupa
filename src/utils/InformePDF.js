@@ -77,7 +77,6 @@ const convertPdfToImage = async (pdfUrl) => {
           <p style="font-size:8px; color:#999; margin:0; white-space: nowrap; margin-left: 10px;">(${images.length} pág.)</p>
         </div>
         ${imagesHtml}
-        <p style="text-align:center; margin-top:6px; font-size:9px; color:#0066cc;"><a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir PDF original</a></p>
       </div>
     `;
 

@@ -142,14 +142,16 @@ export const generateQuotationPDF = async (quotation, company, client) => {
     `);
     printWindow.document.close();
 
+    // Esperar un momento para que el contenido cargue y luego imprimir automáticamente
     setTimeout(() => {
-      if (window.confirm('¿Deseas imprimir o descargar como PDF?')) {
-        printWindow.print();
-      }
-    }, 500);
+      printWindow.focus();
+      printWindow.print();
+    }, 800);
 
+    console.log('🖨️ Ventana de impresión abierta para cotización');
     return true;
   } else {
+    alert('No se pudo abrir la ventana de impresión. Verifica que las ventanas emergentes estén permitidas.');
     throw new Error('Error al abrir ventana de impresión');
   }
 };
