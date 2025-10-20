@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BarChart3, FileText, Users, Settings, Building2, LogOut, User, Wrench } from 'lucide-react';
+import { BarChart3, FileText, Users, Settings, Building2, LogOut, User, Wrench, DollarSign } from 'lucide-react';
 import { getThemeClasses } from '../../lib/utils.js';
 
 const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout, userProfile, userRole }) => {
@@ -9,6 +9,7 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
   const navItems = [
     { id: 'dashboard', icon: BarChart3, label: 'Inicio' },
     { id: 'quotations', icon: FileText, label: 'Cotizaciones' },
+    { id: 'paymentStatus', icon: DollarSign, label: 'E. Pago' },
     { id: 'clients', icon: Users, label: 'Clientes' },
     { id: 'services', icon: Settings, label: 'Servicios' },
     { id: 'maintenance', icon: Wrench, label: 'Mantenimiento' },

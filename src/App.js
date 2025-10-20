@@ -937,6 +937,19 @@ const Sidebar = () => {
             <span>Cotizaciones</span>
           </button>
 
+          {/* Estado de Pago */}
+          <button
+            onClick={() => setCurrentView('paymentStatus')}
+            className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
+              currentView === 'paymentStatus' 
+                ? `${currentTheme.secondary} ${currentTheme.text}` 
+                : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
+            }`}
+          >
+            <DollarSign className="w-5 h-5" />
+            <span>Estado de Pago</span>
+          </button>
+
           {/* Clientes */}
           <button
             onClick={() => setCurrentView('clients')}
@@ -1371,6 +1384,19 @@ return (
             {currentView === 'dashboard' && <DashboardView />}
             {currentView === 'quotations' && (
               <QuotationsView
+                startEdit={startEdit}
+                sendViaWhatsApp={sendViaWhatsApp}
+                exportToPDF={exportToPDF}
+                setModalType={setModalType}
+                setShowModal={setShowModal}
+                theme={theme}
+                darkMode={darkMode}
+                currentUser={currentUser}
+                userProfile={userProfile}
+              />
+            )}
+            {currentView === 'paymentStatus' && (
+              <PaymentStatusView
                 startEdit={startEdit}
                 sendViaWhatsApp={sendViaWhatsApp}
                 exportToPDF={exportToPDF}

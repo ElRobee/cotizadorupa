@@ -44,6 +44,17 @@ const QuotationModal = memo(({
     });
   }, [quotationData]);
 
+  // Cerrar modal con tecla Escape
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        onCancel();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [onCancel]);
+
   // Calcular totales
   const calculateQuotationTotals = (items = [], discount = 0) => {
     const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
@@ -196,10 +207,16 @@ const QuotationModal = memo(({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className={`rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
-        darkMode ? 'bg-gray-800' : 'bg-white'
-      }`}>
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      onClick={onCancel}
+    >
+      <div 
+        className={`rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto ${
+          darkMode ? 'bg-gray-800' : 'bg-white'
+        }`}
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* HEADER DEL MODAL */}
         <div className={`sticky top-0 border-b px-6 py-4 rounded-t-xl ${
           darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
