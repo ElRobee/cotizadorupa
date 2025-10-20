@@ -57,6 +57,7 @@ import ServicesView from './components/ServicesView';
 import ServiceModal from './components/ServiceModal';
 import AuthView from './components/AuthView';
 import MobileNav from './components/layout/MobileNav';
+import LoadingSpinner from './components/LoadingSpinner';
 import CompanySettingsView from './components/CompanySettingsView';
 import MaintenanceView from './components/MaintenanceView';
 import MaintenanceModal from './components/MaintenanceModal';
@@ -216,6 +217,7 @@ const CotizacionesApp = () => {
   const [reportType, setReportType] = useState('monthly');
   const [reportPeriod, setReportPeriod] = useState('2025-01');
   const [generatingReport, setGeneratingReport] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   // TEMAS DISPONIBLES
   const themes = {
@@ -810,12 +812,15 @@ _"Documento válido sólo como Cotización"_
     const clientName = quotation.client || quotation.clientName;
     const client = clients.find(c => c.empresa === clientName);
 
+    setIsGeneratingPDF(true);
     try {
       await generateQuotationPDF(quotation, company, client);
       showNotification('PDF generado exitosamente', 'success');
     } catch (error) {
       console.error('Error al generar PDF:', error);
       showNotification('Error al generar PDF', 'error');
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -1305,6 +1310,9 @@ const DashboardView = () => {
 // RENDER PRINCIPAL
 return (
   <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    {/* Spinner de carga para generación de PDFs */}
+    {isGeneratingPDF && <LoadingSpinner message="Generando cotización PDF..." />}
+    
     {!currentUser ? (
       <AuthView
         authMode={authMode}

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import Filters from "./Filtrosdebusqueda";
+import LoadingSpinner from './LoadingSpinner';
 import { useQuotations } from '../hooks/useQuotations';
 import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
@@ -49,6 +50,7 @@ const QuotationsView = ({
     status: '',
     priority: '',
   });
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   // Función para formatear fechas
@@ -124,11 +126,14 @@ const QuotationsView = ({
   };
 
   const handleDownloadTechnicalReport = async (quotation) => {
+    setIsGeneratingPDF(true);
     try {
       await generateTechnicalReportPDF(quotation, services || [], company);
     } catch (error) {
       console.error('Error al generar informe técnico:', error);
       alert('Error al generar el informe técnico. Inténtalo nuevamente.');
+    } finally {
+      setIsGeneratingPDF(false);
     }
   };
 
@@ -142,6 +147,9 @@ const QuotationsView = ({
 
   return (
     <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+      {/* Spinner de carga para generación de PDFs */}
+      {isGeneratingPDF && <LoadingSpinner message="Generando informe técnico..." />}
+      
       {/* HEADER DE LA VISTA */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 space-y-4 md:space-y-0">
         <div>
