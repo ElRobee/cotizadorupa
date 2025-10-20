@@ -21,9 +21,6 @@ const PaymentStatusModal = memo(({
   const { clients } = useClients();
   const { fichas } = useFichasTecnicas();
 
-  // No renderizar si el modal no está abierto
-  if (!isOpen) return null;
-
   const isEditing = editingData !== null;
 
   // Estado local para el formulario
@@ -178,6 +175,9 @@ const PaymentStatusModal = memo(({
       alert("Hubo un error al guardar el estado de pago. Inténtalo nuevamente.");
     }
   };
+
+  // No renderizar si el modal no está abierto
+  if (!isOpen) return null;
 
   return (
     <div 
