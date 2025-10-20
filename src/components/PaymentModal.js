@@ -3,7 +3,7 @@ import { X, FileBarChart, User, Calendar, DollarSign, Download, Search } from 'l
 import { useClients } from '../hooks/useClients';
 import { useQuotations } from '../hooks/useQuotations';
 import { useCompany } from '../hooks/useCompany';
-import { generatePaymentStatusPDF } from '../utils/paymentStatusPDF';
+import { generatePaymentStatusPDF } from '../utils/paymentPDF';
 
 const PaymentModal = ({ isOpen, onClose, theme, darkMode }) => {
   const { clients } = useClients();
