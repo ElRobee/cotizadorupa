@@ -222,7 +222,7 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
           📋 FICHAS TÉCNICAS DETALLADAS
         </h3>
         ${servicesWithImages.map((item, index) => `
-          <div style="page-break-before: always; margin-bottom: 30px;">
+          <div style="page-break-before: auto; page-break-inside: avoid; margin-bottom: 30px;">
             <h4 style="color: #0056b3; margin: 0 0 20px 0; font-size: 18px; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">
               ${index + 1}. ${item.service}
             </h4>
