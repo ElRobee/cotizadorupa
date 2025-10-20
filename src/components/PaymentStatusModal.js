@@ -223,7 +223,7 @@ const PaymentStatusModal = memo(({
         }`}>
           <div className="flex justify-between items-center">
             <h2 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-              {isEditing ? 'Editar Cotización' : 'Nueva Cotización'}
+              {isEditing ? 'Editar Cotización' : 'Nuevo Estado de Pago'}
             </h2>
             <button
               onClick={onCancel}
