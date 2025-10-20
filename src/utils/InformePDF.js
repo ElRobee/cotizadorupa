@@ -71,11 +71,13 @@ const convertPdfToImage = async (pdfUrl) => {
     `).join('');
 
     const html = `
-      <div class="pdf-container" style="margin:20px 0; page-break-inside: avoid;">
-        <h5 style="color:#333; margin:0 0 5px 0; font-size:12px; font-weight:bold; text-transform: uppercase;">${title}</h5>
-        <p style="text-align:left; font-size:10px; color:#666; margin:0 0 10px 0;">Documento procesado y renderizado en memoria (${images.length} página(s))</p>
+      <div class="pdf-container" style="margin:15px 0; page-break-inside: avoid;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 3px; border-bottom: 1px solid #e0e0e0;">
+          <h6 style="color:#333; margin:0; font-size:10px; font-weight:bold; text-transform: uppercase; flex: 1;">${title}</h6>
+          <p style="font-size:8px; color:#999; margin:0; white-space: nowrap; margin-left: 10px;">(${images.length} pág.)</p>
+        </div>
         ${imagesHtml}
-        <p style="text-align:center; margin-top:8px; font-size:11px; color:#0066cc;"><a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir PDF original</a></p>
+        <p style="text-align:center; margin-top:6px; font-size:9px; color:#0066cc;"><a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir PDF original</a></p>
       </div>
     `;
 
