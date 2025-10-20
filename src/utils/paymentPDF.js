@@ -22,7 +22,7 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
 
       <!-- Título del informe -->
       <div style="text-align: center; margin-bottom: 30px;">
-        <h2 style="color: #333; margin: 0; font-size: 24px;">INFORME DE ESTADO DE PAGO</h2>
+        <h2 style="color: #333; margin: 0; font-size: 24px;">INFORME DE COBRANZA</h2>
         <p style="color: #666; margin: 10px 0;">Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
       </div>
 
@@ -95,7 +95,7 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
       <!-- Footer -->
       <div style="margin-top: 50px; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
         <p style="margin: 0; font-style: italic; color: #6c757d; text-align: center; font-size: 12px;">
-          "Informe de Estado de Pago generado automáticamente por el Sistema de Cotizaciones"<br>
+          "Informe de Estado de Cobranza generado automáticamente por el Sistema de Cotizaciones"<br>
           Generado el: ${new Date().toLocaleDateString('es-ES')} a las ${new Date().toLocaleTimeString('es-ES')}<br>
           Este documento es solo informativo y no constituye compromiso contractual.
         </p>
@@ -108,7 +108,7 @@ export const generatePaymentStatusPDF = async (client, pendingQuotations, compan
     printWindow.document.write(`
       <html>
         <head>
-          <title>Estado de Pago - ${client.empresa} - ${company?.razonSocial || 'Sistema'}</title>
+          <title>Estado de Cobranza - ${client.empresa} - ${company?.razonSocial || 'Sistema'}</title>
           <meta charset="UTF-8">
           <style>
             @media print {
