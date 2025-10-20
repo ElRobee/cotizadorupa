@@ -47,13 +47,13 @@ const QuotationModal = memo(({
   // Cerrar modal con tecla Escape
   useEffect(() => {
     const handleEscape = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && onCancel) {
         onCancel();
       }
     };
     document.addEventListener('keydown', handleEscape);
     return () => document.removeEventListener('keydown', handleEscape);
-  }, [onCancel]);
+  }, []);
 
   // Calcular totales
   const calculateQuotationTotals = (items = [], discount = 0) => {
