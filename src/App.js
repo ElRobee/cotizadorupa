@@ -1399,9 +1399,7 @@ return (
               <PaymentStatusView
                 startEdit={startEdit}
                 sendViaWhatsApp={sendViaWhatsApp}
-                exportToPDF={exportToPDF}
-                setModalType={setModalType}
-                setShowModal={setShowModal}
+                setShowPaymentStatusModal={setShowPaymentStatusModal}
                 theme={theme}
                 darkMode={darkMode}
                 currentUser={currentUser}

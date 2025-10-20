@@ -19,13 +19,12 @@ import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
 import { useCompany } from '../hooks/useCompany';
 import { sendViaEmail } from '../utils/sendViaEmail';
+import { generateQuotationPDF } from '../utils/PaymentStatusPDF';
 
 const PaymentStatusView = ({
   startEdit,
   sendViaWhatsApp,
-  exportToPDF,
-  setModalType,
-  setShowModal,
+  setShowPaymentStatusModal,
   theme,
   darkMode,
   currentUser,
@@ -61,10 +60,26 @@ const PaymentStatusView = ({
     try {
       // Alternar entre Pendiente y Facturada
       const newStatus = quotation.status === 'Pendiente' ? 'Facturada' : 'Pendiente';
-      await updateQuotation(quotation.id, { status: newStatus });
+      await updatePaymentStatus(quotation.id, { status: newStatus });
     } catch (error) {
       console.error("Error al cambiar estado:", error);
-      alert("Error al cambiar el estado de la cotización");
+      alert("Error al cambiar el estado del pago");
+    }
+  };
+
+  // Función para exportar a PDF usando el generador de PaymentStatusPDF
+  const handleExportToPDF = async (paymentStatus) => {
+    try {
+      // Buscar datos del cliente
+      const client = clients?.find(c => 
+        c.empresa === (paymentStatus.client || paymentStatus.clientName) ||
+        c.id === paymentStatus.clientId
+      );
+      
+      await generateQuotationPDF(paymentStatus, company, client);
+    } catch (error) {
+      console.error('Error al generar PDF:', error);
+      alert('Error al generar el PDF del estado de pago');
     }
   };
 
@@ -135,10 +150,7 @@ const PaymentStatusView = ({
           </p>
         </div>
         <button
-          onClick={() => {
-            setModalType('PaymentStatus');
-            setShowModal(true);
-          }}
+          onClick={() => setShowPaymentStatusModal(true)}
           className={`flex items-center justify-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} w-full md:w-auto`}
         >
           <Plus className="w-4 h-4" />
@@ -285,7 +297,7 @@ const PaymentStatusView = ({
                         <Mail className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => exportToPDF(quotation)}
+                        onClick={() => handleExportToPDF(quotation)}
                         className={`p-1 text-purple-600 hover:text-purple-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-purple-100 hover:bg-opacity-20' : 'hover:bg-purple-100'
                         }`}
@@ -402,7 +414,7 @@ const PaymentStatusView = ({
                     <Mail className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-blue-600'}`} />
                   </button>
                   <button
-                    onClick={() => exportToPDF(quotation)}
+                    onClick={() => handleExportToPDF(quotation)}
                     className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
                       darkMode ? 'bg-purple-600 hover:bg-purple-700' : 'bg-purple-100 hover:bg-purple-200'
                     }`}
