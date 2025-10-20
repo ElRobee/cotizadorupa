@@ -8,22 +8,19 @@ import {
   MessageCircle, 
   Mail, 
   Download,
-  NotepadText,
   Calendar,
   DollarSign,
   AlertCircle
 } from 'lucide-react';
 import { getThemeClasses } from '../lib/utils';
 import Filters from "./Filtrosdebusqueda";
-import LoadingSpinner from './LoadingSpinner';
 import { useQuotations } from '../hooks/useQuotations';
 import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
 import { useCompany } from '../hooks/useCompany';
-import { generateTechnicalReportPDF } from '../utils/InformePDF';
 import { sendViaEmail } from '../utils/sendViaEmail';
 
-const QuotationsView = ({
+const PaymentStatusView = ({
   startEdit,
   sendViaWhatsApp,
   exportToPDF,
@@ -50,7 +47,6 @@ const QuotationsView = ({
     status: '',
     priority: '',
   });
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
   // Función para formatear fechas
@@ -125,39 +121,24 @@ const QuotationsView = ({
     setSearchTerm('');
   };
 
-  const handleDownloadTechnicalReport = async (quotation) => {
-    setIsGeneratingPDF(true);
-    try {
-      await generateTechnicalReportPDF(quotation, services || [], company);
-    } catch (error) {
-      console.error('Error al generar informe técnico:', error);
-      alert('Error al generar el informe técnico. Inténtalo nuevamente.');
-    } finally {
-      setIsGeneratingPDF(false);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Cargando cotizaciones...</p>
+        <p className={`${darkMode ? "text-gray-400" : "text-gray-600"}`}>Cargando estados de pago...</p>
       </div>
     );
   }
 
   return (
     <div className={`flex-1 p-4 md:p-8 ${darkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
-      {/* Spinner de carga para generación de PDFs */}
-      {isGeneratingPDF && <LoadingSpinner message="Generando informe técnico..." />}
-      
       {/* HEADER DE LA VISTA */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 md:mb-8 space-y-4 md:space-y-0">
         <div>
           <h1 className={`text-2xl md:text-3xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            Cotizaciones
+            Estados de Pago
           </h1>
           <p className={`${darkMode ? 'text-gray-300' : 'text-gray-600'} mt-2 text-sm md:text-base`}>
-            Gestiona tus cotizaciones
+            Gestiona tus estados de pago
           </p>
         </div>
         <button
@@ -183,7 +164,7 @@ const QuotationsView = ({
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar cotizaciones..."
+                placeholder="Buscar estados de pago..."
                 className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
@@ -320,15 +301,6 @@ const QuotationsView = ({
                         <Download className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDownloadTechnicalReport(quotation)}
-                        className={`p-1 text-gray-600 hover:text-gray-800 rounded transition-colors ${
-                          darkMode ? 'hover:bg-gray-100 hover:bg-opacity-20' : 'hover:bg-gray-100'
-                        }`}
-                        title="Descargar Informe Técnico"
-                      >
-                        <NotepadText className="w-4 h-4" />
-                      </button>
-                      <button
                         onClick={() => deleteQuotation(quotation.id)}
                         className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
@@ -446,15 +418,6 @@ const QuotationsView = ({
                     <Download className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-purple-600'}`} />
                   </button>
                   <button
-                    onClick={() => handleDownloadTechnicalReport(quotation)}
-                    className={`flex items-center justify-center p-2 rounded-lg transition-colors ${
-                      darkMode ? 'bg-gray-600 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'
-                    }`}
-                    title="Informe"
-                  >
-                    <NotepadText className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-gray-600'}`} />
-                  </button>
-                  <button
                     onClick={() => deleteQuotation(quotation.id)}
                     className="flex items-center justify-center p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
                     title="Eliminar"
@@ -466,13 +429,13 @@ const QuotationsView = ({
             </div>
           ))}
 
-          {/* MENSAJE CUANDO NO HAY COTIZACIONES */}
+          {/* MENSAJE CUANDO NO HAY ESTADOS DE PAGO */}
           {filteredQuotations.length === 0 && (
             <div className={`text-center py-12 px-4 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               <AlertCircle className="w-12 h-12 mx-auto mb-4 opacity-20" />
-              <p className="text-lg font-medium mb-2">No hay cotizaciones</p>
+              <p className="text-lg font-medium mb-2">No hay estados de pago</p>
               <p className="text-sm">
-                {searchTerm ? 'No se encontraron cotizaciones con ese criterio.' : 'Comienza creando tu primera cotización.'}
+                {searchTerm ? 'No se encontraron estados de pago con ese criterio.' : 'Comienza creando tu primer estado de pago.'}
               </p>
             </div>
           )}
@@ -493,4 +456,4 @@ const QuotationsView = ({
   );
 };
 
-export default QuotationsView;
+export default PaymentStatusView;

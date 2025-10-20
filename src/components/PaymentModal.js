@@ -5,7 +5,7 @@ import { useQuotations } from '../hooks/useQuotations';
 import { useCompany } from '../hooks/useCompany';
 import { generatePaymentStatusPDF } from '../utils/paymentStatusPDF';
 
-const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
+const PaymentModal = ({ isOpen, onClose, theme, darkMode }) => {
   const { clients } = useClients();
   const { quotations } = useQuotations();
   const { company } = useCompany();
@@ -348,4 +348,4 @@ const PaymentStatusModal = ({ isOpen, onClose, theme, darkMode }) => {
   );
 };
 
-export default PaymentStatusModal;
+export default PaymentModal;

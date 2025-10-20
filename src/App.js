@@ -51,6 +51,8 @@ import { generateQuotationPDF } from './utils/pdfGenerator';
 import { sendViaEmail } from './utils/sendViaEmail';
 import QuotationsView from './components/QuotationsView';
 import QuotationModal from './components/QuotationModal';
+import PaymentStatusView from './components/PaymentStatusView';
+import PaymentModal from './components/PaymentModal';
 import ClientsView from './components/ClientsView';
 import ClientModal from './components/ClientModal';
 import ServicesView from './components/ServicesView';
@@ -186,6 +188,7 @@ const CotizacionesApp = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showFichasModal, setShowFichasModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedEquipment, setSelectedEquipment] = useState(null);
@@ -1271,7 +1274,7 @@ const DashboardView = () => {
               </span>
             </button>
 
-            {/* Estado de Pago */}
+            {/* Nuevo Estado de Pagos */}
             <button
               onClick={() => setShowPaymentStatusModal(true)}
                className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${
@@ -1282,7 +1285,7 @@ const DashboardView = () => {
                 'bg-gray-50 hover:bg-gray-100'
               } ${darkMode ? 'hover:bg-opacity-10 bg-opacity-10' : ''}`}
             >
-              <FileBarChart className={`w-5 h-5 ${
+              <Plus className={`w-5 h-5 ${
                 theme === 'blue' ? 'text-blue-600' :
                 theme === 'green' ? 'text-green-600' :
                 theme === 'purple' ? 'text-purple-600' :
@@ -1297,7 +1300,37 @@ const DashboardView = () => {
                 theme === 'red' ? 'text-red-700' :
                 'text-gray-700'
               }`}>
-                Estado de Pago
+                Nuevo Estado de Pagos
+              </span>
+            </button>
+
+            {/* Cobranza */}
+            <button
+              onClick={() => setShowPaymentModal(true)}
+               className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${
+                theme === 'blue' ? 'bg-blue-50 hover:bg-blue-100' :
+                theme === 'green' ? 'bg-green-50 hover:bg-green-100' :
+                theme === 'purple' ? 'bg-purple-50 hover:bg-purple-100' :
+                theme === 'red' ? 'bg-red-50 hover:bg-red-100' :
+                'bg-gray-50 hover:bg-gray-100'
+              } ${darkMode ? 'hover:bg-opacity-10 bg-opacity-10' : ''}`}
+            >
+              <DollarSign className={`w-5 h-5 ${
+                theme === 'blue' ? 'text-blue-600' :
+                theme === 'green' ? 'text-green-600' :
+                theme === 'purple' ? 'text-purple-600' :
+                theme === 'red' ? 'text-red-600' :
+                'text-gray-600'
+              }`} />
+              <span className={`font-medium ${
+                darkMode ? 'text-white' : 
+                theme === 'blue' ? 'text-blue-700' :
+                theme === 'green' ? 'text-green-700' :
+                theme === 'purple' ? 'text-purple-700' :
+                theme === 'red' ? 'text-red-700' :
+                'text-gray-700'
+              }`}>
+                Cobranza
               </span>
             </button>
           </div>
@@ -1470,6 +1503,14 @@ return (
       <PaymentStatusModal
         isOpen={showPaymentStatusModal}
         onClose={() => setShowPaymentStatusModal(false)}
+        theme={theme}
+        darkMode={darkMode}
+      />
+
+      {/* Modal de Cobranza/Pago */}
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
         theme={theme}
         darkMode={darkMode}
       />

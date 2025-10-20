@@ -6,7 +6,7 @@ import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
 import { useFichasTecnicas } from '../hooks/useFichasTecnicas';
 
-const QuotationModal = memo(({
+const PaymentStatusModal = memo(({
   isEditing,
   quotationData,
   onCancel,
@@ -549,4 +549,4 @@ const QuotationModal = memo(({
   );
 });
 
-export default QuotationModal;
+export default PaymentStatusModal;
