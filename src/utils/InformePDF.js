@@ -41,8 +41,8 @@ const convertPdfToImage = async (pdfUrl) => {
     for (let pageNum = 1; pageNum <= pageCount; pageNum++) {
       const page = await pdf.getPage(pageNum);
 
-      // Renderizar a canvas con escala adecuada (ajustar si se requiere mayor resolución)
-      const viewport = page.getViewport({ scale: 1.5 });
+      // Renderizar a canvas con escala optimizada para impresión
+      const viewport = page.getViewport({ scale: 1.2 });
       const canvas = document.createElement('canvas');
       canvas.width = Math.round(viewport.width);
       canvas.height = Math.round(viewport.height);
@@ -64,9 +64,9 @@ const convertPdfToImage = async (pdfUrl) => {
     const title = pdfUrl.split('/').pop().replace('.pdf', '').replace(/-/g, ' ');
 
     const imagesHtml = images.map((src, idx) => `
-      <div style="page-break-inside: avoid; margin-bottom: 18px;">
+      <div style="page-break-inside: avoid; page-break-after: auto; margin-bottom: 10px;">
         <img src="${src}" alt="${title} - página ${idx + 1}" style="width:100%; height:auto; border:1px solid #e6e6e6; border-radius:6px; display:block;" />
-        <p style="text-align:center; font-size:12px; color:#666; margin:6px 0 0 0;">Página ${idx + 1} de ${images.length}</p>
+        <p style="text-align:center; font-size:11px; color:#666; margin:5px 0 0 0;">Página ${idx + 1} de ${images.length}</p>
       </div>
     `).join('');
 
@@ -265,8 +265,20 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
                 }
                 
                 @page {
-                  margin: 1cm;
+                  margin: 10mm;
                   size: A4;
+                }
+                
+                /* Optimización para imágenes de PDF */
+                img {
+                  max-width: 100%;
+                  height: auto;
+                  page-break-inside: avoid;
+                }
+                
+                /* Evitar dividir contenedores */
+                div {
+                  page-break-inside: avoid;
                 }
                 
                 /* Ocultar elementos solo de pantalla */
