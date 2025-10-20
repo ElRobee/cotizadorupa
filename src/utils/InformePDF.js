@@ -72,12 +72,10 @@ const convertPdfToImage = async (pdfUrl) => {
 
     const html = `
       <div class="pdf-container" style="margin:20px 0; page-break-inside: avoid;">
-        <h4 style="color:#333; margin:0 0 10px 0; font-size:14px; font-weight:bold;">📋 ${title}</h4>
-        <div style="background-color:#f8f9fa; padding:12px; border-radius:6px; margin-bottom:12px; text-align:center;">
-          <small style="color:#333;">Documento procesado y renderizado en memoria (${images.length} página(s))</small>
-        </div>
+        <h5 style="color:#333; margin:0 0 5px 0; font-size:12px; font-weight:bold; text-transform: uppercase;">${title}</h5>
+        <p style="text-align:left; font-size:10px; color:#666; margin:0 0 10px 0;">Documento procesado y renderizado en memoria (${images.length} página(s))</p>
         ${imagesHtml}
-        <p style="text-align:center; margin-top:8px; font-size:12px; color:#0066cc;"><a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir PDF original</a></p>
+        <p style="text-align:center; margin-top:8px; font-size:11px; color:#0066cc;"><a href="${pdfUrl}" target="_blank" style="color: #0066cc; text-decoration: none;">🔗 Abrir PDF original</a></p>
       </div>
     `;
 
@@ -217,41 +215,28 @@ export const generateTechnicalReportPDF = async (quotation, allServices, company
       </div>
 
       <!-- PÁGINAS SIGUIENTES: Fichas Técnicas con Imágenes -->
-      <div style="margin-bottom: 40px;">
-        <h3 style="color: #333; border-bottom: 2px solid #0056b3; padding-bottom: 10px; margin-bottom: 30px;">
-          📋 FICHAS TÉCNICAS DETALLADAS
-        </h3>
-        ${servicesWithImages.map((item, index) => `
-          <div style="page-break-before: auto; page-break-inside: avoid; margin-bottom: 30px;">
-            <h4 style="color: #0056b3; margin: 0 0 20px 0; font-size: 18px; border-bottom: 2px solid #0056b3; padding-bottom: 10px;">
-              ${index + 1}. ${item.service}
-            </h4>
-            <div style="background-color: #f0f8ff; padding: 12px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
-              <p style="margin: 0; color: #333; font-size: 14px;">
-                <strong>Cantidad:</strong> ${item.quantity || 1} unidad(es)
+      ${servicesWithImages.map((item, index) => `
+        <div style="page-break-before: auto; page-break-inside: avoid; margin-bottom: 20px;">
+          ${item.success && item.pdfEmbed ? 
+            item.pdfEmbed
+          : `
+            <div style="border: 2px solid #ffc107; border-radius: 8px; background-color: #fff3cd; padding: 25px; text-align: center; margin-top: 20px;">
+              <h5 style="color: #856404; margin: 0 0 10px 0;">⚠️ Error cargando ficha técnica</h5>
+              <h4 style="color: #0056b3; margin: 10px 0;">${item.service}</h4>
+              <p style="color: #856404; margin: 10px 0; font-size: 14px;">
+                ${item.error || 'No se pudo procesar el archivo PDF'}
               </p>
-            </div>
-            
-            ${item.success && item.pdfEmbed ? 
-              item.pdfEmbed
-            : `
-              <div style="border: 2px solid #ffc107; border-radius: 8px; background-color: #fff3cd; padding: 25px; text-align: center;">
-                <h5 style="color: #856404; margin: 0 0 10px 0;">⚠️ Error cargando ficha técnica</h5>
-                <p style="color: #856404; margin: 10px 0; font-size: 14px;">
-                  ${item.error || 'No se pudo procesar el archivo PDF'}
-                </p>
-                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
-                  <strong style="color: #495057;">📄 Archivo:</strong> ${item.fichaUrl.split('/').pop()}<br>
-                  <strong style="color: #495057;">🔗 Ubicación:</strong> ${item.fichaUrl}
-                </div>
-                <a href="${item.fichaUrl}" target="_blank" style="background: #ffc107; color: #856404; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-                  📖 Abrir PDF Original
-                </a>
+              <div style="background-color: #f8f9fa; padding: 15px; border-radius: 6px; margin-bottom: 15px;">
+                <strong style="color: #495057;">📄 Archivo:</strong> ${item.fichaUrl.split('/').pop()}<br>
+                <strong style="color: #495057;">🔗 Ubicación:</strong> ${item.fichaUrl}
               </div>
-            `}
-          </div>
-        `).join('')}
-      </div>
+              <a href="${item.fichaUrl}" target="_blank" style="background: #ffc107; color: #856404; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+                📖 Abrir PDF Original
+              </a>
+            </div>
+          `}
+        </div>
+      `).join('')}
     </div>
     `;
 
