@@ -25,10 +25,11 @@ const PaymentStatusView = ({
   startEdit,
   sendViaWhatsApp,
   setShowPaymentStatusModal,
+  setEditingPaymentStatus,
   theme,
   darkMode,
   currentUser,
-  userProfile
+  userProfile,
 }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
   
@@ -266,7 +267,10 @@ const PaymentStatusView = ({
                   <td className="py-4 px-6">
                     <div className="flex items-center space-x-2">
                       <button
-                        onClick={() => startEdit('quotation', quotation)}
+                        onClick={() => {
+                          setEditingPaymentStatus(quotation);
+                          setShowPaymentStatusModal(true);
+                        }}
                         className={`p-1 rounded transition-colors ${
                           theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-100' :
                           theme === 'green' ? 'text-green-600 hover:text-green-800 hover:bg-green-100' :
@@ -387,7 +391,10 @@ const PaymentStatusView = ({
                 {/* Primera fila: Editar y WhatsApp */}
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => startEdit('quotation', quotation)}
+                    onClick={() => {
+                      setEditingPaymentStatus(quotation);
+                      setShowPaymentStatusModal(true);
+                    }}
                     className={`flex items-center justify-center space-x-2 py-2 rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} text-white`}
                   >
                     <Edit2 className="w-4 h-4" />

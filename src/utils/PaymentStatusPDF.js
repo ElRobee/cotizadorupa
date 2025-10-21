@@ -32,7 +32,7 @@ export const generateQuotationPDF = async (quotation, company, client) => {
 </div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 30px;">
         <div>
-          <h2 style="color: #333;">ESTADO DE PAGOS</h2>
+          <h2 style="color: #333;">ESTADO DE PAGO</h2>
           <p><strong>Número:</strong> ${quotation.number}</p>
           <p><strong>Fecha:</strong> ${quotation.date}</p>
           <p><strong>Válida hasta:</strong> ${quotation.validUntil}</p>
@@ -106,8 +106,8 @@ export const generateQuotationPDF = async (quotation, company, client) => {
 
       <div style="margin-top: 50px; padding: 20px; background-color: #f9f9f9; border-left: 4px solid #333;">
         <p style="margin: 0; font-style: italic; color: #666; text-align: center; font-size: 12px;">
-          "Documento válido sólo como Estado de Pagos; No constituye venta ni recibo de dinero; No válido como documento tributario."<br>
-          Estado de Pagos válido hasta: ${quotation.validUntil} | Generado por: ${quotation.createdBy || 'Sistema CotizApp'}
+          "Documento válido sólo como Estado de Pago; No constituye venta ni recibo de dinero; No válido como documento tributario."<br>
+          Estado de Pago válido hasta: ${quotation.validUntil} | Generado por: ${quotation.createdBy || 'Sistema CotizApp'}
         </p>
       </div>
     </div>
@@ -118,7 +118,7 @@ export const generateQuotationPDF = async (quotation, company, client) => {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Estado de Pagos ${quotation.number} - ${company.razonSocial}</title>
+          <title>Estado de Pago ${quotation.number} - ${company.razonSocial}</title>
           <meta charset="UTF-8">
           <style>
             @media print {

@@ -188,6 +188,7 @@ const CotizacionesApp = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [showPaymentStatusModal, setShowPaymentStatusModal] = useState(false);
+  const [editingPaymentStatus, setEditingPaymentStatus] = useState(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showFichasModal, setShowFichasModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -1400,6 +1401,7 @@ return (
                 startEdit={startEdit}
                 sendViaWhatsApp={sendViaWhatsApp}
                 setShowPaymentStatusModal={setShowPaymentStatusModal}
+                setEditingPaymentStatus={setEditingPaymentStatus}
                 theme={theme}
                 darkMode={darkMode}
                 currentUser={currentUser}
@@ -1526,9 +1528,15 @@ return (
       {/* Modal de Estado de Pago */}
       <PaymentStatusModal
         isOpen={showPaymentStatusModal}
-        onClose={() => setShowPaymentStatusModal(false)}
+        onClose={() => {
+          setShowPaymentStatusModal(false);
+          setEditingPaymentStatus(null);
+        }}
+        editingData={editingPaymentStatus}
         theme={theme}
         darkMode={darkMode}
+        currentUser={currentUser}
+        userProfile={userProfile}
       />
 
       {/* Modal de Cobranza/Pago */}
