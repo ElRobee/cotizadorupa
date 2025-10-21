@@ -4,9 +4,12 @@ import { getThemeClasses } from '../lib/utils';
 import { useFichasTecnicas } from '../hooks/useFichasTecnicas';
 import { initializeFichasTecnicas } from '../utils/fichasInitializer';
 
-const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false }) => {
+const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false, canEditCompany }) => {
   const currentTheme = getThemeClasses(theme, darkMode);
   const { fichas, loading, addFicha, updateFicha, deleteFicha } = useFichasTecnicas();
+  
+  // Helper para verificar permisos de edición
+  const userCanEdit = typeof canEditCompany === 'function' ? canEditCompany() : canEditCompany;
   
   const [editingFicha, setEditingFicha] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -163,6 +166,18 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
                   Gestiona las fichas técnicas disponibles para asociar a los servicios.
                 </p>
                 
+                {/* Warning for non-admin users */}
+                {!userCanEdit && (
+                  <div className={`p-3 rounded-lg mb-4 ${darkMode ? 'bg-yellow-900 border-yellow-700' : 'bg-yellow-50 border-yellow-200'} border`}>
+                    <div className="flex items-start space-x-2">
+                      <span className="text-yellow-500 mt-0.5 flex-shrink-0">⚠️</span>
+                      <div className={`text-sm ${darkMode ? 'text-yellow-200' : 'text-yellow-700'}`}>
+                        <strong>Solo lectura:</strong> No tienes permisos para editar las fichas técnicas. Contacta con un administrador si necesitas realizar cambios.
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <div className={`p-3 rounded-lg mb-4 ${darkMode ? 'bg-blue-900 border-blue-700' : 'bg-blue-50 border-blue-200'} border`}>
                   <div className="flex items-start space-x-2">
                     <CheckCircle className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -177,9 +192,9 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
                   <div className="flex space-x-3">
                     <button
                       onClick={handleAutoInitialize}
-                      disabled={initializing}
+                      disabled={!userCanEdit || initializing}
                       className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors ${
-                        initializing 
+                        !userCanEdit || initializing 
                           ? 'bg-gray-400 cursor-not-allowed text-white'
                           : 'bg-green-600 hover:bg-green-700 text-white'
                       }`}
@@ -199,7 +214,12 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
                     </button>
                     <button
                       onClick={handleStartNew}
-                      className={`flex items-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover}`}
+                      disabled={!userCanEdit}
+                      className={`flex items-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${
+                        !userCanEdit
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : `${currentTheme.buttonBg} ${currentTheme.buttonHover}`
+                      }`}
                     >
                       <Plus className="w-4 h-4" />
                       <span>Nueva Ficha</span>
@@ -273,23 +293,31 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
                               <div className="flex items-center space-x-2">
                                 <button
                                   onClick={() => handleStartEdit(ficha)}
+                                  disabled={!userCanEdit}
                                   className={`p-1 rounded transition-colors ${
-                                    theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-100' :
-                                    theme === 'green' ? 'text-green-600 hover:text-green-800 hover:bg-green-100' :
-                                    theme === 'purple' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-100' :
-                                    theme === 'red' ? 'text-red-600 hover:text-red-800 hover:bg-red-100' :
-                                    'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
-                                  } ${darkMode ? 'hover:bg-opacity-20' : ''}`}
-                                  title="Editar"
+                                    !userCanEdit
+                                      ? 'text-gray-400 cursor-not-allowed'
+                                      : theme === 'blue' ? 'text-blue-600 hover:text-blue-800 hover:bg-blue-100' :
+                                        theme === 'green' ? 'text-green-600 hover:text-green-800 hover:bg-green-100' :
+                                        theme === 'purple' ? 'text-purple-600 hover:text-purple-800 hover:bg-purple-100' :
+                                        theme === 'red' ? 'text-red-600 hover:text-red-800 hover:bg-red-100' :
+                                        'text-gray-600 hover:text-gray-800 hover:bg-gray-100'
+                                  } ${darkMode && userCanEdit ? 'hover:bg-opacity-20' : ''}`}
+                                  title={!userCanEdit ? 'No tienes permisos para editar' : 'Editar'}
                                 >
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button
                                   onClick={() => handleDelete(ficha)}
-                                  className={`p-1 text-red-600 hover:text-red-800 rounded transition-colors ${
-                                    darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
+                                  disabled={!userCanEdit}
+                                  className={`p-1 rounded transition-colors ${
+                                    !userCanEdit
+                                      ? 'text-gray-400 cursor-not-allowed'
+                                      : `text-red-600 hover:text-red-800 ${
+                                          darkMode ? 'hover:bg-red-100 hover:bg-opacity-20' : 'hover:bg-red-100'
+                                        }`
                                   }`}
-                                  title="Eliminar"
+                                  title={!userCanEdit ? 'No tienes permisos para eliminar' : 'Eliminar'}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>

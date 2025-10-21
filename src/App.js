@@ -1479,6 +1479,7 @@ return (
         onClose={() => setShowFichasModal(false)}
         theme={theme}
         darkMode={darkMode}
+        canEditCompany={canEditCompany}
       />
 
       {/* SISTEMA DE NOTIFICACIONES */}
