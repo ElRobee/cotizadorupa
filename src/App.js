@@ -773,13 +773,31 @@ ${totals.discountAmount > 0 ? `• Descuento: -$${Math.round(totals.discountAmou
 _"Documento válido sólo como Cotización"_
     `.trim();
 
-    const phoneNumber = client?.telefono?.replace(/[^\d]/g, '') || '';
+    // Limpiar y formatear el número de teléfono correctamente para WhatsApp
+    // Formato esperado: 569XXXXXXXX (sin + y sin espacios)
+    let phoneNumber = client?.telefono?.replace(/[^\d]/g, '') || ''; // Eliminar todo excepto dígitos
+    
+    // Si el número comienza con +56, remover el +
+    if (client?.telefono?.startsWith('+56')) {
+      phoneNumber = client.telefono.replace(/\D/g, ''); // Solo dígitos
+    }
+    
+    // Asegurar formato correcto: 569XXXXXXXX
+    if (phoneNumber.startsWith('56') && phoneNumber.length === 11) {
+      // Ya tiene formato correcto
+    } else if (phoneNumber.startsWith('9') && phoneNumber.length === 9) {
+      // Agregar prefijo 56
+      phoneNumber = '56' + phoneNumber;
+    } else if (phoneNumber.length === 8) {
+      // Número sin código de área, agregar 569
+      phoneNumber = '569' + phoneNumber;
+    }
+    
     const encodedMessage = encodeURIComponent(message);
 
     let whatsappUrl;
-    if (phoneNumber && phoneNumber.length >= 8) {
-      const cleanPhone = phoneNumber.startsWith('56') ? phoneNumber : `56${phoneNumber.slice(-8)}`;
-      whatsappUrl = `whatsapp://send?phone=${cleanPhone}&text=${encodedMessage}`;
+    if (phoneNumber && phoneNumber.length >= 11) {
+      whatsappUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
     } else {
       whatsappUrl = `whatsapp://send?text=${encodedMessage}`;
     }
@@ -791,8 +809,8 @@ _"Documento válido sólo como Cotización"_
         if (document.hidden) {
           showNotification('WhatsApp abierto correctamente', 'success');
         } else {
-          const webUrl = phoneNumber && phoneNumber.length >= 8
-            ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
+          const webUrl = phoneNumber && phoneNumber.length >= 11
+            ? `https://wa.me/${phoneNumber}?text=${encodedMessage}`
             : `https://web.whatsapp.com/send?text=${encodedMessage}`;
           window.open(webUrl, '_blank');
           showNotification('Abriendo WhatsApp Web...', 'info');

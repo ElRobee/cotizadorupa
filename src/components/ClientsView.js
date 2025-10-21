@@ -196,7 +196,18 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit, u
                       {client.telefono && (
                         <button
                           onClick={() => {
-                            const phoneNumber = client.telefono.replace(/\D/g, "");
+                            // Formatear número correctamente: 569XXXXXXXX (sin + y sin espacios)
+                            let phoneNumber = client.telefono.replace(/\D/g, ""); // Solo dígitos
+                            
+                            // Asegurar formato correcto
+                            if (phoneNumber.startsWith('56') && phoneNumber.length === 11) {
+                              // Ya tiene formato correcto
+                            } else if (phoneNumber.startsWith('9') && phoneNumber.length === 9) {
+                              phoneNumber = '56' + phoneNumber;
+                            } else if (phoneNumber.length === 8) {
+                              phoneNumber = '569' + phoneNumber;
+                            }
+                            
                             const message = `¡Hola ${client.encargado}! Te saludo desde ${company?.razonSocial || "nuestra empresa"}. ¿Cómo estás?`;
                             const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
                             window.open(whatsappUrl, "_blank");

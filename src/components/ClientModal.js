@@ -158,29 +158,32 @@ const ClientModal = memo(({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-                Teléfono
+                Teléfono Móvil (WhatsApp)
               </label>
               <input
                 type="tel"
                 value={formData.telefono || ""}
                 onChange={(e) => handleInputChange("telefono", e.target.value)}
-                placeholder="+56 9 1234 5678"
+                placeholder="569XXXXXXXX (sin + y sin espacios)"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
                 }`}
               />
+              <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>
+                Formato: 569XXXXXXXX para WhatsApp
+              </p>
             </div>
             <div>
               <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-                Ciudad
+                Teléfono Fijo
               </label>
               <input
-                type="text"
-                value={formData.ciudad || ""}
-                onChange={(e) => handleInputChange("ciudad", e.target.value)}
-                placeholder="Ciudad"
+                type="tel"
+                value={formData.telefonoFijo || ""}
+                onChange={(e) => handleInputChange("telefonoFijo", e.target.value)}
+                placeholder="5622XXXXXXX"
                 className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
                   darkMode
                     ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
@@ -188,6 +191,24 @@ const ClientModal = memo(({
                 }`}
               />
             </div>
+          </div>
+
+          {/* Ciudad */}
+          <div>
+            <label className={`block text-sm font-medium mb-2 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              Ciudad
+            </label>
+            <input
+              type="text"
+              value={formData.ciudad || ""}
+              onChange={(e) => handleInputChange("ciudad", e.target.value)}
+              placeholder="Ciudad"
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${currentTheme.focus} ${
+                darkMode
+                  ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                  : "bg-white border-gray-300 text-gray-900 placeholder-gray-500"
+              }`}
+            />
           </div>
 
           {/* Dirección */}
