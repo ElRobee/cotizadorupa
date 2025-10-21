@@ -1287,7 +1287,7 @@ const DashboardView = () => {
               </span>
             </button>
 
-            {/* Nuevo Estado de Pagos */}
+            {/* Nuevo Estado de Pago */}
             <button
               onClick={() => setShowPaymentStatusModal(true)}
                className={`w-full flex items-center space-x-3 p-3 text-left rounded-lg transition-colors ${

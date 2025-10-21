@@ -154,7 +154,7 @@ const PaymentStatusView = ({
           className={`flex items-center justify-center space-x-2 px-4 py-2 text-white rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} w-full md:w-auto`}
         >
           <Plus className="w-4 h-4" />
-          <span>Nuevo Estado de Pagos</span>
+          <span>Nuevo Estado de Pago</span>
         </button>
       </div>
 
