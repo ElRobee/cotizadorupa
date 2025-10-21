@@ -1313,7 +1313,7 @@ const DashboardView = () => {
                 theme === 'red' ? 'text-red-700' :
                 'text-gray-700'
               }`}>
-                Nuevo Estado de Pagos
+                Nuevo Estado de Pago
               </span>
             </button>
 
