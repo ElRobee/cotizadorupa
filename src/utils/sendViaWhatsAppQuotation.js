@@ -66,38 +66,37 @@ export const sendViaWhatsAppQuotation = (quotation, clients, company, showNotifi
   const client = clients.find(c => c.empresa === clientName);
   const totals = calculateQuotationTotals(quotation.items, quotation.discount);
 
-  const message = `
-*COTIZACIÓN ${quotation.number}* 📋
-▪▪▪▪▪▪▪▪▪▪▪▪▪
-📅 *Fecha:* ${quotation.date}
-⏰ *Válida hasta:* ${quotation.validUntil}
-🏢 *Cliente:* ${clientName}
-💰 *Total:* $${Math.round(totals.total).toLocaleString()}
-📊 *Estado:* ${quotation.status}
-🎯 *Prioridad:* ${quotation.priority}
+  const message = `*COTIZACION ${quotation.number}*
+==================
+Fecha: ${quotation.date}
+Valida hasta: ${quotation.validUntil}
+Cliente: ${clientName}
+Total: $${Math.round(totals.total).toLocaleString()}
+Estado: ${quotation.status}
+Prioridad: ${quotation.priority}
 
-*🛠️ SERVICIOS:*
+*SERVICIOS:*
 ${quotation.items.map(item =>
-  `• ${item.quantity}x ${item.service}\n  💵 $${Math.round(item.total || 0).toLocaleString()}`
+  `- ${item.quantity}x ${item.service}\n  $${Math.round(item.total || 0).toLocaleString()}`
 ).join('\n')}
 
-*💳 RESUMEN FINANCIERO:*
-• Subtotal: $${Math.round(totals.subtotal).toLocaleString()}
-${totals.discountAmount > 0 ? `• Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}
-• Subtotal con Desc.: $${Math.round(totals.subtotalWithDiscount).toLocaleString()}` : ''}
-• IVA (19%): $${Math.round(totals.iva).toLocaleString()}
-• *TOTAL: $${Math.round(totals.total).toLocaleString()}*
+*RESUMEN FINANCIERO:*
+Subtotal: $${Math.round(totals.subtotal).toLocaleString()}
+${totals.discountAmount > 0 ? `Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}
+Subtotal con Desc.: $${Math.round(totals.subtotalWithDiscount).toLocaleString()}` : ''}
+IVA (19%): $${Math.round(totals.iva).toLocaleString()}
+*TOTAL: $${Math.round(totals.total).toLocaleString()}*
 
-▪▪▪▪▪▪▪▪▪▪▪▪▪
-🏢 *${company?.razonSocial || 'Mi Empresa'}*
-📞 ${company?.telefono || 'Sin teléfono'}
-📧 ${company?.email || 'Sin email'}
-📍 ${company?.direccion || 'Sin dirección'}
+==================
+*${company?.razonSocial || 'Mi Empresa'}*
+Tel: ${company?.telefono || 'Sin telefono'}
+Email: ${company?.email || 'Sin email'}
+Direccion: ${company?.direccion || 'Sin direccion'}
 
-💬 _Contáctanos para más información_
-⚡ _Respuesta rápida garantizada_
+_Contactanos para mas informacion_
+_Respuesta rapida garantizada_
 
-_"Documento válido sólo como Cotización"_
+_"Documento valido solo como Cotizacion"_
   `.trim();
 
   const phoneNumber = formatPhoneNumber(client?.telefono);

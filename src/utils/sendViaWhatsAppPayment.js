@@ -66,36 +66,35 @@ export const sendViaWhatsAppPayment = (paymentStatus, clients, company, showNoti
   const client = clients.find(c => c.empresa === clientName);
   const totals = calculatePaymentTotals(paymentStatus.items, paymentStatus.discount);
 
-  const message = `
-*ESTADO DE PAGO ${paymentStatus.number}* 💰
-▪▪▪▪▪▪▪▪▪▪▪▪▪
-📅 *Fecha:* ${paymentStatus.date}
-⏰ *Válida hasta:* ${paymentStatus.validUntil}
-🏢 *Cliente:* ${clientName}
-💵 *Total:* $${Math.round(totals.total).toLocaleString()}
-📊 *Estado:* ${paymentStatus.status}
-🎯 *Prioridad:* ${paymentStatus.priority}
+  const message = `*ESTADO DE PAGO ${paymentStatus.number}*
+==================
+Fecha: ${paymentStatus.date}
+Valida hasta: ${paymentStatus.validUntil}
+Cliente: ${clientName}
+Total: $${Math.round(totals.total).toLocaleString()}
+Estado: ${paymentStatus.status}
+Prioridad: ${paymentStatus.priority}
 
-*📋 DETALLE DE PAGOS:*
+*DETALLE DE SERVICIOS:*
 ${paymentStatus.items.map(item =>
-  `• ${item.quantity}x ${item.service}\n  💵 $${Math.round(item.total || 0).toLocaleString()}`
+  `- ${item.quantity}x ${item.service}\n  $${Math.round(item.total || 0).toLocaleString()}`
 ).join('\n')}
 
-*💳 RESUMEN:*
-• Subtotal: $${Math.round(totals.subtotal).toLocaleString()}
-${totals.discountAmount > 0 ? `• Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}
-• Subtotal con Desc.: $${Math.round(totals.subtotalWithDiscount).toLocaleString()}` : ''}
-• IVA (19%): $${Math.round(totals.iva).toLocaleString()}
-• *TOTAL: $${Math.round(totals.total).toLocaleString()}*
+*RESUMEN:*
+Subtotal: $${Math.round(totals.subtotal).toLocaleString()}
+${totals.discountAmount > 0 ? `Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}
+Subtotal con Desc.: $${Math.round(totals.subtotalWithDiscount).toLocaleString()}` : ''}
+IVA (19%): $${Math.round(totals.iva).toLocaleString()}
+*TOTAL: $${Math.round(totals.total).toLocaleString()}*
 
-▪▪▪▪▪▪▪▪▪▪▪▪▪
-🏢 *${company?.razonSocial || 'Mi Empresa'}*
-📞 ${company?.telefono || 'Sin teléfono'}
-📧 ${company?.email || 'Sin email'}
-📍 ${company?.direccion || 'Sin dirección'}
+==================
+*${company?.razonSocial || 'Mi Empresa'}*
+Tel: ${company?.telefono || 'Sin telefono'}
+Email: ${company?.email || 'Sin email'}
+Direccion: ${company?.direccion || 'Sin direccion'}
 
-💬 _Contáctanos para coordinar el Estado de pago_
-⚡ _Estamos disponibles para resolver tus dudas_
+_Contactanos para coordinar el Estado de pago_
+_Estamos disponibles para resolver tus dudas_
 
 _"Documento de control interno"_
   `.trim();

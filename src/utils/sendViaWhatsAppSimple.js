@@ -45,7 +45,7 @@ export const sendViaWhatsAppSimple = (telefono, encargado, empresaRemitente) => 
   }
 
   const phoneNumber = formatPhoneNumber(telefono);
-  const message = `¡Hola ${encargado}! Te saludo desde ${empresaRemitente || 'nuestra empresa'}. ¿Cómo estás?`;
+  const message = `Hola ${encargado}! Te saludo desde ${empresaRemitente || 'nuestra empresa'}. Como estas?`;
   const encodedMessage = encodeURIComponent(message);
 
   let whatsappUrl;
