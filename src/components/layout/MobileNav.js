@@ -1,16 +1,22 @@
 import React, { useState } from 'react';
-import { BarChart3, FileText, Users, Settings, Building2, LogOut, User, Wrench, DollarSign } from 'lucide-react';
+import { BarChart3, FileText, Users, Settings, Building2, LogOut, User, Wrench, DollarSign, MoreHorizontal } from 'lucide-react';
 import { getThemeClasses } from '../../lib/utils.js';
 
 const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout, userProfile, userRole }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const currentTheme = getThemeClasses(theme, darkMode);
 
-  const navItems = [
+  // Items principales (más usados)
+  const mainNavItems = [
     { id: 'dashboard', icon: BarChart3, label: 'Inicio' },
     { id: 'quotations', icon: FileText, label: 'Cotizaciones' },
-    { id: 'paymentStatus', icon: DollarSign, label: 'E. Pago' },
-    { id: 'clients', icon: Users, label: 'Clientes' },
+    { id: 'clients', icon: Users, label: 'Clientes' }
+  ];
+
+  // Items secundarios (en menú "Más")
+  const moreNavItems = [
+    { id: 'paymentStatus', icon: DollarSign, label: 'Estado de Pago' },
     { id: 'services', icon: Settings, label: 'Servicios' },
     { id: 'maintenance', icon: Wrench, label: 'Mantenimiento' },
     { id: 'company', icon: Building2, label: 'Empresa' }
@@ -23,6 +29,45 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
 
   return (
     <>
+      {/* More Menu Overlay */}
+      {showMoreMenu && (
+        <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setShowMoreMenu(false)}>
+          <div className={`absolute bottom-16 left-0 right-0 mx-4 rounded-lg shadow-lg ${
+            darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          } border`}>
+            <div className="p-2">
+              <div className={`px-4 py-3 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}`}>
+                <h3 className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Más opciones
+                </h3>
+              </div>
+              {moreNavItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentView === item.id;
+                
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setCurrentView(item.id);
+                      setShowMoreMenu(false);
+                    }}
+                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? `${currentTheme.bg} ${currentTheme.text}`
+                        : `${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'}`
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* User Menu Overlay */}
       {showUserMenu && (
         <div className="md:hidden fixed inset-0 z-40 bg-black bg-opacity-50" onClick={() => setShowUserMenu(false)}>
@@ -31,7 +76,7 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
           } border`}>
             <div className="p-4">
               {/* User Info */}
-              <div className="flex items-center space-x-3 mb-4 pb-4 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex items-center space-x-3 mb-4 pb-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'}">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center ${currentTheme.bg}`}>
                   <User className={`w-5 h-5 ${currentTheme.text}`} />
                 </div>
@@ -63,8 +108,9 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
       <nav className={`md:hidden fixed bottom-0 left-0 right-0 z-50 ${
         darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
       } border-t shadow-lg`}>
-        <div className="flex justify-around items-center h-16 px-2">
-          {navItems.map((item) => {
+        <div className="flex justify-around items-center h-16 px-1">
+          {/* Items principales */}
+          {mainNavItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentView === item.id;
             
@@ -97,6 +143,32 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
             );
           })}
           
+          {/* More Menu Button */}
+          <button
+            onClick={() => setShowMoreMenu(!showMoreMenu)}
+            className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-colors ${
+              showMoreMenu || moreNavItems.some(item => item.id === currentView)
+                ? `${currentTheme.text}`
+                : `${darkMode ? 'text-gray-400' : 'text-gray-600'}`
+            }`}
+          >
+            <div className={`relative ${showMoreMenu ? 'transform scale-110' : ''}`}>
+              <MoreHorizontal className="w-6 h-6" />
+              {moreNavItems.some(item => item.id === currentView) && (
+                <div className={`absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full ${
+                  theme === 'blue' ? 'bg-blue-600' :
+                  theme === 'green' ? 'bg-green-600' :
+                  theme === 'purple' ? 'bg-purple-600' :
+                  theme === 'red' ? 'bg-red-600' :
+                  'bg-gray-600'
+                }`} />
+              )}
+            </div>
+            <span className={`text-xs font-medium ${showMoreMenu ? 'font-semibold' : ''}`}>
+              Más
+            </span>
+          </button>
+
           {/* User Menu Button */}
           <button
             onClick={() => setShowUserMenu(!showUserMenu)}
@@ -119,7 +191,7 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
               )}
             </div>
             <span className={`text-xs font-medium ${showUserMenu ? 'font-semibold' : ''}`}>
-              Usuario
+              Perfil
             </span>
           </button>
         </div>

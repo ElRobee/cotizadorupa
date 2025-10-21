@@ -218,15 +218,103 @@ const ClientsView = ({ setModalType, setShowModal, theme, darkMode, startEdit, u
         <div className="md:hidden">
           {filteredClients.map((client) => (
             <div key={client.id} className={`p-4 border-b ${darkMode ? "border-gray-700" : "border-gray-200"} last:border-b-0`}>
-              <h3 className={`font-semibold text-lg ${darkMode ? "text-white" : "text-gray-900"}`}>{client.empresa}</h3>
-              <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>{client.rut}</p>
-              <div className="flex space-x-2 mt-3">
-                <button onClick={() => startEdit("client", client)} className="flex-1 bg-blue-600 text-white rounded-lg px-3 py-2">
-                  <Edit2 className="w-4 h-4 inline mr-1" /> Editar
-                </button>
-                <button onClick={() => deleteClient(client.id)} className="bg-red-600 text-white rounded-lg px-3 py-2">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+              {/* Header del Card */}
+              <div className="mb-3">
+                <h3 className={`font-semibold text-lg ${darkMode ? "text-white" : "text-gray-900"}`}>
+                  {client.empresa}
+                </h3>
+                <p className={`text-sm ${darkMode ? "text-gray-400" : "text-gray-600"}`}>
+                  {client.rut}
+                </p>
+              </div>
+
+              {/* Información de Contacto */}
+              <div className="space-y-2 mb-3">
+                {client.encargado && (
+                  <div className="flex items-center space-x-2">
+                    <Users className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                    <span className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                      {client.encargado}
+                    </span>
+                  </div>
+                )}
+                {client.telefono && (
+                  <div className="flex items-center space-x-2">
+                    <Phone className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                    <a 
+                      href={`tel:${client.telefono}`}
+                      className={`text-sm hover:underline ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      {client.telefono}
+                    </a>
+                  </div>
+                )}
+                {client.email && (
+                  <div className="flex items-center space-x-2">
+                    <Mail className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                    <a 
+                      href={`mailto:${client.email}`}
+                      className={`text-sm hover:underline truncate ${darkMode ? "text-gray-300" : "text-gray-700"}`}
+                    >
+                      {client.email}
+                    </a>
+                  </div>
+                )}
+                {client.ciudad && (
+                  <div className="flex items-center space-x-2">
+                    <MapPin className={`w-4 h-4 ${darkMode ? "text-gray-400" : "text-gray-500"}`} />
+                    <span className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+                      {client.ciudad}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Botones de Acción */}
+              <div className="space-y-2">
+                {/* Primera fila: Editar y Eliminar */}
+                <div className="grid grid-cols-2 gap-2">
+                  <button 
+                    onClick={() => startEdit("client", client)} 
+                    className={`flex items-center justify-center space-x-2 py-2 rounded-lg transition-colors ${currentTheme.buttonBg} ${currentTheme.buttonHover} text-white`}
+                  >
+                    <Edit2 className="w-4 h-4" />
+                    <span className="text-sm font-medium">Editar</span>
+                  </button>
+                  <button 
+                    onClick={() => deleteClient(client.id)} 
+                    className="flex items-center justify-center space-x-2 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    <span className="text-sm font-medium">Eliminar</span>
+                  </button>
+                </div>
+
+                {/* Segunda fila: WhatsApp y Email (si están disponibles) */}
+                {(client.telefono || client.email) && (
+                  <div className={`grid ${client.telefono && client.email ? 'grid-cols-2' : 'grid-cols-1'} gap-2`}>
+                    {client.telefono && (
+                      <button
+                        onClick={() => sendViaWhatsAppSimple(client.telefono, client.encargado, company?.razonSocial)}
+                        className="flex items-center justify-center space-x-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        <span className="text-sm font-medium">WhatsApp</span>
+                      </button>
+                    )}
+                    {client.email && (
+                      <button
+                        onClick={() => window.open(`mailto:${client.email}`, '_blank')}
+                        className={`flex items-center justify-center space-x-2 py-2 rounded-lg transition-colors ${
+                          darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-100 hover:bg-blue-200'
+                        }`}
+                      >
+                        <Mail className={`w-4 h-4 ${darkMode ? 'text-white' : 'text-blue-600'}`} />
+                        <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-blue-600'}`}>Email</span>
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
