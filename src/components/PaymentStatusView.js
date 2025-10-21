@@ -19,11 +19,11 @@ import { useServices } from '../hooks/useServices';
 import { useClients } from '../hooks/useClients';
 import { useCompany } from '../hooks/useCompany';
 import { sendViaEmailPS } from '../utils/sendViaEmailPS';
+import { sendViaWhatsAppPayment } from '../utils/sendViaWhatsAppPayment';
 import { generateQuotationPDF } from '../utils/PaymentStatusPDF';
 
 const PaymentStatusView = ({
   startEdit,
-  sendViaWhatsApp,
   setShowPaymentStatusModal,
   setEditingPaymentStatus,
   theme,
@@ -283,7 +283,7 @@ const PaymentStatusView = ({
                         <Edit2 className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => sendViaWhatsApp(quotation)}
+                        onClick={() => sendViaWhatsAppPayment(quotation, clients, company)}
                         className={`p-1 text-green-600 hover:text-green-800 rounded transition-colors ${
                           darkMode ? 'hover:bg-green-100 hover:bg-opacity-20' : 'hover:bg-green-100'
                         }`}
@@ -401,7 +401,7 @@ const PaymentStatusView = ({
                     <span className="text-sm font-medium">Editar</span>
                   </button>
                   <button
-                    onClick={() => sendViaWhatsApp(quotation)}
+                    onClick={() => sendViaWhatsAppPayment(quotation, clients, company)}
                     className="flex items-center justify-center space-x-2 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors"
                   >
                     <MessageCircle className="w-4 h-4" />

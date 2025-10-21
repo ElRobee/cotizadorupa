@@ -49,6 +49,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWith
 import { auth } from './lib/firebase';
 import { generateQuotationPDF } from './utils/pdfGenerator';
 import { sendViaEmail } from './utils/sendViaEmail';
+import { sendViaWhatsAppQuotation } from './utils/sendViaWhatsAppQuotation';
 import QuotationsView from './components/QuotationsView';
 import QuotationModal from './components/QuotationModal';
 import PaymentStatusView from './components/PaymentStatusView';
@@ -730,99 +731,7 @@ const showNotification = (message, type = 'success') => {
   };
 
   const sendViaWhatsApp = (quotation) => {
-    if (!quotation || !clients) {
-      showNotification('Error al preparar la cotización para WhatsApp', 'error');
-      return;
-    }
-
-    const clientName = quotation.client || quotation.clientName;
-    const client = clients.find(c => c.empresa === clientName);
-    const totals = calculateQuotationTotals(quotation.items, quotation.discount);
-
-    const message = `
-*COTIZACIÓN ${quotation.number}* 📋
-▪▪▪▪▪▪▪▪▪▪▪▪▪
-📅 *Fecha:* ${quotation.date}
-⏰ *Válida hasta:* ${quotation.validUntil}
-🏢 *Cliente:* ${clientName}
-💰 *Total:* $${Math.round(totals.total).toLocaleString()}
-📊 *Estado:* ${quotation.status}
-🎯 *Prioridad:* ${quotation.priority}
-
-*🛠️ SERVICIOS:*
-${quotation.items.map(item =>
-  `• ${item.quantity}x ${item.service}\n  💵 $${Math.round(item.total || 0).toLocaleString()}`
-).join('\n')}
-
-*💳 RESUMEN FINANCIERO:*
-• Subtotal: $${Math.round(totals.subtotal).toLocaleString()}
-${totals.discountAmount > 0 ? `• Descuento: -$${Math.round(totals.discountAmount).toLocaleString()}
-• Subtotal con Desc.: $${Math.round(totals.subtotalWithDiscount).toLocaleString()}` : ''}
-• IVA (19%): $${Math.round(totals.iva).toLocaleString()}
-• *TOTAL: $${Math.round(totals.total).toLocaleString()}*
-
-▪▪▪▪▪▪▪▪▪▪▪▪▪
-🏢 *${company?.razonSocial || 'Mi Empresa'}*
-📞 ${company?.telefono || 'Sin teléfono'}
-📧 ${company?.email || 'Sin email'}
-📍 ${company?.direccion || 'Sin dirección'}
-
-💬 _Contáctanos para más información_
-⚡ _Respuesta rápida garantizada_
-
-_"Documento válido sólo como Cotización"_
-    `.trim();
-
-    // Limpiar y formatear el número de teléfono correctamente para WhatsApp
-    // Formato esperado: 569XXXXXXXX (sin + y sin espacios)
-    let phoneNumber = client?.telefono?.replace(/[^\d]/g, '') || ''; // Eliminar todo excepto dígitos
-    
-    // Si el número comienza con +56, remover el +
-    if (client?.telefono?.startsWith('+56')) {
-      phoneNumber = client.telefono.replace(/\D/g, ''); // Solo dígitos
-    }
-    
-    // Asegurar formato correcto: 569XXXXXXXX
-    if (phoneNumber.startsWith('56') && phoneNumber.length === 11) {
-      // Ya tiene formato correcto
-    } else if (phoneNumber.startsWith('9') && phoneNumber.length === 9) {
-      // Agregar prefijo 56
-      phoneNumber = '56' + phoneNumber;
-    } else if (phoneNumber.length === 8) {
-      // Número sin código de área, agregar 569
-      phoneNumber = '569' + phoneNumber;
-    }
-    
-    const encodedMessage = encodeURIComponent(message);
-
-    let whatsappUrl;
-    if (phoneNumber && phoneNumber.length >= 11) {
-      whatsappUrl = `whatsapp://send?phone=${phoneNumber}&text=${encodedMessage}`;
-    } else {
-      whatsappUrl = `whatsapp://send?text=${encodedMessage}`;
-    }
-
-    try {
-      window.location.href = whatsappUrl;
-      
-      setTimeout(() => {
-        if (document.hidden) {
-          showNotification('WhatsApp abierto correctamente', 'success');
-        } else {
-          const webUrl = phoneNumber && phoneNumber.length >= 11
-            ? `https://wa.me/${phoneNumber}?text=${encodedMessage}`
-            : `https://web.whatsapp.com/send?text=${encodedMessage}`;
-          window.open(webUrl, '_blank');
-          showNotification('Abriendo WhatsApp Web...', 'info');
-        }
-      }, 500);
-    } catch (error) {
-      const webUrl = phoneNumber && phoneNumber.length >= 8
-        ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
-        : `https://web.whatsapp.com/send?text=${encodedMessage}`;
-      window.open(webUrl, '_blank');
-      showNotification('Abriendo WhatsApp Web...', 'info');
-    }
+    sendViaWhatsAppQuotation(quotation, clients, company, showNotification);
   };
 
   const exportToPDF = async (quotation) => {
@@ -1417,7 +1326,6 @@ return (
             {currentView === 'paymentStatus' && (
               <PaymentStatusView
                 startEdit={startEdit}
-                sendViaWhatsApp={sendViaWhatsApp}
                 setShowPaymentStatusModal={setShowPaymentStatusModal}
                 setEditingPaymentStatus={setEditingPaymentStatus}
                 theme={theme}
