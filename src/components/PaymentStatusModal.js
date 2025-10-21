@@ -401,7 +401,9 @@ const PaymentStatusModal = memo(({
                             }`}
                           >
                             <option value="">Seleccionar servicio</option>
-                            {(services || []).map(service => (
+                            {(services || [])
+                              .sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }))
+                              .map(service => (
                               <option key={service.id} value={service.name}>
                                 {service.name}
                               </option>
@@ -419,7 +421,9 @@ const PaymentStatusModal = memo(({
                             }`}
                           >
                             <option value="">Sin ficha técnica</option>
-                            {(fichas || []).map(ficha => (
+                            {(fichas || [])
+                              .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }))
+                              .map(ficha => (
                               <option key={ficha.id} value={ficha.urlPDF}>
                                 {ficha.nombre}
                               </option>

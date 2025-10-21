@@ -239,7 +239,9 @@ const FichasAdminModal = ({ isOpen, onClose, theme = 'blue', darkMode = false })
                         </tr>
                       </thead>
                       <tbody>
-                        {fichas.map((ficha) => (
+                        {fichas
+                          .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }))
+                          .map((ficha) => (
                           <tr 
                             key={ficha.id}
                             className={`border-t transition-colors ${
