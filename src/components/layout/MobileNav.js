@@ -9,17 +9,17 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
 
   // Items principales (más usados)
   const mainNavItems = [
-    { id: 'dashboard', icon: BarChart3, label: 'Inicio' },
-    { id: 'quotations', icon: FileText, label: 'Cotizaciones' },
-    { id: 'clients', icon: Users, label: 'Clientes' }
+    { id: 'dashboard', icon: BarChart3, label: 'Inicio', dataTour: null },
+    { id: 'quotations', icon: FileText, label: 'Cotizaciones', dataTour: 'quotations-nav' },
+    { id: 'clients', icon: Users, label: 'Clientes', dataTour: 'clients-nav' }
   ];
 
   // Items secundarios (en menú "Más")
   const moreNavItems = [
-    { id: 'paymentStatus', icon: DollarSign, label: 'Estado de Pago' },
-    { id: 'services', icon: Settings, label: 'Servicios' },
-    { id: 'maintenance', icon: Wrench, label: 'Mantenimiento' },
-    { id: 'company', icon: Building2, label: 'Empresa' }
+    { id: 'paymentStatus', icon: DollarSign, label: 'Estado de Pago', dataTour: 'payment-status-nav' },
+    { id: 'services', icon: Settings, label: 'Servicios', dataTour: 'services-nav' },
+    { id: 'maintenance', icon: Wrench, label: 'Mantenimiento', dataTour: 'maintenance-nav' },
+    { id: 'company', icon: Building2, label: 'Empresa', dataTour: 'settings-nav' }
   ];
 
   const handleLogoutMobile = () => {
@@ -48,6 +48,7 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
                 return (
                   <button
                     key={item.id}
+                    data-tour={item.dataTour}
                     onClick={() => {
                       setCurrentView(item.id);
                       setShowMoreMenu(false);
@@ -117,6 +118,7 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
             return (
               <button
                 key={item.id}
+                data-tour={item.dataTour}
                 onClick={() => setCurrentView(item.id)}
                 className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-colors ${
                   isActive
@@ -145,6 +147,7 @@ const MobileNav = ({ currentView, setCurrentView, theme, darkMode, handleLogout,
           
           {/* More Menu Button */}
           <button
+            data-tour="more-menu-nav"
             onClick={() => setShowMoreMenu(!showMoreMenu)}
             className={`flex flex-col items-center justify-center flex-1 h-full space-y-1 transition-colors ${
               showMoreMenu || moreNavItems.some(item => item.id === currentView)

@@ -15,6 +15,7 @@ const AuthView = memo(({
   onForgotEmailChange,
   onForgotPassword,
   onSwitchMode,
+  onDemoLogin, // Nueva prop para el login demo
   // Nuevas props para tema
   theme = 'blue',
   darkMode = false
@@ -95,6 +96,18 @@ const AuthView = memo(({
               className={`w-full text-white py-2.5 sm:py-3 rounded-lg transition-colors font-medium ${currentTheme.buttonBg} ${currentTheme.buttonHover} text-sm sm:text-base`}
             >
               Iniciar Sesión
+            </button>
+
+            {/* Botón DEMO */}
+            <button
+              onClick={onDemoLogin}
+              className={`w-full py-2.5 sm:py-3 rounded-lg transition-all font-semibold text-sm sm:text-base border-2 ${
+                darkMode 
+                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border-purple-500 hover:from-purple-700 hover:to-pink-700' 
+                  : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-400 hover:from-purple-600 hover:to-pink-600'
+              } shadow-lg hover:shadow-xl transform hover:scale-[1.02]`}
+            >
+              🎯 MODO DEMO
             </button>
             
             {/* Enlaces de navegación */}

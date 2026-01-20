@@ -84,6 +84,10 @@ import { useClients } from './hooks/useClients';
 import { useServices } from './hooks/useServices';
 import { useCompany } from './hooks/useCompany';
 import { useUserRoles } from './hooks/useUserRoles';
+import { useTour } from './hooks/useTour';
+
+// Estilos del tour
+import './styles/tour.css';
 
 const CotizacionesApp = () => {
   // ESTADOS PRINCIPALES
@@ -97,6 +101,20 @@ const CotizacionesApp = () => {
   const { services } = useServices();
   const { company } = useCompany();
   const { userRole, userProfile, loading: roleLoading, isAdmin, canEditCompany, canCreateContent, updateUserProfile } = useUserRoles(currentUser?.uid, currentUser?.email);
+  
+  // Función para cerrar sesión
+  const handleLogout = useCallback(async () => {
+    try {
+      await signOut(auth);
+      setCurrentUser(null);
+      setCurrentView('login');
+      showNotification('Sesión cerrada correctamente', 'success');
+    } catch (error) {
+      showNotification('Error al cerrar sesión', 'error');
+    }
+  }, []);
+  
+  const { startTour } = useTour(currentView, currentUser, handleLogout);
 
   // LISTENER DE AUTENTICACIÓN DE FIREBASE
   useEffect(() => {
@@ -606,14 +624,45 @@ const showNotification = (message, type = 'success') => {
     }
   };
 
-  const handleLogout = async () => {
+  const handleDemoLogin = async () => {
     try {
-      await signOut(auth);
-      setCurrentUser(null);
-      setCurrentView('login');
-      showNotification('Sesión cerrada exitosamente', 'success');
+      // Credenciales de demostración
+      const demoEmail = 'robertoverdejo@gmail.com';
+      const demoPassword = '123456';
+      
+      // Intentar iniciar sesión con las credenciales demo
+      const result = await signInWithEmailAndPassword(auth, demoEmail, demoPassword);
+      
+      setCurrentUser({
+        uid: result.user.uid,
+        email: result.user.email,
+        displayName: result.user.displayName || result.user.email
+      });
+      setCurrentView('dashboard');
+      showNotification('¡Bienvenido al modo DEMO! 🎯', 'success');
+      
+      // Iniciar el tour después de un pequeño delay para que se cargue la interfaz
+      setTimeout(() => {
+        startTour();
+      }, 1000);
     } catch (error) {
-      showNotification('Error al cerrar sesión', 'error');
+      let errorMessage = 'Error al iniciar el modo demo';
+      
+      switch (error.code) {
+        case 'auth/user-not-found':
+          errorMessage = 'La cuenta demo no está disponible';
+          break;
+        case 'auth/wrong-password':
+          errorMessage = 'Error en las credenciales demo';
+          break;
+        case 'auth/network-request-failed':
+          errorMessage = 'Error de conexión. Verifica tu internet';
+          break;
+        default:
+          errorMessage = error.message;
+      }
+      
+      showNotification(errorMessage, 'error');
     }
   };
 
@@ -854,6 +903,7 @@ const Sidebar = () => {
 
           {/* Cotizaciones */}
           <button
+            data-tour="quotations-nav"
             onClick={() => setCurrentView('quotations')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
               currentView === 'quotations' 
@@ -867,6 +917,7 @@ const Sidebar = () => {
 
           {/* Estado de Pago */}
           <button
+            data-tour="payment-status-nav"
             onClick={() => setCurrentView('paymentStatus')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
               currentView === 'paymentStatus' 
@@ -880,6 +931,7 @@ const Sidebar = () => {
 
           {/* Clientes */}
           <button
+            data-tour="clients-nav"
             onClick={() => setCurrentView('clients')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
               currentView === 'clients' 
@@ -893,6 +945,7 @@ const Sidebar = () => {
 
           {/* Servicios */}
           <button
+            data-tour="services-nav"
             onClick={() => setCurrentView('services')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
               currentView === 'services' 
@@ -906,6 +959,7 @@ const Sidebar = () => {
 
           {/* Mantenimiento */}
           <button
+            data-tour="maintenance-nav"
             onClick={() => setCurrentView('maintenance')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
               currentView === 'maintenance' 
@@ -919,6 +973,7 @@ const Sidebar = () => {
 
           {/* Empresa */}
           <button
+            data-tour="settings-nav"
             onClick={() => setCurrentView('company')}
             className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
               currentView === 'company' 
@@ -1118,6 +1173,7 @@ const DashboardView = () => {
           <div className="space-y-3">
                        {/* Nueva Cotización */}
             <button
+              data-tour="create-button"
               onClick={() => {
                 setModalType('quotation');
                 setShowModal(true);
@@ -1294,6 +1350,7 @@ return (
         onEmailChange={handleEmailChange}
         onPasswordChange={handlePasswordChange}
         onLogin={handleLogin}
+        onDemoLogin={handleDemoLogin}
         registerForm={registerForm}
         onRegisterFieldChange={handleRegisterFieldChange}
         onRegister={handleRegister}

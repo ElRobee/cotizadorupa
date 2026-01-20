@@ -1,0 +1,27 @@
+﻿
+> frontend@0.1.0 start
+> craco start
+
+node.exe : [baseline-browser-mapping] The data in this module 
+is over two months old.  To ensure accurate Baseline data, 
+please update: `npm i baseline-browser-mapping@latest -D`
+En línea: 1 Carácter: 1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~
+    + CategoryInfo          : NotSpecified: ([baseline-brows... 
+   ping@latest -D`:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+(node:13348) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] 
+DeprecationWarning: 'onAfterSetupMiddleware' option is 
+deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning 
+was created)
+(node:13348) 
+[DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] 
+DeprecationWarning: 'onBeforeSetupMiddleware' option is 
+deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
